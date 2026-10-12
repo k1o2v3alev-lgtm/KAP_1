@@ -219,8 +219,8 @@ for wid, name, tidx, kind in WORKS:
                           variants={str(n): dict(stem=v['stem'], options=v['opt_texts'], key=LET[v['key']], correct=v['opt_texts'][v['key']], figure=v.get('fig') and dict(kind='numline', a=v['fig']['a'], b=v['fig']['b']), source_level=v['src'], status=istat(v)) for n, v in vs.items()}))
         GOALS.setdefault(base['goal'], set()).add(base['topic'])
     db_works.append(dict(id=wid, title=name, kind=kind, template_index=tidx, n_items=n_items, max_points=n_items, items=items, omr_geometry={str(n): GEO[(wid, n)] for n in (1, 2, 3, 4)}))
-DB = dict(meta=dict(title='Диагностическая БД: входная диагностика 7 класса по программе 6 класса (1 полугодие)', generated=datetime.date.today().isoformat(), source='Restored_Source_Data.json (реконструкция docx)',
-                    grade_mapping='7 класс ← программа 6 класса (цели обучения из исходного сборника, коды сохранены дословно)', answer_letters=list(LET), omr_version=omr.VERSION,
+DB = dict(meta=dict(title='Диагностическая БД: суммативное оценивание, математика 6 класс (1 полугодие), закрытые задания', generated=datetime.date.today().isoformat(), source='Restored_Source_Data.json (реконструкция docx)',
+                    grade_mapping='6 класс; цели обучения из исходного сборника, коды сохранены дословно', answer_letters=list(LET), omr_version=omr.VERSION,
                     omr_id_code='12 ячеек: sync=1 | 6 бит номер шаблона | 2 бита (вариант−1) | чётность | 0 | 1', scale_note='рабочая шкала, требует согласования', scale=SCALE,
                     status_legend=dict(PASS='задание корректно (источник R0/R1)', FIXED='исправлено', REPLACED='замещающее/реконструированное задание (R3)', REVIEW='нужно подтверждение учителя (R2/R4)')),
           goals={g: sorted(t) for g, t in GOALS.items()}, works=db_works, checks_summary=dict(total=len(CHK), passed=sum(c['result'] == 'PASS' for c in CHK)), omr_selftest=OMR_RESULT)
@@ -228,7 +228,7 @@ json.dump(DB, open(OUT + '/Diagnostic_DB.json', 'w', encoding='utf8'), ensure_as
 
 # ---- Teacher_Keys.pdf
 ks = []
-ks += [P('Ключи и диагностическая матрица', 'h0'), P('Входная диагностика 7 класса по программе 6 класса · 1 полугодие. Баллы: 1 за каждое задание. Рабочая шкала отметок (требует согласования): 5 — от 85%, 4 — 65–84%, 3 — 40–64%, 2 — менее 40%.', 'body'),
+ks += [P('Ключи и диагностическая матрица', 'h0'), P('Суммативное оценивание, математика 6 класс · 1 полугодие. Баллы: 1 за каждое задание. Рабочая шкала отметок (требует согласования): 5 — от 85%, 4 — 65–84%, 3 — 40–64%, 2 — менее 40%.', 'body'),
        P('Статусы заданий: PASS — корректно; REPLACED — задание построено на реконструированном (R3) содержании исходника; REVIEW — подтвердите (R2); FIXED — исправлено.', 'small'), Spacer(1, 6)]
 for wid, name, tidx, kind in WORKS:
     wdb = [w for w in db_works if w['id'] == wid][0]
@@ -286,7 +286,7 @@ chk_rows = ''.join('<li>%s</li>' % html.escape(c['check']) for c in CHK[:0])
 H = '''<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Audit_Report — экспертиза и диагностика</title>
 <style>body{font:14px/1.45 system-ui,Segoe UI,Arial;margin:16px;color:#1b1b1b}h1{font-size:20px}h2{font-size:16px;margin-top:22px}table{border-collapse:collapse;width:100%%;font-size:12.5px}td,th{border:1px solid #bbb;padding:4px 6px;vertical-align:top}th{background:#eef2f6;text-align:left}
 .b{color:#fff;padding:1px 7px;border-radius:9px;font-weight:600}.note{background:#fff7e0;border:1px solid #e6c36a;padding:8px 12px;border-radius:6px}.f button{margin:2px;padding:3px 10px;cursor:pointer;color:#fff;border:0;border-radius:4px}ul{padding-left:18px}@media print{.f{display:none}}</style></head><body>
-<h1>Журнал математической экспертизы и диагностического комплекта</h1><p>Работа: реконструированный сборник СОР/СОЧ 6 кл., 1 полугодие → входная диагностика 7 кл. (программа 6 кл.). Дата: %s.</p>
+<h1>Журнал математической экспертизы и диагностического комплекта</h1><p>Работа: реконструированный сборник СОР/СОЧ 6 кл., 1 полугодие → суммативное оценивание 6 кл. в закрытой форме (кружки). Дата: %s.</p>
 <div class="note"><b>Статус комплекта:</b> все ключи вычислены программно (SymPy/Fractions), независимо сверены с исходными схемами баллов там, где они сохранились; %d автоматических проверок — все PASS. Задания на реконструированной основе (R2/R3) помечены REVIEW/REPLACED — их нужно просмотреть учителю. Реальных фотографий учащихся ещё не проверялось: распознавание проверено только на смоделированных снимках (%d/%d тестовых фото и %d/%d бланков без ошибок, повороты 90/180/270° — %d/3).</div>
 <h2>Сводка</h2><table style="max-width:640px"><tr><th></th><th>PASS</th><th>FIXED</th><th>REPLACED</th><th>REVIEW</th><th>Всего</th></tr>
 <tr><td>Исходные задания (экспертиза)</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td></tr>
