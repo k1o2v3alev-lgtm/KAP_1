@@ -7,12 +7,9 @@ VERSION = 'OMR-A4-v1.0'
 PAGE = (210.0, 297.0)
 MARK = 8.0                      # сторона регистрационной метки
 MARKS = {'TL': (12.0, 12.0), 'TR': (198.0, 12.0), 'BL': (12.0, 285.0), 'BR': (198.0, 285.0)}   # центры; BR — «рамка» (с белым отверстием)
-ID_CELLS = dict(x0=24.0, y=68.0, w=7.0, h=7.0, gap=2.0, n=12)        # 12 ячеек: sync(1) + 6 бит шаблон + 2 бита вариант + чётность + конец(0)... см. id_bits
-ROW0, PITCH, BUB_R = 100.0, 14.0, 3.4
-OPT_X = [58.0, 83.0, 108.0, 133.0]
-NUM_X = 28.0
+ID_CELLS = dict(x0=17.0, y=33.0, w=4.6, h=4.6, gap=1.0, n=12)      # 12 ячеек служебного кода в шапке
 LETTERS = 'АБВГ'
-MAX_ROWS = 12
+BUB_R = 2.3
 
 def id_bits(template_idx, variant):
     """template_idx 1..63, variant 1..4 -> 12 бит"""
@@ -28,53 +25,25 @@ def decode_bits(bits):
     t = int(''.join(map(str, bits[1:7])), 2); v = int(''.join(map(str, bits[7:9])), 2) + 1
     return t, v
 
-def geometry(n_items):
-    rows = []
-    for i in range(n_items):
-        cy = ROW0 + i * PITCH
-        rows.append(dict(item=i + 1, y=cy, num_x=NUM_X, options=[dict(letter=LETTERS[k], x=OPT_X[k], y=cy, r=BUB_R) for k in range(4)]))
+def base_geometry():
     return dict(version=VERSION, page_mm=list(PAGE), marks={k: dict(cx=v[0], cy=v[1], size=MARK, kind=('ring' if k == 'BR' else 'solid')) for k, v in MARKS.items()},
                 id_cells=[dict(index=i, x=ID_CELLS['x0'] + i * (ID_CELLS['w'] + ID_CELLS['gap']), y=ID_CELLS['y'], w=ID_CELLS['w'], h=ID_CELLS['h']) for i in range(ID_CELLS['n'])],
-                fields=dict(fio=dict(x=22, y=38, w=166, h=10), klass=dict(x=22, y=54, w=60, h=8)), rows=rows, bubble_radius_mm=BUB_R, row_pitch_mm=PITCH,
-                recognition=dict(fill_marked=0.45, fill_blank=0.22, canonical_px_per_mm=4))
+                bubble_radius_mm=BUB_R, recognition=dict(fill_marked=0.45, fill_blank=0.22, canonical_px_per_mm=6))
 
-def draw_sheet(c, title, subtitle, template_idx, variant, n_items, fonts, answers=None, ink_extra=None):
-    """c — reportlab canvas, координаты в мм сверху вниз. answers: {item: [индексы закрашенных]} — для тестового бланка."""
-    from reportlab.lib.units import mm
+def draw_marks(c, mm_, H):
     from reportlab.lib import colors
-    H = PAGE[1]
-    X = lambda x: x * mm
-    Y = lambda y: (H - y) * mm
-    c.setFillColor(colors.black); c.setStrokeColor(colors.black)
+    c.setFillColor(colors.black)
     for k, (cx, cy) in MARKS.items():
-        s = MARK
-        c.rect(X(cx - s / 2), Y(cy + s / 2), X(s), X(s), fill=1, stroke=0)
+        s_ = MARK
+        c.rect((cx - s_ / 2) * mm_, (H - cy - s_ / 2) * mm_, s_ * mm_, s_ * mm_, fill=1, stroke=0)
         if k == 'BR':
-            c.setFillColor(colors.white); c.rect(X(cx - s / 4), Y(cy + s / 4), X(s / 2), X(s / 2), fill=1, stroke=0); c.setFillColor(colors.black)
-    c.setFont(fonts[1], 13); c.drawString(X(22), Y(26), title)
-    c.setFont(fonts[0], 9); c.drawString(X(22), Y(32), subtitle)
-    g = geometry(n_items)
-    c.setFont(fonts[0], 8)
-    f = g['fields']['fio']; c.setLineWidth(0.6); c.rect(X(f['x']), Y(f['y'] + f['h']), X(f['w']), X(f['h']), fill=0)
-    c.drawString(X(f['x'] + 1.5), Y(f['y'] - 1.2), 'Фамилия, имя (печатными буквами)')
-    f = g['fields']['klass']; c.rect(X(f['x']), Y(f['y'] + f['h']), X(f['w']), X(f['h']), fill=0)
-    c.drawString(X(f['x'] + 1.5), Y(f['y'] - 1.2), 'Класс (например, 7 А)')
-    c.drawString(X(100), Y(58), 'Вариант: %d' % variant); c.drawString(X(100), Y(62), 'Шаблон: %s' % title.split('·')[0].strip())
-    bits = id_bits(template_idx, variant)
-    for cell, b in zip(g['id_cells'], bits):
-        c.setLineWidth(0.5); c.rect(X(cell['x']), Y(cell['y'] + cell['h']), X(cell['w']), X(cell['h']), fill=1 if b else 0, stroke=1)
-    c.setFont(fonts[0], 6.5); c.drawString(X(24), Y(78.5), 'Служебный код бланка (не закрашивать): %s, вариант %d' % (VERSION, variant))
-    c.setFont(fonts[0], 8.5); c.drawString(X(22), Y(85), 'Закрасьте ОДИН кружок полностью обычной ручкой (чёрной или синей).'); c.drawString(X(22), Y(89.5), 'Исправления не допускаются: при ошибке попросите новый бланк.')
-    for i, row in enumerate(g['rows']):
-        if i % 2 == 0:
-            c.setFillColor(colors.Color(0.94, 0.94, 0.94)); c.rect(X(20), Y(row['y'] + PITCH / 2 - 0.5), X(170), X(PITCH - 1), fill=1, stroke=0); c.setFillColor(colors.black)
-        c.setFont(fonts[1], 11); c.drawRightString(X(row['num_x']), Y(row['y'] - 1.3), '%d.' % row['item'])
-        for k, o in enumerate(row['options']):
-            filled = answers is not None and k in answers.get(row['item'], [])
-            c.setLineWidth(0.9); c.circle(X(o['x']), Y(o['y']), X(o['r']), stroke=1, fill=1 if filled else 0)
-            c.setFont(fonts[0], 11); c.drawString(X(o['x'] + o['r'] + 2.2), Y(o['y'] - 1.4), o['letter'])
-    c.setFont(fonts[0], 7); c.drawString(X(22), Y(278), 'Не загибайте и не пачкайте углы листа: чёрные метки нужны для распознавания по фотографии.')
-    return g
+            c.setFillColor(colors.white); c.rect((cx - s_ / 4) * mm_, (H - cy - s_ / 4) * mm_, s_ / 2 * mm_, s_ / 2 * mm_, fill=1, stroke=0); c.setFillColor(colors.black)
+
+def draw_id(c, mm_, H, template_idx, variant):
+    from reportlab.lib import colors
+    g = base_geometry(); c.setStrokeColor(colors.black); c.setFillColor(colors.black)
+    for cell, b in zip(g['id_cells'], id_bits(template_idx, variant)):
+        c.setLineWidth(0.4); c.rect(cell['x'] * mm_, (H - cell['y'] - cell['h']) * mm_, cell['w'] * mm_, cell['h'] * mm_, fill=1 if b else 0, stroke=1)
 
 # --------------------------------------------------------------------------- распознавание
 def _order_pts(pts):
@@ -113,7 +82,7 @@ def find_marks(gray):
     pts = [(c[1][0] / scale, c[1][1] / scale) for c in comb]; holes = [c[2] for c in comb]
     return pts, holes
 
-def canonical_candidates(img_bgr, ppm=4):
+def canonical_candidates(img_bgr, ppm=6):
     """возвращает список из 4 кандидатов-разверток (поворот на 0/90/180/270°); верный выбирается по коду бланка"""
     import cv2
     gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
@@ -141,12 +110,12 @@ def _bits(th, g, ppm):
         roi = th[y0:y1, x0:x1]; bits.append(1 if roi.mean() / 255.0 > 0.5 else 0)
     return bits
 
-def read_sheet(img_bgr, n_items, thr_mark=0.45, thr_blank=0.22):
+def read_sheet(img_bgr, geo, thr_mark=0.45, thr_blank=0.22):
     import cv2
-    ppm = 4
+    ppm = 6
     cands, info = canonical_candidates(img_bgr, ppm)
     if not cands: return dict(status='REVIEW', reason=info)
-    g = geometry(n_items); th = None; dec = None; bits = None
+    g = dict(base_geometry(), rows=geo['rows']); th = None; dec = None; bits = None
     for warped in cands:
         bl = cv2.GaussianBlur(warped, (3, 3), 0)
         t = cv2.adaptiveThreshold(bl, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 41, 14)

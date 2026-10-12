@@ -134,90 +134,66 @@ def deco(label):
         c.saveState(); c.setFont('DV', 7); c.setFillColor(colors.HexColor('#666666')); c.drawString(1.8 * cm, 1.0 * cm, label); c.drawRightString(A4[0] - 1.8 * cm, 1.0 * cm, 'стр. %d' % d.page); c.restoreState()
     return f
 
-# ----------------------------------------------------------------- Student_Tests.pdf
-story = []
-title_of = lambda wid: 'Входная диагностика · 7 класс · %s' % WMAP[wid][1]
-for wid, name, tidx, kind in WORKS:
-    for n in (1, 2, 3, 4):
-        its = DB_ITEMS[(wid, n)]
-        story += [P('Входная диагностическая работа (7 класс, программа 6 класса)', 'h1'), P('<b>%s</b> · вариант %d · шаблон %s' % (name, n, wid), 'body'),
-                  P('Фамилия, имя: ____________________________________________   Класс: ________   Дата: ____________', 'body'), Spacer(1, 4),
-                  P('Решайте на черновике. Каждое задание имеет один верный ответ. Ответы отмечайте на <b>бланке ответов</b>: полностью закрасьте один кружок. Время: 25–40 минут.', 'small'), Spacer(1, 6)]
-        for it in its:
-            blk = [Paragraph('<b>%d.</b> ' % it['no'] + rich(it['stem']), S['q'])]
-            if it.get('fig'): blk.append(Image(it['fig']['path'], width=11 * cm, height=2.2 * cm, hAlign='LEFT'))
-            cells = [Paragraph('<b>%s)</b> ' % LET[k] + rich(o), S['opt']) for k, o in enumerate(it['opt_texts'])]
-            tb = Table([cells[:2], cells[2:]], colWidths=[8.4 * cm, 8.4 * cm]); tb.setStyle(TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP'), ('LEFTPADDING', (0, 0), (-1, -1), 18), ('TOPPADDING', (0, 0), (-1, -1), 1), ('BOTTOMPADDING', (0, 0), (-1, -1), 1)]))
-            blk += [tb, Spacer(1, 5)]
-            story.append(KeepTogether(blk))
-        story.append(PageBreak())
-SimpleDocTemplate(OUT + '/Student_Tests.pdf', pagesize=A4, leftMargin=1.8 * cm, rightMargin=1.8 * cm, topMargin=1.6 * cm, bottomMargin=1.7 * cm, title='Student_Tests').build(story, onFirstPage=deco('Входная диагностика · печатные работы'), onLaterPages=deco('Входная диагностика · печатные работы'))
-
-# ----------------------------------------------------------------- OMR_Answer_Sheets.pdf + геометрия
+# ----------------------------------------------------------------- Student_Tests.pdf (задания с кружками на одной стороне A4)
+import sheet, cv2
 GEO = {}
-c = canvas.Canvas(OUT + '/OMR_Answer_Sheets.pdf', pagesize=A4); c.setTitle('OMR_Answer_Sheets')
+c = canvas.Canvas(OUT + '/Student_Tests.pdf', pagesize=A4); c.setTitle('Student_Tests')
 for wid, name, tidx, kind in WORKS:
     for n in (1, 2, 3, 4):
-        k = len(DB_ITEMS[(wid, n)])
-        g = omr.draw_sheet(c, '%s · %s' % (wid, name[:48]), 'Бланк ответов · вариант %d · %d заданий · диагностика 7 класса' % (n, k), tidx, n, k, ('DV', 'DVB'))
-        GEO[wid] = g; c.showPage()
+        GEO[(wid, n)] = sheet.render_sheet(c, DB_ITEMS[(wid, n)], wid, name, tidx, n); c.showPage()
 c.save()
 
-# ----------------------------------------------------------------- тестовый бланк и имитация фото
-def render_png(pdf, png_prefix, dpi=170):
-    subprocess.run(['pdftoppm', '-r', str(dpi), '-png', '-singlefile', pdf, png_prefix], check=True)
-    return png_prefix + '.png'
-import cv2
-test_wid, test_var = 'SOCH-6-Q2', 2
-nT = len(DB_ITEMS[(test_wid, test_var)])
-truth = {1: [0], 2: [1], 3: [2], 4: [3], 5: [], 6: [0, 2], 7: [1], 8: [3], 9: [2]}          # 5 — пропуск, 6 — две отметки
-cT = canvas.Canvas(OUT + '/OMR_Test_Sheet.pdf', pagesize=A4)
-omr.draw_sheet(cT, 'ТЕСТОВЫЙ БЛАНК · %s' % test_wid, 'Заполнен автоматически для проверки распознавания · вариант %d' % test_var, WMAP[test_wid][2], test_var, nT, ('DV', 'DVB'), answers=truth)
-cT.showPage(); cT.save()
-TEST_REPORT = []
+def render_png(pdf, png_prefix, dpi=170, page=None):
+    cmd = ['pdftoppm', '-r', str(dpi), '-png', '-singlefile'] + (['-f', str(page), '-l', str(page)] if page else []) + [pdf, png_prefix]
+    subprocess.run(cmd, check=True); return png_prefix + '.png'
 def distort(img, seed, strength=1.0):
     rnd = np.random.RandomState(seed); h, w = img.shape[:2]
     bg = np.full((int(h * 1.25), int(w * 1.25), 3), (70, 90, 110), np.uint8); oy, ox = int(h * .125), int(w * .125); bg[oy:oy + h, ox:ox + w] = img
-    H, W = bg.shape[:2]
+    H_, W_ = bg.shape[:2]
     src = np.float32([[ox, oy], [ox + w, oy], [ox, oy + h], [ox + w, oy + h]])
     j = lambda: rnd.uniform(-0.07, 0.07, 2) * np.array([w, h]) * strength
     dst = src + np.float32([j() for _ in range(4)])
     M = cv2.getPerspectiveTransform(src, dst); ang = rnd.uniform(-6, 6) * strength
-    R = cv2.getRotationMatrix2D((W / 2, H / 2), ang, 1.0)
-    out = cv2.warpPerspective(bg, M, (W, H), borderValue=(70, 90, 110)); out = cv2.warpAffine(out, R, (W, H), borderValue=(70, 90, 110))
-    gx = np.linspace(rnd.uniform(0.65, 0.95), rnd.uniform(0.9, 1.1), W)[None, :, None]; out = np.clip(out.astype(np.float32) * gx, 0, 255)
+    R = cv2.getRotationMatrix2D((W_ / 2, H_ / 2), ang, 1.0)
+    out = cv2.warpPerspective(bg, M, (W_, H_), borderValue=(70, 90, 110)); out = cv2.warpAffine(out, R, (W_, H_), borderValue=(70, 90, 110))
+    gx = np.linspace(rnd.uniform(0.65, 0.95), rnd.uniform(0.9, 1.1), W_)[None, :, None]; out = np.clip(out.astype(np.float32) * gx, 0, 255)
     out += rnd.normal(0, 6 * strength, out.shape); out = cv2.GaussianBlur(np.clip(out, 0, 255).astype(np.uint8), (0, 0), 1.0 + 0.5 * strength)
     ok, enc = cv2.imencode('.jpg', out, [cv2.IMWRITE_JPEG_QUALITY, 70]); return cv2.imdecode(enc, 1), enc
-png = render_png(OUT + '/OMR_Test_Sheet.pdf', OUT + '/test_page')
-base = cv2.imread(png)
-okcount = 0; allres = []
+
+# ----- тестовый бланк (заполнен с пропуском и двойной отметкой) и имитация фото
+test_wid, test_var = 'SOCH-6-Q2', 2
+nT = len(DB_ITEMS[(test_wid, test_var)])
+truth = {1: [0], 2: [1], 3: [2], 4: [3], 5: [], 6: [0, 2], 7: [1], 8: [3], 9: [2]}
+cT = canvas.Canvas(OUT + '/OMR_Test_Sheet.pdf', pagesize=A4)
+GT = sheet.render_sheet(cT, DB_ITEMS[(test_wid, test_var)], test_wid, WMAP[test_wid][1], WMAP[test_wid][2], test_var, answers=truth); cT.showPage(); cT.save()
+exp = {1: 'ok', 2: 'ok', 3: 'ok', 4: 'ok', 5: 'blank', 6: 'multi', 7: 'ok', 8: 'ok', 9: 'ok'}
+def check_test(r):
+    if r.get('status') != 'OK' or (r['template'], r['variant']) != (WMAP[test_wid][2], test_var): return False
+    for a in r['answers']:
+        if a['status'] != exp[a['item']]: return False
+        if a['status'] == 'ok' and a['answer'] != LET[truth[a['item']][0]]: return False
+    return True
+base = cv2.imread(render_png(OUT + '/OMR_Test_Sheet.pdf', OUT + '/test_page'))
+okcount = 0; allres = []; TEST_REPORT = []
 for seed in range(1, 9):
     img, enc = distort(base, seed, strength=1.0 if seed < 6 else 1.6)
     if seed in (1, 6): open(OUT + '/OMR_Test_Photo_%d.jpg' % seed, 'wb').write(enc.tobytes())
-    r = omr.read_sheet(img, nT)
-    good = r.get('status') == 'OK' and r['template'] == WMAP[test_wid][2] and r['variant'] == test_var
-    exp = {1: 'ok', 2: 'ok', 3: 'ok', 4: 'ok', 5: 'blank', 6: 'multi', 7: 'ok', 8: 'ok', 9: 'ok'}
-    if good:
-        for a in r['answers']:
-            if a['status'] != exp[a['item']]: good = False
-            if a['status'] == 'ok' and a['answer'] != LET[truth[a['item']][0]]: good = False
-    okcount += good; allres.append(dict(seed=seed, ok=good, template=r.get('template'), variant=r.get('variant'), reason=r.get('reason', ''), statuses=[a['status'] for a in r.get('answers', [])]))
+    r = omr.read_sheet(img, GT); good = check_test(r); okcount += good
+    allres.append(dict(seed=seed, ok=good, template=r.get('template'), variant=r.get('variant'), reason=r.get('reason', ''), statuses=[a['status'] for a in r.get('answers', [])]))
 rot_ok = 0
 for k, code in enumerate((cv2.ROTATE_180, cv2.ROTATE_90_CLOCKWISE, cv2.ROTATE_90_COUNTERCLOCKWISE)):
-    img, _ = distort(base, 40 + k, 1.0); img = cv2.rotate(img, code)
-    r = omr.read_sheet(img, nT)
-    rot_ok += int(r.get('status') == 'OK' and r['template'] == WMAP[test_wid][2] and [a['status'] for a in r['answers']] == [exp_ for exp_ in ['ok', 'ok', 'ok', 'ok', 'blank', 'multi', 'ok', 'ok', 'ok']])
+    img, _ = distort(base, 40 + k, 1.0); img = cv2.rotate(img, code); rot_ok += int(check_test(omr.read_sheet(img, GT)))
 okcount_rot = rot_ok
-# второй тест: полные случайные ответы по каждому шаблону/варианту (1 фото на бланк)
+# полный прогон: каждый из 24 листов, случайные ответы, одна смоделированная фотография
 rnd = random.Random(5); sheets_ok = 0; sheets_total = 0
 os.makedirs(OUT + '/_tmp', exist_ok=True)
 for wid, name, tidx, kind in WORKS:
     for n in (1, 2, 3, 4):
         k = len(DB_ITEMS[(wid, n)]); ans = {i: [rnd.randrange(4)] for i in range(1, k + 1)}
-        cc = canvas.Canvas(OUT + '/_tmp/s.pdf', pagesize=A4); omr.draw_sheet(cc, '%s · %s' % (wid, name[:48]), 'x', tidx, n, k, ('DV', 'DVB'), answers=ans); cc.showPage(); cc.save()
+        cc = canvas.Canvas(OUT + '/_tmp/s.pdf', pagesize=A4); g = sheet.render_sheet(cc, DB_ITEMS[(wid, n)], wid, name, tidx, n, answers=ans); cc.showPage(); cc.save()
         im = cv2.imread(render_png(OUT + '/_tmp/s.pdf', OUT + '/_tmp/s'))
         im2, _ = distort(im, sheets_total + 11, 1.0)
-        r = omr.read_sheet(im2, k); sheets_total += 1
+        r = omr.read_sheet(im2, g); sheets_total += 1
         good = r.get('status') == 'OK' and (r['template'], r['variant']) == (tidx, n) and all(a['status'] == 'ok' and a['answer'] == LET[ans[a['item']][0]] for a in r['answers'])
         sheets_ok += good
         if not good: TEST_REPORT.append(dict(sheet='%s в%d' % (wid, n), detail=str(r)[:300]))
@@ -242,7 +218,7 @@ for wid, name, tidx, kind in WORKS:
                           status=max((istat(v) for v in vs.values()), key=lambda s: STAT_ORDER[s]), note=base.get('note', ''),
                           variants={str(n): dict(stem=v['stem'], options=v['opt_texts'], key=LET[v['key']], correct=v['opt_texts'][v['key']], figure=v.get('fig') and dict(kind='numline', a=v['fig']['a'], b=v['fig']['b']), source_level=v['src'], status=istat(v)) for n, v in vs.items()}))
         GOALS.setdefault(base['goal'], set()).add(base['topic'])
-    db_works.append(dict(id=wid, title=name, kind=kind, template_index=tidx, n_items=n_items, max_points=n_items, items=items, omr_geometry=GEO[wid]))
+    db_works.append(dict(id=wid, title=name, kind=kind, template_index=tidx, n_items=n_items, max_points=n_items, items=items, omr_geometry={str(n): GEO[(wid, n)] for n in (1, 2, 3, 4)}))
 DB = dict(meta=dict(title='Диагностическая БД: входная диагностика 7 класса по программе 6 класса (1 полугодие)', generated=datetime.date.today().isoformat(), source='Restored_Source_Data.json (реконструкция docx)',
                     grade_mapping='7 класс ← программа 6 класса (цели обучения из исходного сборника, коды сохранены дословно)', answer_letters=list(LET), omr_version=omr.VERSION,
                     omr_id_code='12 ячеек: sync=1 | 6 бит номер шаблона | 2 бита (вариант−1) | чётность | 0 | 1', scale_note='рабочая шкала, требует согласования', scale=SCALE,
@@ -334,11 +310,11 @@ open(OUT + '/Audit_Report.html', 'w', encoding='utf8').write(H % (datetime.date.
 G = '''<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OMR_Processing_Guide — проверка бланков по фото</title>
 <style>body{font:15px/1.5 system-ui,Segoe UI,Arial;max-width:820px;margin:16px auto;padding:0 16px;color:#1b1b1b}h1{font-size:21px}h2{font-size:17px;margin-top:22px}li{margin:3px 0}code{background:#f0f0f0;padding:1px 4px;border-radius:3px}.w{background:#fff7e0;border:1px solid #e6c36a;padding:8px 12px;border-radius:6px}</style></head><body>
 <h1>Как проверить бланки по фотографиям в чате с ИИ</h1>
-<h2>1. Перед контрольной</h2><ol><li>Напечатайте <b>Student_Tests.pdf</b> (работа и вариант на странице) и <b>OMR_Answer_Sheets.pdf</b> — по бланку на ученика, <u>того же шаблона и варианта</u>, что и работа. Печать A4, 100%%, чёрно-белая, без «подгонки под страницу».</li>
-<li>Проверьте: все четыре чёрные метки по углам листа видны, правая нижняя — «рамка» с белым центром.</li><li>Ученик пишет фамилию и класс печатными буквами и <b>полностью закрашивает один кружок</b> ручкой (чёрной/синей). Исправлять нельзя — выдайте новый бланк.</li></ol>
-<h2>2. Как фотографировать</h2><ul><li>Лист целиком, <b>все четыре метки в кадре</b>, с небольшим полем вокруг; можно под углом и немного повёрнутым — перспектива исправляется автоматически.</li><li>Ровное освещение, без бликов и глубоких теней, телефон над листом; лист на тёмном однотонном фоне.</li><li>Один бланк — одно фото, разрешение не ниже 1600 px по длинной стороне; формат JPG/PNG/HEIC→JPG.</li><li>Не заслоняйте бланк пальцами; название файла лучше сделать <code>класс_фамилия.jpg</code>.</li></ul>
+<h2>1. Перед контрольной</h2><ol><li>Напечатайте <b>Student_Tests.pdf</b>: <u>одна работа — одна сторона A4</u>, отдельный бланк ответов не нужен. Нужную страницу выберите по работе и варианту (порядок: СОР-1, СОР-2, СОР-3, СОР-4, СОЧ-1, СОЧ-2; внутри — варианты 1–4). Печать 100%%, чёрно-белая, без «подгонки под страницу».</li>
+<li>Проверьте: четыре чёрные метки по углам листа видны, правая нижняя — «рамка» с белым центром.</li><li>Ученик пишет фамилию и класс печатными буквами, решает на черновике и <b>полностью закрашивает один кружок</b> рядом с верным ответом прямо на листе с заданиями (ручка чёрная/синяя). Исправлять нельзя — выдайте новый лист.</li></ol>
+<h2>2. Как фотографировать</h2><ul><li>Лист целиком, <b>все четыре метки в кадре</b>, с небольшим полем вокруг; можно под углом и немного повёрнутым — перспектива и поворот исправляются автоматически.</li><li>Ровное освещение, без бликов и глубоких теней, телефон над листом; лист на тёмном однотонном фоне.</li><li>Один лист — одно фото, разрешение не ниже 1600 px по длинной стороне; формат JPG/PNG.</li><li>Не заслоняйте лист пальцами; имя файла лучше сделать <code>класс_фамилия.jpg</code>.</li></ul>
 <h2>3. Что загрузить в чат</h2><ol><li>Все фотографии одной группой.</li><li>Файл <b>Diagnostic_DB.json</b> (ключи, цели, структура) и <b>omr.py</b> (программа распознавания из репозитория).</li><li>Напишите: «Проверь бланки по Diagnostic_DB.json, работа … (если известна), верни таблицу результатов и аналитику».</li></ol>
-<h2>4. Что делает ИИ (в Python)</h2><ol><li>Находит 4 метки, выпрямляет перспективу, определяет ориентацию.</li><li>Читает служебный код: номер шаблона и вариант (12 ячеек с контрольной суммой). Ключ берётся по этому коду.</li><li>Измеряет заполнение каждого кружка по фиксированным координатам (см. <code>omr_geometry</code> в JSON): ≥45%% — отметка, 22–45%% — сомнительно.</li><li>Статусы строки: <code>ok</code>, <code>blank</code> (пропуск), <code>multi</code> (несколько отметок), <code>doubtful</code> (слабая отметка → REVIEW).</li><li>Сверяет с ключом, считает баллы, отметку по рабочей шкале, результаты по темам и целям обучения; формирует индивидуальные и групповые отчёты (HTML/CSV/JSON).</li></ol>
+<h2>4. Что делает ИИ (в Python)</h2><ol><li>Находит 4 метки, выпрямляет перспективу, определяет ориентацию.</li><li>Читает служебный код: номер шаблона и вариант (12 ячеек с контрольной суммой). Ключ берётся по этому коду.</li><li>Измеряет заполнение каждого кружка по фиксированным координатам (координаты каждого листа — <code>omr_geometry</code> в JSON): ≥45%% — отметка, 22–45%% — сомнительно.</li><li>Статусы строки: <code>ok</code>, <code>blank</code> (пропуск), <code>multi</code> (несколько отметок), <code>doubtful</code> (слабая отметка → REVIEW).</li><li>Сверяет с ключом, считает баллы, отметку по рабочей шкале, результаты по темам и целям обучения; формирует индивидуальные и групповые отчёты (HTML/CSV/JSON).</li></ol>
 <h2>5. Надёжность и ограничения</h2><div class="w">ФИО на бланке <b>не распознаётся автоматически</b>: связывайте работу с учеником по названию файла или по вашему списку; если связь не установлена надёжно — работа остаётся REVIEW. Сомнительные кружки и бланки без распознанного кода ИИ показывает вам для проверки, а не угадывает. Доступность Python и компьютерного зрения зависит от сервиса: если в чате нет выполнения кода, автоматическое распознавание недоступно, и ИИ обязан сообщить об этом. Распознавание проверено на смоделированных фотографиях (искажение, шум, тени, повороты), но <b>не на реальных фото учеников</b> — первую партию проверьте выборочно.</div>
 <h2>6. Если что-то пошло не так</h2><ul><li>«Метки не найдены» — переснимите, чтобы все углы были в кадре и не были закрыты.</li><li>«Код бланка не распознан» — на бланке закрашен или поцарапан служебный код; укажите шаблон и вариант вручную.</li><li>Много <code>doubtful</code> — используйте более тёмную ручку и закрашивайте кружок целиком.</li></ul></body></html>'''
 open(OUT + '/OMR_Processing_Guide.html', 'w', encoding='utf8').write(G)
