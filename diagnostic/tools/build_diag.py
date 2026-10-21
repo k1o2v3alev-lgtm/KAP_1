@@ -2,7 +2,7 @@
 import sys, os, json, re, html, base64, random, collections, datetime, subprocess
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
-import dg, omr, figs, content3 as C
+import dg, omr, figs, content3 as C, weights as WTS
 from content import tables
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm, mm
@@ -58,6 +58,7 @@ for wid, f in dg.GEN.items():
                 it['fixed'] = LET[[c for _, c in it['options']].index(True)]
         assign(its, seed=hash((wid, n)) % 10 ** 6 if False else (sum(map(ord, wid)) * 31 + n * 7919))
         DB_ITEMS[(wid, n)] = its
+        for it, p_ in zip(its, WTS.MAIN[wid]): it['points'] = p_
 
 # ----------------------------------------------------------------- проверки
 CHK = []
@@ -163,10 +164,10 @@ def distort(img, seed, strength=1.0):
 # ----- тестовый бланк (заполнен с пропуском и двойной отметкой) и имитация фото
 test_wid, test_var = 'SOCH-6-Q2', 2
 nT = len(DB_ITEMS[(test_wid, test_var)])
-truth = {1: [0], 2: [1], 3: [2], 4: [3], 5: [], 6: [0, 2], 7: [1], 8: [3], 9: [2]}
+truth = {1: [0], 2: [1], 3: [2], 4: [3], 5: [], 6: [0, 2], 7: [1], 8: [3], 9: [2], 10: [1]}
 cT = canvas.Canvas(OUT + '/OMR_Test_Sheet.pdf', pagesize=A4)
 GT = sheet.render_sheet(cT, DB_ITEMS[(test_wid, test_var)], test_wid, WMAP[test_wid][1], WMAP[test_wid][2], test_var, answers=truth); cT.showPage(); cT.save()
-exp = {1: 'ok', 2: 'ok', 3: 'ok', 4: 'ok', 5: 'blank', 6: 'multi', 7: 'ok', 8: 'ok', 9: 'ok'}
+exp = {1: 'ok', 2: 'ok', 3: 'ok', 4: 'ok', 5: 'blank', 6: 'multi', 7: 'ok', 8: 'ok', 9: 'ok', 10: 'ok'}
 def check_test(r):
     if r.get('status') != 'OK' or (r['template'], r['variant']) != (WMAP[test_wid][2], test_var): return False
     for a in r['answers']:
@@ -214,11 +215,11 @@ for wid, name, tidx, kind in WORKS:
     for k in range(n_items):
         vs = {n: DB_ITEMS[(wid, n)][k] for n in (1, 2, 3, 4)}
         base = vs[1]
-        items.append(dict(no=k + 1, goal=base['goal'], topic=base['topic'], skill=base['skill'], points=1,
+        items.append(dict(no=k + 1, goal=base['goal'], topic=base['topic'], skill=base['skill'], points=base['points'],
                           status=max((istat(v) for v in vs.values()), key=lambda s: STAT_ORDER[s]), note=base.get('note', ''),
                           variants={str(n): dict(stem=v['stem'], options=v['opt_texts'], key=LET[v['key']], correct=v['opt_texts'][v['key']], figure=v.get('fig') and dict(kind='numline', a=v['fig']['a'], b=v['fig']['b']), source_level=v['src'], status=istat(v)) for n, v in vs.items()}))
         GOALS.setdefault(base['goal'], set()).add(base['topic'])
-    db_works.append(dict(id=wid, title=name, kind=kind, template_index=tidx, n_items=n_items, max_points=n_items, items=items, omr_geometry={str(n): GEO[(wid, n)] for n in (1, 2, 3, 4)}))
+    db_works.append(dict(id=wid, title=name, kind=kind, template_index=tidx, n_items=n_items, max_points=sum(i_['points'] for i_ in items), items=items, omr_geometry={str(n): GEO[(wid, n)] for n in (1, 2, 3, 4)}))
 DB = dict(meta=dict(title='Диагностическая БД: суммативное оценивание, математика 6 класс (1 полугодие), закрытые задания', generated=datetime.date.today().isoformat(), source='Restored_Source_Data.json (реконструкция docx)',
                     grade_mapping='6 класс; цели обучения из исходного сборника, коды сохранены дословно', answer_letters=list(LET), omr_version=omr.VERSION,
                     omr_id_code='12 ячеек: sync=1 | 6 бит номер шаблона | 2 бита (вариант−1) | чётность | 0 | 1', scale_note='рабочая шкала, требует согласования', scale=SCALE,
@@ -228,14 +229,14 @@ json.dump(DB, open(OUT + '/Diagnostic_DB.json', 'w', encoding='utf8'), ensure_as
 
 # ---- Teacher_Keys.pdf
 ks = []
-ks += [P('Ключи и диагностическая матрица', 'h0'), P('Суммативное оценивание, математика 6 класс · 1 полугодие. Баллы: 1 за каждое задание. Рабочая шкала отметок (требует согласования): 5 — от 85%, 4 — 65–84%, 3 — 40–64%, 2 — менее 40%.', 'body'),
+ks += [P('Ключи и диагностическая матрица', 'h0'), P('Суммативное оценивание, математика 6 класс · 1 полугодие. Баллы за каждое задание указаны в таблицах и на листе; сумма равна нормативному максимуму: СОР — 14, СОЧ — 20. Рабочая шкала отметок (требует согласования): 5 — от 85%, 4 — 65–84%, 3 — 40–64%, 2 — менее 40%.', 'body'),
        P('Статусы заданий: PASS — корректно; REPLACED — задание построено на реконструированном (R3) содержании исходника; REVIEW — подтвердите (R2); FIXED — исправлено.', 'small'), Spacer(1, 6)]
 for wid, name, tidx, kind in WORKS:
     wdb = [w for w in db_works if w['id'] == wid][0]
     ks.append(P('%s · %s (шаблон %d, %d заданий)' % (wid, name, tidx, wdb['n_items']), 'h1'))
     rows = [['№', 'Тема', 'Цель обучения', 'Навык', 'Балл', 'В1', 'В2', 'В3', 'В4', 'Статус']]
     for it in wdb['items']:
-        rows.append([str(it['no']), it['topic'], it['goal'], it['skill'], '1'] + [it['variants'][str(n)]['key'] for n in (1, 2, 3, 4)] + [it['status']])
+        rows.append([str(it['no']), it['topic'], it['goal'], it['skill'], str(it['points'])] + [it['variants'][str(n)]['key'] for n in (1, 2, 3, 4)] + [it['status']])
     ks.append(tbl(rows, [0.7 * cm, 3.7 * cm, 1.6 * cm, 4.7 * cm, 0.9 * cm, 0.8 * cm, 0.8 * cm, 0.8 * cm, 0.8 * cm, 1.8 * cm]))
     for n in (1, 2, 3, 4):
         ks.append(P('Вариант %d — правильные ответы' % n, 'h2'))

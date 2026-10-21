@@ -2,7 +2,7 @@
 import sys, os, json, re, random, collections, datetime, subprocess, shutil
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np, cv2
-import dg_lmd, omr, figs, sheet
+import dg_lmd, omr, figs, sheet, weights as WTS
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
 from reportlab.lib import colors
@@ -36,6 +36,7 @@ DB_ITEMS = {}
 for wid, f in dg_lmd.GEN.items():
     for n in (1, 2, 3, 4):
         its = f(n); assign(its, sum(map(ord, wid)) * 17 + n * 4243); DB_ITEMS[(wid, n)] = its
+        for it, p_ in zip(its, WTS.LMD[wid]): it['points'] = p_
 CHK = []
 def chk(name, ok, info=''):
     CHK.append(dict(check=name, result='PASS' if ok else 'FAIL', info=info)); assert ok, (name, info)
@@ -121,10 +122,10 @@ for wid, name, tidx, kind in WORKS:
     n_items = len(DB_ITEMS[(wid, 1)]); items = []
     for k in range(n_items):
         vs = {n: DB_ITEMS[(wid, n)][k] for n in (1, 2, 3, 4)}; b = vs[1]
-        items.append(dict(no=k + 1, goal=b['goal'], topic=b['topic'], skill=b['skill'], points=1,
+        items.append(dict(no=k + 1, goal=b['goal'], topic=b['topic'], skill=b['skill'], points=b['points'],
                           variants={str(n): dict(stem=v['stem'], options=v['opt_texts'], key=LET[v['key']], correct=v['opt_texts'][v['key']]) for n, v in vs.items()}))
         GOALS.setdefault(b['goal'], set()).add(b['topic'])
-    db_works.append(dict(id=wid, title=TITLE[wid], kind=kind, template_index=tidx, n_items=n_items, max_points=n_items, items=items, omr_geometry={str(n): GEO[(wid, n)] for n in (1, 2, 3, 4)}))
+    db_works.append(dict(id=wid, title=TITLE[wid], kind=kind, template_index=tidx, n_items=n_items, max_points=sum(i_['points'] for i_ in items), items=items, omr_geometry={str(n): GEO[(wid, n)] for n in (1, 2, 3, 4)}))
 DB = dict(meta=dict(title='Суммативное оценивание, математика 6 класс, облегчённая программа (1 полугодие), закрытые задания', generated=datetime.date.today().isoformat(),
                     program='Типовая учебная программа РК для обучающихся с лёгкой умственной отсталостью, 6 класс, долгосрочный план (коды целей сохранены из присланного файла)',
                     journal_note='4 СОР + 2 СОЧ — столько же, сколько в графах журнала класса; названия СОР привязаны к целям облегчённой программы', answer_letters=list(LET), omr_version=omr.VERSION,

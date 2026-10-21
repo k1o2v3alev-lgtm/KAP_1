@@ -33,7 +33,7 @@ def mk(work, var, no, goal, topic, skill, stem, correct, wrongs, fmt=None, src='
     assert len(ws) == 3, (work, var, no, 'мало дистракторов', wrongs)
     opts = [(fmt(correct), True)] + [(fmt(w), False) for w in ws]
     assert len({o for o, _ in opts}) == 4, (work, var, no, [o for o, _ in opts])
-    return Item(work=work, variant=var, no=no, goal=goal, topic=topic, skill=skill, stem=stem, options=opts, src=src, fig=fig, note=note, value=correct)
+    return Item(work=work, variant=var, no=no, goal=goal, topic=topic, skill=skill, stem=stem, options=opts, src=src, fig=fig, note=note, value=correct, points=1)
 
 def stmt_opts(correct, wrongs): return correct, wrongs
 
@@ -363,6 +363,10 @@ def w6(n):
     expr = r'%s\cdot\left(%s\right)+%s\cdot\left(%s\right)+%s:(%s)' % (dtex(cc), tt[0], cs, tt[1], dtex(pp), dtex(qq))
     prod = cc * (u + v); quo = pp / qq; res = prod + quo
     it.append(mk(W, n, 9, '6.1.2.17', 'Свойства действий над рациональными числами', 'применяет распределительное свойство', 'Найдите значение выражения %s.' % M(expr), res, [prod, prod - quo, -res, cc * u + cc * v * 0 + quo, prod + abs(quo)], src='R3'))
+    a_, b_ = {1: (F(-48, 10), F(12, 10)), 2: (F(-91, 10), F(-13, 10)), 3: (F(36, 10), F(-9, 10)), 4: (F(-63, 10), F(9, 10))}[n]
+    q = a_ / b_
+    sw = lambda x: '(%s)' % dtex(x) if x < 0 else dtex(x)
+    it.append(mk(W, n, 10, '6.1.2.16', 'Деление рациональных чисел', 'выполняет деление рациональных чисел', 'Вычислите: %s.' % M('%s:%s' % (dtex(a_), sw(b_))), q, [-q, q * 10, q / 10, a_ * b_], src='R3'))
     return it
 
 GEN = {'SOR-6-1': w1, 'SOR-6-2': w2, 'SOR-6-3': w3, 'SOR-6-4': w4, 'SOCH-6-Q1': w5, 'SOCH-6-Q2': w6}
