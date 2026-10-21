@@ -34,7 +34,7 @@ def layout(items, scale):
         if it.get('fig'):
             if shown_fig is None: shown_fig = it['no']
             else: stem += ' (рисунок к заданию %d)' % shown_fig
-        sp = Paragraph('<b>%d.</b> ' % it['no'] + rich(stem, fs) + (' <font size="%.1f" color="#666666">(%d б.)</font>' % (fs * 0.78, it['points']) if it.get('points') else ''), ParagraphStyle('q', fontName='DV', fontSize=fs, leading=fs * 1.32, leftIndent=5 * mm, firstLineIndent=-5 * mm))
+        sp = Paragraph('<b>%d.</b> ' % it['no'] + rich(stem, fs) + (' <font size="%.1f" color="#666666">(%d б.)</font>' % (fs * 0.78, it['points']) if it.get('points', 1) > 1 else ''), ParagraphStyle('q', fontName='DV', fontSize=fs, leading=fs * 1.32, leftIndent=5 * mm, firstLineIndent=-5 * mm))
         w, h = sp.wrap(W_MM * mm, 1000); h_mm = h / mm
         el = dict(item=it['no'], stem=(sp, X0, y, h_mm)); y += h_mm + 0.6
         if it.get('fig') and shown_fig == it['no']:

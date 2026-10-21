@@ -27,5 +27,5 @@ def make(db,out,title,sub,vs):
     grid.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),3),('RIGHTPADDING',(0,0),(-1,-1),3),('BOTTOMPADDING',(0,0),(-1,-1),14)]))
     SimpleDocTemplate(out,pagesize=A4,leftMargin=1.4*cm,rightMargin=1.4*cm,topMargin=1.5*cm,bottomMargin=1.5*cm).build([Paragraph(title,big),Paragraph(sub,sm),grid])
 R='/home/user/KAP_1/diagnostic/'
-make(R+'Diagnostic_DB.json',R+'Klyuchi_SOR_SOCH_var1-2.pdf','Ключи. Математика, 6 класс (варианты 1 и 2)','Столбец «Балл» — баллы за задание; внизу — максимум работы (СОР 14, СОЧ 20).',[1,2])
-make(R+'oblegchennaya/Diagnostic_DB_oblegchennaya.json',R+'oblegchennaya/Klyuchi_oblegchennaya.pdf','Ключи. Математика, 6 класс, облегчённая программа','Суммативное оценивание, 1 полугодие, варианты 1–4. Столбец «Балл» — баллы за задание; внизу — максимум работы.',[1,2,3,4])
+make(R+'Diagnostic_DB.json',R+'Klyuchi_SOR_SOCH_var1-2.pdf','Ключи. Математика, 6 класс (варианты 1 и 2)','Столбец «Балл» — баллы за задание: СОР — по 1 баллу, СОЧ — по 2 балла (максимум СОЧ — 20). Внизу — максимум работы.',[1,2])
+make(R+'oblegchennaya/Diagnostic_DB_oblegchennaya.json',R+'oblegchennaya/Klyuchi_oblegchennaya.pdf','Ключи. Математика, 6 класс, облегчённая программа','Суммативное оценивание, 1 полугодие, варианты 1–4. Столбец «Балл» — баллы за задание: СОР — по 1 баллу, СОЧ — по 2 балла (максимум СОЧ — 20). Внизу — максимум работы.',[1,2,3,4])
