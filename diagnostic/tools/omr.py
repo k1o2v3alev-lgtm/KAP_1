@@ -132,8 +132,11 @@ def read_sheet(img_bgr, geo, thr_mark=0.45, thr_blank=0.22):
             sub = th[y0:y1, x0:x1]; Y, X = np.mgrid[y0:y1, x0:x1]
             mask = (X - cx) ** 2 + (Y - cy) ** 2 <= r * r
             fills.append(float(sub[mask[:sub.shape[0], :sub.shape[1]]].mean() / 255.0))
-        marked = [k for k, f in enumerate(fills) if f >= thr_mark]
-        weak = [k for k, f in enumerate(fills) if thr_blank <= f < thr_mark]
+        base = float(np.median(fills))
+        if min(fills) >= 0.6: marked, weak = list(range(4)), []
+        else:
+            marked = [k for k, f in enumerate(fills) if f >= thr_mark and f - base >= 0.3]
+            weak = [k for k, f in enumerate(fills) if k not in marked and f - base >= 0.12 and f >= thr_blank]
         if len(marked) == 1 and not weak: ans, st = LETTERS[marked[0]], 'ok'
         elif len(marked) == 0 and not weak: ans, st = None, 'blank'
         elif len(marked) >= 2: ans, st = None, 'multi'

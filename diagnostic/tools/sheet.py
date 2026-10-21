@@ -60,9 +60,9 @@ def layout(items, scale):
         el['opts'] = opts; el['ncols'] = ncols; placed.append(el); y += gap_item
     return placed, y
 
-def render_sheet(c, items, wid, name, tidx, variant, answers=None, fonts=('DV', 'DVB')):
+def render_sheet(c, items, wid, name, tidx, variant, answers=None, fonts=('DV', 'DVB'), title=None, tag=None, scale0=1.25):
     """c — canvas. Возвращает геометрию кружков (мм) и итоговый масштаб."""
-    scale = 1.25
+    scale = scale0
     while True:
         placed, yend = layout(items, scale)
         if yend <= Y_BOT or scale < 0.7: break
@@ -70,9 +70,10 @@ def render_sheet(c, items, wid, name, tidx, variant, answers=None, fonts=('DV', 
     assert yend <= Y_BOT, ('не помещается на лист', wid, variant, yend)
     omr.draw_marks(c, mm, H)
     c.setFillColor(colors.black); c.setStrokeColor(colors.black)
-    title = ('Суммативное оценивание за раздел «%s»' % name) if wid.startswith('SOR') else ('Суммативное оценивание за %s четверть' % wid[-1])
+    if title is None: title = ('Суммативное оценивание за раздел «%s»' % name) if wid.startswith('SOR') else ('Суммативное оценивание за %s четверть' % wid[-1])
     c.setFont('DVB', 9.8); c.drawString(X0 * mm, (H - 21.5) * mm, title)
     c.setFont('DVB', 10); c.drawRightString(X1 * mm, (H - 29.2) * mm, 'Вариант %d' % variant)
+    if tag: c.setFont('DV', 7); c.drawRightString(X1 * mm, (H - 21.5) * mm, tag)
     c.setLineWidth(0.5)
     c.rect(X0 * mm, (H - 31) * mm, 108 * mm, 6 * mm, fill=0); c.rect((X0 + 111) * mm, (H - 31) * mm, 38 * mm, 6 * mm, fill=0)
     c.setFont('DV', 6.2); c.setFillColor(colors.Color(.35, .35, .35)); c.drawString((X0 + 1) * mm, (H - 26.9) * mm, 'Фамилия, имя'); c.drawString((X0 + 112) * mm, (H - 26.9) * mm, 'Класс')
