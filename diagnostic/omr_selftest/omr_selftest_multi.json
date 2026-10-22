@@ -1,0 +1,286 @@
+{
+ "photos": 40,
+ "ok": 40,
+ "cases": [
+  {
+   "case": "1 бланк",
+   "rep": 0,
+   "found": 1,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "case": "1 бланк",
+   "rep": 1,
+   "found": 1,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "case": "1 бланк",
+   "rep": 2,
+   "found": 1,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "case": "1 бланк",
+   "rep": 3,
+   "found": 1,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "case": "1 бланк",
+   "rep": 4,
+   "found": 1,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "case": "2 бланка рядом",
+   "rep": 0,
+   "found": 2,
+   "expected": 2,
+   "ok": true
+  },
+  {
+   "case": "2 бланка рядом",
+   "rep": 1,
+   "found": 2,
+   "expected": 2,
+   "ok": true
+  },
+  {
+   "case": "2 бланка рядом",
+   "rep": 2,
+   "found": 2,
+   "expected": 2,
+   "ok": true
+  },
+  {
+   "case": "2 бланка рядом",
+   "rep": 3,
+   "found": 2,
+   "expected": 2,
+   "ok": true
+  },
+  {
+   "case": "2 бланка рядом",
+   "rep": 4,
+   "found": 2,
+   "expected": 2,
+   "ok": true
+  },
+  {
+   "case": "3 бланка",
+   "rep": 0,
+   "found": 3,
+   "expected": 3,
+   "ok": true
+  },
+  {
+   "case": "3 бланка",
+   "rep": 1,
+   "found": 3,
+   "expected": 3,
+   "ok": true
+  },
+  {
+   "case": "3 бланка",
+   "rep": 2,
+   "found": 3,
+   "expected": 3,
+   "ok": true
+  },
+  {
+   "case": "3 бланка",
+   "rep": 3,
+   "found": 3,
+   "expected": 3,
+   "ok": true
+  },
+  {
+   "case": "3 бланка",
+   "rep": 4,
+   "found": 3,
+   "expected": 3,
+   "ok": true
+  },
+  {
+   "case": "2x2",
+   "rep": 0,
+   "found": 4,
+   "expected": 4,
+   "ok": true
+  },
+  {
+   "case": "2x2",
+   "rep": 1,
+   "found": 4,
+   "expected": 4,
+   "ok": true
+  },
+  {
+   "case": "2x2",
+   "rep": 2,
+   "found": 4,
+   "expected": 4,
+   "ok": true
+  },
+  {
+   "case": "2x2",
+   "rep": 3,
+   "found": 4,
+   "expected": 4,
+   "ok": true
+  },
+  {
+   "case": "2x2",
+   "rep": 4,
+   "found": 4,
+   "expected": 4,
+   "ok": true
+  },
+  {
+   "case": "1 бланк, 90°",
+   "rep": 0,
+   "found": 1,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "case": "1 бланк, 90°",
+   "rep": 1,
+   "found": 1,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "case": "1 бланк, 90°",
+   "rep": 2,
+   "found": 1,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "case": "1 бланк, 90°",
+   "rep": 3,
+   "found": 1,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "case": "1 бланк, 90°",
+   "rep": 4,
+   "found": 1,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "case": "2 бланка друг под другом",
+   "rep": 0,
+   "found": 2,
+   "expected": 2,
+   "ok": true
+  },
+  {
+   "case": "2 бланка друг под другом",
+   "rep": 1,
+   "found": 2,
+   "expected": 2,
+   "ok": true
+  },
+  {
+   "case": "2 бланка друг под другом",
+   "rep": 2,
+   "found": 2,
+   "expected": 2,
+   "ok": true
+  },
+  {
+   "case": "2 бланка друг под другом",
+   "rep": 3,
+   "found": 2,
+   "expected": 2,
+   "ok": true
+  },
+  {
+   "case": "2 бланка друг под другом",
+   "rep": 4,
+   "found": 2,
+   "expected": 2,
+   "ok": true
+  },
+  {
+   "case": "3 бланка с поворотами",
+   "rep": 0,
+   "found": 3,
+   "expected": 3,
+   "ok": true
+  },
+  {
+   "case": "3 бланка с поворотами",
+   "rep": 1,
+   "found": 3,
+   "expected": 3,
+   "ok": true
+  },
+  {
+   "case": "3 бланка с поворотами",
+   "rep": 2,
+   "found": 3,
+   "expected": 3,
+   "ok": true
+  },
+  {
+   "case": "3 бланка с поворотами",
+   "rep": 3,
+   "found": 3,
+   "expected": 3,
+   "ok": true
+  },
+  {
+   "case": "3 бланка с поворотами",
+   "rep": 4,
+   "found": 3,
+   "expected": 3,
+   "ok": true
+  },
+  {
+   "case": "2x2 с поворотами",
+   "rep": 0,
+   "found": 4,
+   "expected": 4,
+   "ok": true
+  },
+  {
+   "case": "2x2 с поворотами",
+   "rep": 1,
+   "found": 4,
+   "expected": 4,
+   "ok": true
+  },
+  {
+   "case": "2x2 с поворотами",
+   "rep": 2,
+   "found": 4,
+   "expected": 4,
+   "ok": true
+  },
+  {
+   "case": "2x2 с поворотами",
+   "rep": 3,
+   "found": 4,
+   "expected": 4,
+   "ok": true
+  },
+  {
+   "case": "2x2 с поворотами",
+   "rep": 4,
+   "found": 4,
+   "expected": 4,
+   "ok": true
+  }
+ ]
+}
