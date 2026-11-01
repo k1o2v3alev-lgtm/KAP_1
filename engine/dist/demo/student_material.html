@@ -1,0 +1,2310 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Мои уроки</title>
+<style>
+/* KAP engine · общие токены и компоненты. Единый облик всех продуктов (раздел 23.5). */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --surface2: #eef2f7; --ink: #1c2733; --muted: #5a6877; --line: #d5dde6;
+  --brand: #1f5f99; --brand-ink: #ffffff; --ok: #1b7f4b; --ok-bg: #e3f4ea; --warn: #9a5b00; --warn-bg: #fff2d9;
+  --bad: #a8321f; --bad-bg: #fbe7e3; --info-bg: #e6f0fa; --focus: #ffb000;
+  --radius: 12px; --gap: 12px; --fs: 17px; --fs-small: 14px; --tap: 48px; --font: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161c; --surface: #1a222b; --surface2: #222d38; --ink: #e8edf3; --muted: #a2b0bf; --line: #34424f;
+    --brand: #6db3f2; --brand-ink: #0d1722; --ok: #5fd08f; --ok-bg: #173325; --warn: #f0b660; --warn-bg: #3a2c12;
+    --bad: #ff8f7a; --bad-bg: #3d1d18; --info-bg: #1b2d40;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161c; --surface: #1a222b; --surface2: #222d38; --ink: #e8edf3; --muted: #a2b0bf; --line: #34424f;
+  --brand: #6db3f2; --brand-ink: #0d1722; --ok: #5fd08f; --ok-bg: #173325; --warn: #f0b660; --warn-bg: #3a2c12;
+  --bad: #ff8f7a; --bad-bg: #3d1d18; --info-bg: #1b2d40;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: var(--fs)/1.5 var(--font); }
+.app { max-width: 920px; margin: 0 auto; padding: 16px; overflow-wrap: anywhere; }
+h1 { font-size: 1.45em; margin: .2em 0 .4em; } h2 { font-size: 1.2em; margin: .2em 0 .4em; } h3 { font-size: 1.05em; margin: .2em 0; }
+p { margin: .5em 0; }
+.muted { color: var(--muted); } .small { font-size: var(--fs-small); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin: var(--gap) 0; }
+.row { display: flex; gap: var(--gap); flex-wrap: wrap; align-items: center; }
+.row.sb { justify-content: space-between; }
+.grid { display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.btn { min-height: var(--tap); padding: 10px 18px; border-radius: 10px; border: 1px solid var(--brand); background: var(--brand); color: var(--brand-ink); font: inherit; font-weight: 600; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--brand); }
+.btn.quiet { background: var(--surface2); color: var(--ink); border-color: var(--line); font-weight: 500; }
+.btn.warn { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+input[type=text], input[type=search], input[type=number], select, textarea { width: 100%; min-height: var(--tap); padding: 10px 12px; font: inherit; color: var(--ink); background: var(--surface); border: 2px solid var(--line); border-radius: 10px; }
+textarea { min-height: 120px; resize: vertical; }
+label { display: block; font-weight: 600; margin: 10px 0 4px; }
+.chip { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--surface2); border: 1px solid var(--line); font-size: var(--fs-small); }
+.chip.ok { background: var(--ok-bg); color: var(--ok); border-color: var(--ok); } .chip.warn { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); } .chip.bad { background: var(--bad-bg); color: var(--bad); border-color: var(--bad); }
+.bar-track { height: 10px; border-radius: 999px; background: var(--surface2); overflow: hidden; border: 1px solid var(--line); }
+.bar-fill { height: 100%; background: var(--brand); }
+.note { background: var(--info-bg); border-left: 4px solid var(--brand); padding: 10px 14px; border-radius: 8px; margin: 10px 0; }
+.note.warn { background: var(--warn-bg); border-left-color: var(--warn); } .note.bad { background: var(--bad-bg); border-left-color: var(--bad); } .note.ok { background: var(--ok-bg); border-left-color: var(--ok); }
+table { border-collapse: collapse; width: 100%; font-size: var(--fs-small); }
+th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+th { background: var(--surface2); }
+.scroll { overflow-x: auto; max-width: 100%; }
+.fr { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1.1; margin: 0 .15em; }
+.fr i { font-style: normal; padding: 0 .25em; border-bottom: 2px solid currentColor; } .fr b { font-weight: 600; padding: 0 .25em; }
+.bars { display: flex; gap: 3px; margin: 10px 0; max-width: 420px; }
+.bars .bar { flex: 1; height: 28px; border: 2px solid var(--brand); border-radius: 4px; background: var(--surface); }
+.bars .bar.on { background: var(--brand); }
+.modal-back { position: fixed; inset: 0; background: rgba(0, 0, 0, .5); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+.modal { background: var(--surface); border-radius: var(--radius); padding: 18px; max-width: 520px; width: 100%; max-height: 90vh; overflow: auto; }
+.sr-only { position: absolute; left: -9999px; }
+@media print { body { background: #fff; color: #000; } .no-print { display: none !important; } }
+
+/* KAP engine · интерфейс ученика. Возрастные оформления меняют плотность и размеры, но не структуру (п. 5, 23.5). */
+.age-1-2 { --fs: 22px; --fs-small: 18px; --tap: 64px; --radius: 18px; }
+.age-3-4 { --fs: 19px; --fs-small: 16px; --tap: 56px; }
+.age-5-6 { --fs: 17px; }
+.age-7-9 { --fs: 16px; }
+.age-10-11 { --fs: 16px; --gap: 10px; }
+.age-1-2 .hide-young, .age-3-4 .hide-young { display: none; }
+
+.lesson-card { cursor: pointer; text-align: left; width: 100%; font: inherit; color: inherit; display: block; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; min-height: var(--tap); }
+.lesson-card:hover { border-color: var(--brand); }
+.lesson-list .lesson-card { padding: 10px 14px; }
+.status { font-weight: 700; margin-right: 6px; }
+.status.s0 { color: var(--muted); } .status.s1 { color: var(--warn); } .status.s2 { color: var(--ok); }
+.panel-total { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; text-align: center; }
+.panel-total b { display: block; font-size: 1.6em; }
+
+.runner-head { position: sticky; top: 0; background: var(--bg); padding: 8px 0; z-index: 5; }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+.dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); }
+.dot.done { background: var(--brand); border-color: var(--brand); } .dot.cur { border-color: var(--brand); }
+.dot.ok { background: var(--ok); border-color: var(--ok); } .dot.bad { background: var(--bad); border-color: var(--bad); }
+.timer { font-variant-numeric: tabular-nums; }
+
+.task-cond { font-size: 1.12em; margin: 8px 0 14px; }
+.opts { display: grid; gap: 10px; }
+.opt { text-align: left; width: 100%; min-height: var(--tap); padding: 12px 14px; font: inherit; color: var(--ink); background: var(--surface); border: 2px solid var(--line); border-radius: 12px; cursor: pointer; }
+.opt[aria-pressed="true"], .opt.sel { border-color: var(--brand); background: var(--info-bg); }
+.opt.right { border-color: var(--ok); background: var(--ok-bg); } .opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.ord { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.ord li { display: flex; gap: 8px; align-items: center; background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+.ord li span.t { flex: 1; }
+.ord button { min-width: var(--tap); min-height: 44px; font-size: 1.1em; }
+.match-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center; margin: 8px 0; }
+@media (max-width: 420px) { .match-row { grid-template-columns: 1fr; } }
+
+.fb { border-radius: var(--radius); padding: 12px 14px; margin: 12px 0; border: 1px solid var(--line); }
+.fb.ok { background: var(--ok-bg); border-color: var(--ok); } .fb.bad { background: var(--bad-bg); border-color: var(--bad); } .fb.part { background: var(--warn-bg); border-color: var(--warn); } .fb.neutral { background: var(--info-bg); border-color: var(--brand); }
+.fb h3 { margin-bottom: 4px; } .fb .line { margin: 4px 0; }
+.hint { background: var(--warn-bg); border-left: 4px solid var(--warn); padding: 8px 12px; border-radius: 8px; margin: 8px 0; }
+.emoji-row { display: flex; gap: 12px; flex-wrap: wrap; } .emoji-row .btn { font-size: 2em; padding: 6px 18px; }
+.crit { margin: 6px 0; } .crit .bar-track { margin-top: 3px; }
+.kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.kv > div { background: var(--surface2); border-radius: 10px; padding: 8px 10px; } .kv b { display: block; font-size: 1.3em; }
+.banner { background: var(--warn-bg); color: var(--warn); padding: 8px 12px; border-radius: 8px; margin-bottom: 10px; font-size: var(--fs-small); }
+.selftest table td.ok { color: var(--ok); } .selftest table td.bad { color: var(--bad); font-weight: 700; }
+
+</style>
+</head>
+<body>
+<div id="app" class="app" aria-live="polite"></div>
+<script>
+/* ядро */
+/* --- core/util.js --- */
+/* KAP engine · util: ГСЧ с seed, хеши, канонический JSON, время, экранирование. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+
+  function mulberry32(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function makeRng(seed) {
+    var f = mulberry32(seed);
+    return {
+      seed: seed >>> 0,
+      next: f,
+      int: function (a, b) { return a + Math.floor(f() * (b - a + 1)); },
+      pick: function (arr) { return arr[Math.floor(f() * arr.length)]; },
+      chance: function (p) { return f() < p; },
+      shuffle: function (arr) {
+        var x = arr.slice();
+        for (var i = x.length - 1; i > 0; i--) {
+          var j = Math.floor(f() * (i + 1)); var t = x[i]; x[i] = x[j]; x[j] = t;
+        }
+        return x;
+      }
+    };
+  }
+
+  function cyrb53(str, seed) {
+    seed = seed || 0;
+    var h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for (var i = 0, ch; i < str.length; i++) {
+      ch = str.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+  }
+  function hashHex(str) { var s = cyrb53(String(str)).toString(16); while (s.length < 14) s = '0' + s; return s; }
+  function deriveSeed(base, label) { return cyrb53(String(base) + '|' + String(label)) >>> 0; }
+
+  function randomSeed() {
+    try {
+      var a = new Uint32Array(1); root.crypto.getRandomValues(a); return a[0];
+    } catch (e) { return (Date.now() ^ Math.floor(Math.random() * 4294967296)) >>> 0; }
+  }
+  function uuid() {
+    try { if (root.crypto && root.crypto.randomUUID) return root.crypto.randomUUID(); } catch (e) { /* ниже запасной */ }
+    var s = '';
+    for (var i = 0; i < 4; i++) { var r = (randomSeed() >>> 0).toString(16); while (r.length < 8) r = '0' + r; s += r; }
+    return s.slice(0, 8) + '-' + s.slice(8, 12) + '-4' + s.slice(13, 16) + '-a' + s.slice(17, 20) + '-' + s.slice(20, 32);
+  }
+
+  function canonical(o) {
+    if (o === null || typeof o !== 'object') return JSON.stringify(o === undefined ? null : o);
+    if (Array.isArray(o)) return '[' + o.map(canonical).join(',') + ']';
+    return '{' + Object.keys(o).sort().map(function (k) { return JSON.stringify(k) + ':' + canonical(o[k]); }).join(',') + '}';
+  }
+
+  function sha256Hex(str) {
+    try {
+      if (root.crypto && root.crypto.subtle) {
+        return root.crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function (buf) {
+          return { algorithm: 'SHA-256', hash: Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('') };
+        });
+      }
+    } catch (e) { /* запасной вариант */ }
+    return Promise.resolve({ algorithm: 'cyrb53', hash: hashHex(str) });
+  }
+
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function nowIso(d) {
+    d = d || new Date();
+    var off = -d.getTimezoneOffset(), sign = off >= 0 ? '+' : '-'; off = Math.abs(off);
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + sign + pad(Math.floor(off / 60)) + ':' + pad(off % 60);
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
+  }
+  function clone(o) { return o === undefined ? undefined : JSON.parse(JSON.stringify(o)); }
+  function round1(x) { return Math.round(x * 10) / 10; }
+  function round2(x) { return Math.round(x * 100) / 100; }
+  function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = a % b; a = b; b = t; } return a; }
+  function sum(arr) { var s = 0; for (var i = 0; i < arr.length; i++) s += arr[i]; return s; }
+
+  K.util = { mulberry32: mulberry32, makeRng: makeRng, cyrb53: cyrb53, hashHex: hashHex, deriveSeed: deriveSeed, randomSeed: randomSeed, uuid: uuid, canonical: canonical, sha256Hex: sha256Hex, nowIso: nowIso, esc: esc, clone: clone, round1: round1, round2: round2, gcd: gcd, sum: sum };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/normalize.js --- */
+/* KAP engine · normalize: нормализация текста и чисел, точные дроби, системы счисления. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  var gcd = K.util.gcd;
+
+  // Латинские двойники кириллических букв (проверка по строчным).
+  var LOOK = { a: 'а', c: 'с', e: 'е', o: 'о', p: 'р', x: 'х', y: 'у', i: 'і', k: 'к', m: 'м', t: 'т' };
+
+  /** mode: default | orthography | exact */
+  function normText(s, mode) {
+    s = String(s == null ? '' : s).normalize('NFC').replace(/[   ]/g, ' ').trim().replace(/\s+/g, ' ');
+    if (mode === 'exact') return s;
+    s = s.toLowerCase();
+    if (mode === 'orthography') return s;               // ә ≠ а, қ ≠ к, ү ≠ у
+    s = s.replace(/ё/g, 'е').replace(/[.,;:!?]+$/, '');
+    return s.replace(/[a-z]/g, function (c) { return LOOK[c] || c; });
+  }
+
+  // ---- рациональные числа ----
+  function rat(n, d) {
+    if (d === 0) return null;
+    if (d < 0) { n = -n; d = -d; }
+    var g = gcd(n, d) || 1;
+    return { n: n / g, d: d / g };
+  }
+  function ratEq(a, b) { return !!a && !!b && a.n === b.n && a.d === b.d; }
+  function ratAdd(a, b) { return rat(a.n * b.d + b.n * a.d, a.d * b.d); }
+  function ratSub(a, b) { return rat(a.n * b.d - b.n * a.d, a.d * b.d); }
+  function ratMul(a, b) { return rat(a.n * b.n, a.d * b.d); }
+  function ratToStr(r) { return r.d === 1 ? String(r.n) : r.n + '/' + r.d; }
+
+  /** Разбор числа: целое, десятичное (точка/запятая), дробь a/b, смешанное "1 1/2". Возвращает {n,d,form,reduced} либо null. */
+  function parseNumber(str) {
+    var s = String(str == null ? '' : str).replace(/[−–]/g, '-').replace(/[   ]/g, ' ').trim();
+    if (!s) return null;
+    var m, r;
+    if ((m = /^([+-]?)(\d{1,9})\s+(\d{1,9})\s*\/\s*(\d{1,9})$/.exec(s))) {
+      var w = +m[2], a = +m[3], b = +m[4]; if (b === 0) return null;
+      r = rat((m[1] === '-' ? -1 : 1) * (w * b + a), b); r.form = 'mixed'; r.reduced = gcd(a, b) === 1; return r;
+    }
+    if ((m = /^([+-]?\d{1,9})\s*\/\s*(\d{1,9})$/.exec(s))) {
+      var n0 = +m[1], d0 = +m[2]; if (d0 === 0) return null;
+      r = rat(n0, d0); r.form = 'fraction'; r.reduced = gcd(n0, d0) === 1; return r;
+    }
+    if ((m = /^([+-]?)(\d{1,9})(?:[.,](\d{1,9}))?$/.exec(s))) {
+      var frac = m[3] || '', den = Math.pow(10, frac.length);
+      r = rat((m[1] === '-' ? -1 : 1) * (+(m[2] + frac)), den); r.form = frac ? 'decimal' : 'integer'; r.reduced = true; return r;
+    }
+    return null;
+  }
+
+  /** Число в системе счисления base (2..36) из строки; разделители групп и префиксы 0b/0x допускаются. */
+  function parseInBase(str, base) {
+    var s = String(str == null ? '' : str).trim().toLowerCase().replace(/[\s_']/g, '');
+    s = s.replace(/^0b/, '').replace(/^0x/, '').replace(/^0o/, '');
+    if (!s) return null;
+    var digits = '0123456789abcdefghijklmnopqrstuvwxyz', v = 0;
+    for (var i = 0; i < s.length; i++) {
+      var d = digits.indexOf(s[i]);
+      if (d < 0 || d >= base) return null;
+      v = v * base + d;
+      if (v > 9007199254740991) return null;
+    }
+    return v;
+  }
+
+  K.norm = { normText: normText, rat: rat, ratEq: ratEq, ratAdd: ratAdd, ratSub: ratSub, ratMul: ratMul, ratToStr: ratToStr, parseNumber: parseNumber, parseInBase: parseInBase };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/expr.js --- */
+/* KAP engine · expr: безопасный разбор алгебраических выражений (AST) без eval и new Function.
+   Проверка эквивалентности записей по набору контрольных точек. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+
+  function tokenize(src) {
+    var s = String(src == null ? '' : src)
+      .replace(/[−–—]/g, '-').replace(/[·×∙⋅]/g, '*').replace(/÷/g, '/')
+      .replace(/²/g, '^2').replace(/³/g, '^3').replace(/[хХ]/g, 'x').replace(/\s+/g, '').toLowerCase();
+    var toks = [], i = 0, m;
+    while (i < s.length) {
+      var c = s[i];
+      if ((m = /^\d+(?:[.,]\d+)?/.exec(s.slice(i)))) { toks.push({ t: 'n', v: parseFloat(m[0].replace(',', '.')) }); i += m[0].length; }
+      else if (/[a-z]/.test(c)) { toks.push({ t: 'v', v: c }); i++; }
+      else if ('+-*/^()'.indexOf(c) >= 0) { toks.push({ t: c }); i++; }
+      else throw new Error('bad char ' + c);
+    }
+    return toks;
+  }
+
+  function parse(src) {
+    var toks = tokenize(src), p = 0;
+    function peek() { return toks[p]; }
+    function startsFactor(t) { return t && (t.t === 'n' || t.t === 'v' || t.t === '('); }
+    function expr() {
+      var a = term();
+      while (peek() && (peek().t === '+' || peek().t === '-')) { var op = toks[p++].t; a = { t: 'bin', op: op, a: a, b: term() }; }
+      return a;
+    }
+    function term() {
+      var a = unary();
+      for (;;) {
+        var k = peek();
+        if (k && (k.t === '*' || k.t === '/')) { p++; a = { t: 'bin', op: k.t, a: a, b: unary() }; }
+        else if (startsFactor(k)) { a = { t: 'bin', op: '*', a: a, b: unary() }; }
+        else break;
+      }
+      return a;
+    }
+    function unary() {
+      var k = peek();
+      if (k && k.t === '-') { p++; return { t: 'neg', a: unary() }; }
+      if (k && k.t === '+') { p++; return unary(); }
+      return power();
+    }
+    function power() {
+      var a = atom();
+      if (peek() && peek().t === '^') { p++; return { t: 'bin', op: '^', a: a, b: unary() }; }
+      return a;
+    }
+    function atom() {
+      var k = toks[p++];
+      if (!k) throw new Error('unexpected end');
+      if (k.t === 'n') return { t: 'n', v: k.v };
+      if (k.t === 'v') return { t: 'v', v: k.v };
+      if (k.t === '(') { var e = expr(); if (!peek() || peek().t !== ')') throw new Error('missing )'); p++; return e; }
+      throw new Error('unexpected ' + k.t);
+    }
+    var tree = expr();
+    if (p !== toks.length) throw new Error('trailing tokens');
+    return tree;
+  }
+
+  function evalNode(n, env) {
+    switch (n.t) {
+      case 'n': return n.v;
+      case 'v': if (!(n.v in env)) throw new Error('free var ' + n.v); return env[n.v];
+      case 'neg': return -evalNode(n.a, env);
+      default:
+        var a = evalNode(n.a, env), b = evalNode(n.b, env);
+        if (n.op === '+') return a + b;
+        if (n.op === '-') return a - b;
+        if (n.op === '*') return a * b;
+        if (n.op === '/') return a / b;
+        return Math.pow(a, b);
+    }
+  }
+  function vars(n, acc) {
+    acc = acc || {};
+    if (n.t === 'v') acc[n.v] = 1; else { if (n.a) vars(n.a, acc); if (n.b) vars(n.b, acc); }
+    return acc;
+  }
+
+  var POINTS = [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5, 0.7, 1.3, 4.25];
+  /** Эквивалентны ли записи a и b как функции. Ошибка разбора → false. */
+  function equivalent(a, b) {
+    var ta, tb;
+    try { ta = parse(a); tb = parse(b); } catch (e) { return false; }
+    var names = Object.keys(Object.assign({}, vars(ta), vars(tb))).sort(), ok = 0;
+    for (var i = 0; i < POINTS.length; i++) {
+      var env = {};
+      names.forEach(function (nm, j) { env[nm] = POINTS[(i + 3 * j) % POINTS.length] + j * 0.37; });
+      var va, vb;
+      try { va = evalNode(ta, env); vb = evalNode(tb, env); } catch (e) { return false; }
+      if (!isFinite(va) || !isFinite(vb)) continue;
+      if (Math.abs(va - vb) > 1e-9 * Math.max(1, Math.abs(va), Math.abs(vb))) return false;
+      ok++;
+    }
+    return ok >= 5;
+  }
+
+  K.expr = { parse: parse, equivalent: equivalent };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/check.js --- */
+/* KAP engine · check: проверка ответов по типу правила. Без eval/new Function. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  var N = K.norm;
+
+  function res(status, fraction, normalized, errorType) {
+    return { status: status, fraction: fraction, normalized: normalized == null ? null : normalized, errorType: errorType || null };
+  }
+  function isEmpty(a) {
+    if (a == null) return true;
+    if (typeof a === 'string') return a.trim() === '';
+    if (Array.isArray(a)) return a.length === 0;
+    if (typeof a === 'object') return Object.keys(a).length === 0;
+    return false;
+  }
+
+  /** task.rule: см. раздел «Типы заданий» README. Возвращает {status, fraction, normalized, errorType}. */
+  function check(task, ans) {
+    var r = task.rule || task.evaluationRule || {};
+    if (r.type === 'open') return isEmpty(ans) ? res('empty', 0) : res('pending_review', 0, String(ans).trim());
+    if (isEmpty(ans)) return res('empty', 0);
+    var i, hit;
+    switch (r.type) {
+      case 'choice':
+        if (ans === r.correctId) return res('correct', 1, ans);
+        return res('incorrect', 0, ans, (task.distractorMap && task.distractorMap[ans]) || 'concept');
+
+      case 'multi': {
+        var ids = Array.isArray(ans) ? ans : [], want = r.correctIds || [];
+        var hits = ids.filter(function (x) { return want.indexOf(x) >= 0; }).length;
+        var wrong = ids.length - hits, f = Math.max(0, (hits - wrong) / want.length);
+        var norm = ids.slice().sort();
+        if (hits === want.length && wrong === 0) return res('correct', 1, norm);
+        return res(f > 0 ? 'partial' : 'incorrect', f, norm, wrong > 0 ? 'multi_extra' : 'multi_miss');
+      }
+
+      case 'number': {
+        var v = N.parseNumber(ans);
+        if (!v) return res('incorrect', 0, String(ans).trim(), 'format');
+        var norm1 = N.ratToStr(v);
+        if (r.tolerance) {
+          var diff = Math.abs(v.n / v.d - r.value.n / r.value.d);
+          if (diff <= r.tolerance) return res('correct', 1, norm1);
+        } else if (N.ratEq(v, r.value)) {
+          if (r.requireForm && v.form !== r.requireForm && !(r.requireForm === 'integer' && v.d === 1)) return res('partial', 0.5, norm1, 'form');
+          if (r.requireIrreducible && !v.reduced) return res('partial', 0.5, norm1, 'not_reduced');
+          return res('correct', 1, norm1);
+        }
+        var known = (r.wrongValues || []).filter(function (w) { return N.ratEq(v, w.value); })[0];
+        return res('incorrect', 0, norm1, known ? known.errorType : 'calc');
+      }
+
+      case 'text': {
+        var mode = r.mode || 'default', a = N.normText(ans, mode);
+        for (i = 0; i < r.accepted.length; i++) if (N.normText(r.accepted[i], mode) === a) return res('correct', 1, a);
+        hit = (r.wrongAnswers || []).filter(function (w) { return N.normText(w.text, mode) === a; })[0];
+        return res('incorrect', 0, a, hit ? hit.errorType : 'concept');
+      }
+
+      case 'expression':
+        return K.expr.equivalent(String(ans), r.expected) ? res('correct', 1, String(ans).replace(/\s+/g, ''))
+          : res('incorrect', 0, String(ans).replace(/\s+/g, ''), 'calc');
+
+      case 'base': {
+        var val = N.parseInBase(ans, r.base);
+        if (val == null) return res('incorrect', 0, String(ans).trim(), 'format');
+        return val === r.value ? res('correct', 1, String(val)) : res('incorrect', 0, String(val), 'calc');
+      }
+
+      case 'ordering': {
+        var o = Array.isArray(ans) ? ans : [], same = 0;
+        for (i = 0; i < r.order.length; i++) if (o[i] === r.order[i]) same++;
+        var fo = same / r.order.length;
+        if (same === r.order.length) return res('correct', 1, o);
+        return res(fo >= 0.5 ? 'partial' : 'incorrect', fo >= 0.5 ? fo : 0, o, 'order');
+      }
+
+      case 'matching': {
+        var keys = Object.keys(r.pairs), ok = 0;
+        keys.forEach(function (k) { if (ans[k] === r.pairs[k]) ok++; });
+        var fm = ok / keys.length;
+        if (ok === keys.length) return res('correct', 1, ans);
+        return res(ok > 0 ? 'partial' : 'incorrect', fm, ans, 'match');
+      }
+      default:
+        throw new Error('unknown rule type: ' + r.type);
+    }
+  }
+
+  K.check = check;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/scoring.js --- */
+/* KAP engine · scoring: коэффициенты, веса, отметка, освоение, потолок по времени, итог по уроку. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  var U = K.util;
+
+  var DEFAULTS = {
+    hint: [1, 0.75, 0.4],
+    attempt: [1, 0.85, 0.7],
+    solutionCap: 0.4,
+    mastery: { window: 5, minTasks: 3, avg: 0.8 },
+    descriptor: { achieved: 80, partially: 40 },
+    overtimeCapPct: 84,
+    skillsMinTasks: 2,
+    profiles: {
+      learning: { diagnostic: 20, learning: 50, final: 30 },
+      final: { diagnostic: 20, learning: 30, final: 50 }
+    },
+    controlTypes: ['intermediate', 'SOR', 'SOCH'],
+    finalCheckKinds: ['quarter_final', 'year_final', 'residual']
+  };
+
+  /** Итоговый коэффициент задания: минимум из коэффициента подсказок и попыток; разбор — не выше solutionCap. */
+  function coefficient(hints, attempts, solutionShown, c) {
+    c = c || DEFAULTS;
+    var h = c.hint[Math.min(hints || 0, c.hint.length - 1)];
+    var a = c.attempt[Math.min(Math.max((attempts || 1) - 1, 0), c.attempt.length - 1)];
+    var v = Math.min(h, a);
+    if (solutionShown) v = Math.min(v, c.solutionCap);
+    return v;
+  }
+
+  /** Закрывает задание: считает score по последней попытке. t.attempts[последняя].fraction в [0,1]. */
+  function finalizeScore(t, c) {
+    if (t.skipped) { t.score = 0; return t.score; }
+    if (t.status === 'pending_review') { t.score = null; return null; }
+    var last = t.attempts[t.attempts.length - 1];
+    var f = last ? last.fraction : 0;
+    t.score = U.round2(t.maxScore * f * coefficient(t.hintsUsed, t.attempts.length, t.solutionShown, c));
+    return t.score;
+  }
+
+  function resolveWeights(o) {
+    o = o || {};
+    var finalMode = DEFAULTS.finalCheckKinds.indexOf(o.checkKind) >= 0 || o.assessmentType === 'SOCH' || o.finalReview === true;
+    var base = DEFAULTS.profiles[finalMode ? 'final' : 'learning'];
+    var src = o.instruction ? 'instruction' : (o.lessonWeights ? 'KSP' : 'default');
+    var given = o.instruction || o.lessonWeights || null;
+    var w = { diagnostic: base.diagnostic, learning: base.learning, final: base.final };
+    if (given) ['diagnostic', 'learning', 'final'].forEach(function (k) { if (given[k] != null) w[k] = given[k]; });
+    return { weights: w, source: src, profile: given ? 'custom' : (finalMode ? 'final' : 'learning') };
+  }
+
+  function evaluated(t) { return t.closed && t.status !== 'pending_review'; }
+  function pct(a, b) { return b > 0 ? U.round1(100 * a / b) : null; }
+
+  function masteryOf(tasks, m) {
+    m = m || DEFAULTS.mastery;
+    var ev = tasks.filter(function (t) { return evaluated(t) && t.group !== 'diagnostic'; }).slice(-m.window);
+    var avg = ev.length ? U.sum(ev.map(function (t) { return t.maxScore ? (t.score || 0) / t.maxScore : 0; })) / ev.length : 0;
+    return { mastered: ev.length >= m.minTasks && avg >= m.avg, windowSize: m.window, windowAvg: U.round2(avg), tasksInWindow: ev.length };
+  }
+
+  /**
+   * a: { tasks[], stagePlan[{stageId,group,mode,plannedMax}], lesson, instruction, finalTime:{limitSec,activeSec} }
+   * Возвращает все показатели отчёта.
+   */
+  function computeMetrics(a) {
+    var lesson = a.lesson, tasks = a.tasks || [];
+    var main = tasks.filter(function (t) { return !t.loop && t.mode !== 'CLUB'; });
+    var ev = main.filter(evaluated);
+    var groups = ['diagnostic', 'learning', 'final'], agg = {};
+    groups.forEach(function (g) {
+      var list = ev.filter(function (t) { return t.group === g; });
+      agg[g] = { n: list.length, earned: U.sum(list.map(function (t) { return t.score || 0; })), max: U.sum(list.map(function (t) { return t.maxScore; })) };
+      agg[g].a = agg[g].max > 0 ? agg[g].earned / agg[g].max : null;
+    });
+
+    var plannedMax = U.sum((a.stagePlan || []).filter(function (s) { return s.mode !== 'CLUB' && groups.indexOf(s.group) >= 0; }).map(function (s) { return s.plannedMax; }));
+    var doneMax = U.sum(main.filter(function (t) { return t.closed; }).map(function (t) { return t.maxScore; }));
+    var completionPct = plannedMax > 0 ? Math.min(100, U.round1(100 * doneMax / plannedMax)) : 0;
+    var accuracyPct = pct(U.sum(ev.map(function (t) { return t.score || 0; })), U.sum(ev.map(function (t) { return t.maxScore; })));
+
+    // дескрипторы и критерии
+    var descriptorResults = [], criteriaResults = [], totE = 0, totM = 0;
+    (lesson.criteria || []).forEach(function (cr) {
+      var ce = 0, cm = 0;
+      cr.descriptors.forEach(function (d) {
+        var ts = ev.filter(function (t) { return (t.descriptorIds || []).indexOf(d.descriptorId) >= 0; });
+        var pend = main.filter(function (t) { return t.closed && t.status === 'pending_review' && (t.descriptorIds || []).indexOf(d.descriptorId) >= 0; }).length;
+        var e = U.sum(ts.map(function (t) { return t.score || 0; })), m = U.sum(ts.map(function (t) { return t.maxScore; }));
+        var p = pct(e, m), st;
+        if (m === 0) st = pend > 0 ? 'teacher_review' : 'not_shown';
+        else st = p >= DEFAULTS.descriptor.achieved ? 'achieved' : (p >= DEFAULTS.descriptor.partially ? 'partially' : 'not_yet');
+        descriptorResults.push({ descriptorId: d.descriptorId, criterionId: cr.criterionId, text: d.text, earned: U.round2(e), max: m, status: st });
+        ce += e; cm += m;
+      });
+      criteriaResults.push({ criterionId: cr.criterionId, text: cr.text, earned: U.round2(ce), max: cm, pct: pct(ce, cm) });
+      totE += ce; totM += cm;
+    });
+    var achievementPct = totM > 0 ? U.round1(100 * totE / totM) : null;
+    var touched = descriptorResults.filter(function (d) { return d.max > 0; }).length;
+    var descriptorCoveragePct = descriptorResults.length ? U.round1(100 * touched / descriptorResults.length) : null;
+
+    // поднавыки и освоение (возвратные задания учитываются)
+    var allCore = tasks.filter(function (t) { return t.mode !== 'CLUB'; });
+    var subskills = (lesson.subskills || []).map(function (s) {
+      var ts = allCore.filter(function (t) { return t.subskillId === s.id && evaluated(t); });
+      return {
+        subskillId: s.id, text: s.text, presented: ts.length,
+        correct: ts.filter(function (t) { return t.status === 'correct'; }).length,
+        pct: pct(U.sum(ts.map(function (t) { return t.score || 0; })), U.sum(ts.map(function (t) { return t.maxScore; }))),
+        hintsUsed: U.sum(ts.map(function (t) { return t.hintsUsed || 0; })),
+        mastery: masteryOf(allCore.filter(function (t) { return t.subskillId === s.id; }))
+      };
+    });
+    var covered = subskills.filter(function (s) { return s.presented >= DEFAULTS.skillsMinTasks; }).length;
+    var skillsCoveragePct = subskills.length ? U.round1(100 * covered / subskills.length) : null;
+
+    var levels = {};
+    ['recognition', 'reproduction', 'understanding', 'transfer', 'investigation', 'generalization'].forEach(function (l) { levels[l] = { presented: 0, correct: 0 }; });
+    ev.forEach(function (t) { var l = levels[t.cognitiveLevel]; if (l) { l.presented++; if (t.status === 'correct') l.correct++; } });
+
+    var indep = ev.length ? U.round1(100 * ev.filter(function (t) { return t.status === 'correct' && t.attempts.length === 1 && !t.hintsUsed && !t.solutionShown; }).length / ev.length) : null;
+    var diagnosticPct = agg.diagnostic.max ? pct(agg.diagnostic.earned, agg.diagnostic.max) : null;
+    var finalPct = agg.final.max ? pct(agg.final.earned, agg.final.max) : null;
+
+    // веса и отметка
+    var W = resolveWeights({ instruction: a.instruction, lessonWeights: lesson.weights, checkKind: lesson.checkKind, assessmentType: lesson.assessmentType, finalReview: lesson.finalReview });
+    function weighted(list) {
+      var present = list.filter(function (g) { return agg[g].a != null; });
+      if (!present.length) return null;
+      var wsum = U.sum(present.map(function (g) { return W.weights[g]; }));
+      return U.round1(10 * U.sum(present.map(function (g) { return W.weights[g] * agg[g].a; })) / wsum);
+    }
+    var control = DEFAULTS.controlTypes.indexOf(lesson.assessmentType) >= 0;
+    var formativeMark10 = weighted(['diagnostic', 'learning']);
+    var hasFinal = agg.final.a != null, basis = 'none', mark = null;
+    if (ev.length) {
+      if (control && hasFinal) { basis = 'control_work'; mark = U.round1(10 * agg.final.a); }
+      else if (hasFinal) { basis = 'with_control'; mark = weighted(groups); }
+      else { basis = 'formative_without_control'; mark = formativeMark10; }
+    }
+
+    // потолок по времени (раздел 14.4)
+    var ft = a.finalTime || {}, over = !!(ft.limitSec && ft.activeSec > ft.limitSec);
+    var cap = { applied: false, capPct: DEFAULTS.overtimeCapPct, reason: null, uncappedAchievementPct: null, uncappedMark10: null };
+    var capEligible = hasFinal && (basis === 'control_work' || W.profile === 'final');
+    var ach = achievementPct;
+    if (over && capEligible) {
+      var capMark = DEFAULTS.overtimeCapPct / 10;
+      if ((mark != null && mark > capMark) || (ach != null && ach > DEFAULTS.overtimeCapPct)) {
+        cap = { applied: true, capPct: DEFAULTS.overtimeCapPct, reason: 'time_limit_exceeded', uncappedAchievementPct: ach, uncappedMark10: mark };
+        if (mark != null) mark = Math.min(mark, capMark);
+        if (ach != null) ach = Math.min(ach, DEFAULTS.overtimeCapPct);
+      }
+    }
+
+    // CLUB отдельно
+    var club = tasks.filter(function (t) { return t.mode === 'CLUB'; }), clubEv = club.filter(evaluated);
+    var extensionResult = club.length ? {
+      completionPct: pct(club.filter(function (t) { return t.closed; }).length, club.length),
+      accuracyPct: pct(U.sum(clubEv.map(function (t) { return t.score || 0; })), U.sum(clubEv.map(function (t) { return t.maxScore; }))),
+      achievementPct: null, mark10: null
+    } : null;
+
+    return {
+      metrics: {
+        completionPct: completionPct, accuracyPct: accuracyPct, achievementPct: ach,
+        independencePct: indep, diagnosticPct: diagnosticPct, finalPct: finalPct,
+        deltaDiagnosticToFinal: (diagnosticPct != null && finalPct != null) ? U.round1(finalPct - diagnosticPct) : null,
+        skillsCoveragePct: skillsCoveragePct, descriptorCoveragePct: descriptorCoveragePct,
+        levelsProfile: levels, mark10: mark, formativeMark10: formativeMark10, metricSources: { mark10: 'auto', achievementPct: 'auto', accuracyPct: 'auto' }
+      },
+      scoring: { weightsSource: W.source, weightsProfile: W.profile, weights: W.weights, coefficients: { hint: DEFAULTS.hint, attempt: DEFAULTS.attempt, solutionCap: DEFAULTS.solutionCap, source: 'default' }, markBasis: basis, scoreCap: cap },
+      coreResult: { completionPct: completionPct, accuracyPct: accuracyPct, achievementPct: ach, mark10: mark },
+      extensionResult: extensionResult,
+      criteriaResults: criteriaResults, descriptorResults: descriptorResults, subskills: subskills,
+      timeExceeded: over, overtimeSec: over ? Math.round(ft.activeSec - ft.limitSec) : 0,
+      stageAgg: agg
+    };
+  }
+
+  // ---- итог по уроку из нескольких попыток (раздел 14.8) ----
+  function studentKey(r) { return String((r.student && r.student.class) || '') + '|' + K.norm.normText((r.student && r.student.name) || '', 'default'); }
+
+  function summarize(reports) {
+    var groups = {};
+    reports.forEach(function (r) {
+      if (!r || !r.metrics || r.metrics.mark10 == null) return;
+      if (r.attempt && r.attempt.completionReason !== 'completed') return;
+      if (r.attempt && r.attempt.countsForMark === false) return;
+      var prof = (r.scoring && r.scoring.weightsProfile) || 'learning';
+      var key = studentKey(r) + '||' + r.context.lessonId + '||' + prof;
+      (groups[key] = groups[key] || { list: [], prof: prof }).list.push(r);
+    });
+    return Object.keys(groups).map(function (k) {
+      var g = groups[k], list = g.list;
+      var withControl = list.filter(function (r) { var b = r.scoring.markBasis; return b === 'with_control' || b === 'control_work'; });
+      if (withControl.length) list = withControl; else list = list.filter(function (r) { return r.scoring.markBasis === 'formative_without_control'; });
+      if (!list.length) return null;
+      var best = list[0], last = list[0];
+      list.forEach(function (r) {
+        if (r.metrics.mark10 > best.metrics.mark10 || (r.metrics.mark10 === best.metrics.mark10 && r.attempt.attemptNumber > best.attempt.attemptNumber)) best = r;
+        if (r.attempt.attemptNumber > last.attempt.attemptNumber) last = r;
+      });
+      function avg(f) { var x = best.metrics[f], y = last.metrics[f]; return (x == null || y == null) ? (x != null ? x : y) : U.round1((x + y) / 2); }
+      return {
+        studentKey: k.split('||')[0], student: best.student, lessonId: best.context.lessonId, weightsProfile: g.prof, markBasis: best.scoring.markBasis,
+        rule: 'avg_best_last', attemptsCounted: list.length, bestAttemptNumber: best.attempt.attemptNumber, lastAttemptNumber: last.attempt.attemptNumber,
+        bestMark10: best.metrics.mark10, lastMark10: last.metrics.mark10, mark10: U.round1((best.metrics.mark10 + last.metrics.mark10) / 2),
+        completionPct: avg('completionPct'), accuracyPct: avg('accuracyPct'), achievementPct: avg('achievementPct'), overriddenByTeacher: false
+      };
+    }).filter(Boolean);
+  }
+
+  K.scoring = { DEFAULTS: DEFAULTS, coefficient: coefficient, finalizeScore: finalizeScore, resolveWeights: resolveWeights, masteryOf: masteryOf, computeMetrics: computeMetrics, summarize: summarize, evaluated: evaluated };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/generators.js --- */
+/* KAP engine · generators: реестр, сборка задания, валидатор, воспроизведение по seed, массовые тесты.
+   Конвейер: ПАРАМЕТРЫ → УСЛОВИЕ → ОТВЕТ → ДИСТРАКТОРЫ → ВАЛИДАЦИЯ → ПЕРЕМЕШИВАНИЕ → ПРЕДЪЯВЛЕНИЕ. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  var U = K.util, N = K.norm;
+  var registry = {};
+
+  function register(def) {
+    ['id', 'version', 'taskType', 'subskill', 'cognitiveLevel', 'generate'].forEach(function (k) { if (!def[k]) throw new Error('generator ' + (def.id || '?') + ': нет поля ' + k); });
+    if (!def.profiles) def.profiles = { standard: {} };
+    registry[def.id] = def;
+    return def;
+  }
+  function get(id) { var d = registry[id]; if (!d) throw new Error('неизвестный генератор: ' + id); return d; }
+  function list() { return Object.keys(registry).map(function (k) { return registry[k]; }); }
+  function clear() { registry = {}; }
+
+  /** Сборка: перемешивание и упаковка «сырого» результата generate(). */
+  function assemble(def, profile, rng, raw) {
+    var t = {
+      taskType: def.taskType, condition: raw.condition, explanation: raw.explanation || '', hints: raw.hints || [],
+      maxScore: def.maxScore || 1, cognitiveLevel: raw.cognitiveLevel || def.cognitiveLevel, subskillId: def.subskill,
+      goalCode: def.goalCode || null, descriptorIds: def.descriptors || [], mode: def.mode || 'CORE',
+      generator: { generatorId: def.id, generatorVersion: def.version, profile: profile, seed: null, parameters: raw.parameters || {} },
+      options: null, optionOrder: null, correctOptionPosition: null, distractorMap: {}, rule: null, expectedAnswer: null, correctAnswer: null
+    };
+    var i, order;
+    switch (def.taskType) {
+      case 'single_choice': {
+        var all = [{ text: raw.correct, errorType: null }].concat(raw.distractors || []);
+        order = rng.shuffle(all.map(function (_, ix) { return ix; }));
+        t.options = order.map(function (ix) { return { id: 'o' + ix, text: all[ix].text }; });
+        t.optionOrder = order; t.correctOptionPosition = order.indexOf(0);
+        all.forEach(function (o, ix) { if (ix > 0) t.distractorMap['o' + ix] = o.errorType || 'concept'; });
+        t.rule = { type: 'choice', correctId: 'o0' }; t.correctAnswer = 'o0'; t.expectedAnswer = raw.correct;
+        break;
+      }
+      case 'multi_choice': {
+        var opts = raw.options;
+        order = rng.shuffle(opts.map(function (_, ix) { return ix; }));
+        t.options = order.map(function (ix) { return { id: 'o' + ix, text: opts[ix].text }; });
+        t.optionOrder = order;
+        var ids = opts.map(function (o, ix) { return o.correct ? 'o' + ix : null; }).filter(Boolean);
+        t.rule = { type: 'multi', correctIds: ids }; t.correctAnswer = ids; t.expectedAnswer = ids.map(function (id) { return opts[+id.slice(1)].text; });
+        opts.forEach(function (o, ix) { if (!o.correct) t.distractorMap['o' + ix] = o.errorType || 'concept'; });
+        break;
+      }
+      case 'number':
+        t.rule = { type: 'number', value: raw.value, requireIrreducible: !!raw.requireIrreducible, requireForm: raw.requireForm || null, tolerance: raw.tolerance || 0, wrongValues: raw.wrongValues || [] };
+        t.correctAnswer = N.ratToStr(raw.value); t.expectedAnswer = raw.display || N.ratToStr(raw.value); break;
+      case 'text':
+        t.rule = { type: 'text', accepted: raw.accepted, mode: raw.mode || 'default', wrongAnswers: raw.wrongAnswers || [] };
+        t.correctAnswer = raw.accepted[0]; t.expectedAnswer = raw.accepted.join(' / '); break;
+      case 'expression':
+        t.rule = { type: 'expression', expected: raw.expected }; t.correctAnswer = raw.expected; t.expectedAnswer = raw.expected; break;
+      case 'base':
+        t.rule = { type: 'base', base: raw.base, value: raw.value }; t.correctAnswer = raw.display || raw.value.toString(raw.base); t.expectedAnswer = t.correctAnswer; break;
+      case 'ordering': {
+        var correct = raw.items, shuffled = rng.shuffle(correct);
+        for (i = 0; i < 20 && shuffled.every(function (x, ix) { return x.id === correct[ix].id; }); i++) shuffled = rng.shuffle(correct);
+        t.items = shuffled; t.optionOrder = shuffled.map(function (x) { return correct.indexOf(x); });
+        t.rule = { type: 'ordering', order: correct.map(function (x) { return x.id; }) };
+        t.correctAnswer = t.rule.order; t.expectedAnswer = correct.map(function (x) { return x.text; }); break;
+      }
+      case 'matching': {
+        var right = rng.shuffle(raw.right);
+        t.left = raw.left; t.right = right; t.rule = { type: 'matching', pairs: raw.pairs };
+        t.correctAnswer = raw.pairs; t.expectedAnswer = raw.left.map(function (l) { var r = raw.right.filter(function (x) { return x.id === raw.pairs[l.id]; })[0]; return l.text + ' → ' + r.text; });
+        break;
+      }
+      case 'open':
+        t.rule = { type: 'open', rubric: raw.rubric || '' }; t.expectedAnswer = raw.rubric || ''; t.correctAnswer = null; break;
+      default: throw new Error('неизвестный тип задания: ' + def.taskType);
+    }
+    t.fingerprint = U.hashHex(U.canonical({ g: def.id, p: raw.parameters || {} }));
+    return t;
+  }
+
+  /** Валидатор задания: возвращает массив проблем (пустой — задание принято). */
+  function validateTask(t, def, minOptions) {
+    var p = [], i;
+    if (!t.condition || !String(t.condition).trim()) p.push('пустое условие');
+    var rule = t.rule;
+    if (t.taskType === 'single_choice') {
+      var min = minOptions || def.minOptions || 3, seen = {};
+      if (t.options.length < min) p.push('мало вариантов ответа');
+      t.options.forEach(function (o) { var k = N.normText(o.text, 'default'); if (seen[k]) p.push('совпадающие варианты: ' + o.text); seen[k] = 1; });
+      var cn = N.parseNumber(String(t.expectedAnswer));
+      if (cn) t.options.forEach(function (o) { var v = N.parseNumber(o.text); if (v && o.id !== 'o0' && N.ratEq(v, cn)) p.push('дистрактор равен правильному ответу по значению'); });
+    }
+    if (t.taskType === 'multi_choice' && (!rule.correctIds.length || rule.correctIds.length === t.options.length)) p.push('нет различимых верных и неверных вариантов');
+    if (t.taskType === 'number') {
+      if (!rule.value || !rule.value.d) p.push('нет значения ответа');
+      else (rule.wrongValues || []).forEach(function (w) { if (N.ratEq(w.value, rule.value)) p.push('wrongValue равен ответу'); });
+    }
+    if (t.taskType === 'ordering' && t.rule.order.length < 3) p.push('мало элементов последовательности');
+    if (def.validate) { var extra = def.validate(t) || []; extra.forEach(function (m) { p.push(m); }); }
+    // Самопроверка ключа: ответ из ключа должен быть засчитан, дистракторы — нет.
+    if (t.taskType !== 'open') {
+      var r1 = K.check(t, t.correctAnswer);
+      if (r1.status !== 'correct') p.push('ключ не засчитывается: ' + r1.status);
+      if (t.taskType === 'single_choice') Object.keys(t.distractorMap).forEach(function (id) { if (K.check(t, id).status === 'correct') p.push('дистрактор засчитан: ' + id); });
+    }
+    return p;
+  }
+
+  function tryOne(def, profile, seed) {
+    var rng = U.makeRng(seed);
+    var P = def.profiles[profile] || def.profiles.standard || {};
+    var raw = def.generate(rng, P, profile);
+    var t = assemble(def, profile, rng, raw);
+    t.generator.seed = seed;
+    return t;
+  }
+
+  /** Создаёт принятое задание. ctx: { seen:Set, stats:{} }. Возвращает задание с generator.seed (эффективным). */
+  function make(genId, profile, seed, ctx) {
+    ctx = ctx || {};
+    var def = get(genId), stats = ctx.stats, lastValid = null;
+    for (var k = 0; k < 80; k++) {
+      var s = k === 0 ? (seed >>> 0) : U.deriveSeed(seed, 'retry' + k), t;
+      try { t = tryOne(def, profile, s); } catch (e) { if (stats) { stats.exceptions++; (stats.errors = stats.errors || []).push(String(e && e.message)); } continue; }
+      var probs = validateTask(t, def);
+      if (probs.length) { if (stats) { stats.rejected++; probs.forEach(function (m) { stats.reasons[m] = (stats.reasons[m] || 0) + 1; }); } continue; }
+      if (ctx.seen && ctx.seen.has(t.fingerprint)) { lastValid = t; if (stats) stats.duplicates++; continue; }
+      if (ctx.seen) ctx.seen.add(t.fingerprint);
+      if (stats) stats.accepted++;
+      return t;
+    }
+    if (lastValid) { lastValid.repeat = true; return lastValid; }
+    throw new Error('генератор ' + genId + ' не дал корректного задания');
+  }
+
+  /** Воспроизведение задания по записи отчёта: тот же seed, тот же профиль. */
+  function reproduce(genId, profile, seed) { return tryOne(get(genId), profile, seed); }
+
+  /** Массовое тестирование генератора (раздел 20.1–20.2). */
+  function test(genId, n, opts) {
+    opts = opts || {};
+    var def = get(genId), prof = opts.profile || Object.keys(def.profiles)[0];
+    var st = { generatorId: def.id, generatorVersion: def.version, profile: prof, tried: n, accepted: 0, rejected: 0, duplicates: 0, exceptions: 0, reasons: {}, errors: [] };
+    var fps = {}, pos = {}, k = null, longest = 0, extreme = 0, choiceN = 0, optCounts = {};
+    for (var i = 0; i < n; i++) {
+      var seed = U.deriveSeed('selftest:' + def.id + ':' + prof, i), t;
+      try { t = tryOne(def, prof, seed); } catch (e) { st.exceptions++; if (st.errors.length < 3) st.errors.push(String(e && e.message)); continue; }
+      var probs = validateTask(t, def);
+      if (probs.length) { st.rejected++; probs.forEach(function (m) { st.reasons[m] = (st.reasons[m] || 0) + 1; }); continue; }
+      st.accepted++; fps[t.fingerprint] = 1;
+      if (t.taskType === 'single_choice') {
+        choiceN++; k = t.options.length; optCounts[k] = (optCounts[k] || 0) + 1;
+        pos[t.correctOptionPosition] = (pos[t.correctOptionPosition] || 0) + 1;
+        var len = t.options.map(function (o) { return String(o.text).length; }), cl = String(t.expectedAnswer).length, mx = Math.max.apply(null, len);
+        if (cl === mx && len.filter(function (x) { return x === mx; }).length === 1) longest++;
+        var nums = t.options.map(function (o) { return N.parseNumber(o.text); });
+        if (nums.every(Boolean)) {
+          var vals = nums.map(function (r) { return r.n / r.d; }), cv = N.parseNumber(String(t.expectedAnswer)); cv = cv.n / cv.d;
+          if (cv === Math.max.apply(null, vals) || cv === Math.min.apply(null, vals)) extreme++;
+        }
+      }
+    }
+    st.uniqueVariants = Object.keys(fps).length;
+    st.choiceCount = choiceN;
+    st.positionPct = {}; Object.keys(pos).forEach(function (p) { st.positionPct[p] = U.round1(100 * pos[p] / choiceN); });
+    st.longestCorrectPct = choiceN ? U.round1(100 * longest / choiceN) : null;
+    st.extremeCorrectPct = choiceN ? U.round1(100 * extreme / choiceN) : null;
+    st.optionCountMode = Object.keys(optCounts).sort(function (a, b) { return optCounts[b] - optCounts[a]; })[0] || null;
+    st.verdict = verdict(st, def, opts);
+    return st;
+  }
+
+  /** Критерии приёмки: ошибок нет; уникальность; позиция правильного ответа ≈ равномерна; нет перекоса «самый длинный». */
+  function verdict(st, def, opts) {
+    var problems = [], mu = opts.minUnique != null ? opts.minUnique : def.minUnique, need = (mu && typeof mu === 'object') ? (mu[st.profile] != null ? mu[st.profile] : 100) : (mu != null ? mu : 100);
+    if (st.exceptions) problems.push('исключения: ' + st.exceptions);
+    if (st.rejected > st.tried * 0.5) problems.push('слишком много отбракованных (' + st.rejected + ')');
+    if (st.accepted < st.tried * 0.5) problems.push('принято менее половины');
+    if (st.uniqueVariants < Math.min(need, st.accepted)) problems.push('мало различимых вариантов: ' + st.uniqueVariants + ' < ' + need);
+    if (st.choiceCount >= 100 && st.optionCountMode) {
+      var k = +st.optionCountMode, lo = 0.6 * 100 / k, hi = 1.4 * 100 / k;
+      for (var p = 0; p < k; p++) { var v = st.positionPct[p] || 0; if (v < lo || v > hi) problems.push('позиция ' + p + ' правильного ответа: ' + v + '% вне [' + lo.toFixed(0) + '; ' + hi.toFixed(0) + ']'); }
+      if (st.longestCorrectPct > hi) problems.push('правильный ответ слишком часто самый длинный: ' + st.longestCorrectPct + '%');
+      if (st.extremeCorrectPct != null && k === 4 && st.extremeCorrectPct > 70) problems.push('правильное число слишком часто крайнее: ' + st.extremeCorrectPct + '%');
+    }
+    return { ok: problems.length === 0, problems: problems };
+  }
+
+  K.gen = { register: register, get: get, list: list, clear: clear, assemble: assemble, validateTask: validateTask, make: make, reproduce: reproduce, test: test, verdict: verdict };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/schema.js --- */
+/* KAP engine · schema: построение lesson_report v1.0 (Приложение A), проверка, дубликаты, пакет. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  var U = K.util, S = K.scoring;
+  var SCHEMA_VERSION = '1.0';
+
+  function producer() { return K.PRODUCER || { materialId: 'unknown', engineVersion: '0.0.0', contentVersion: '0.0.0', contentHash: '' }; }
+  function nameNorm(s) { return K.norm.normText(s || '', 'default'); }
+  function dedupeKey(student, lessonId, attemptNumber, startedAt) {
+    return [nameNorm(student.class), nameNorm(student.name), lessonId, attemptNumber, startedAt].join('|');
+  }
+  function sec(a, b) { var x = Date.parse(a), y = Date.parse(b); return (isNaN(x) || isNaN(y)) ? null : Math.max(0, Math.round((y - x) / 1000)); }
+
+  /** Запись задания для отчёта (только то, что нужно учителю; без служебных полей интерфейса). */
+  function taskForReport(t) {
+    return {
+      taskId: t.taskId, stage: t.stageId, mode: t.mode || 'CORE', taskType: t.taskType, cognitiveLevel: t.cognitiveLevel,
+      goalCode: t.goalCode || null, subskillId: t.subskillId || null, descriptorIds: t.descriptorIds || [],
+      generator: t.generator, variantFingerprint: t.fingerprint,
+      presentedCondition: t.condition,
+      presentedOptions: t.options ? t.options.map(function (o) { return o.text; }) : (t.items ? t.items.map(function (o) { return o.text; }) : []),
+      presentedOptionOrder: t.optionOrder || [],
+      correctOptionPosition: t.correctOptionPosition != null ? t.correctOptionPosition : null,
+      expectedAnswer: t.expectedAnswer, evaluationRule: t.rule, distractorMap: t.distractorMap || {},
+      studentAnswer: t.studentAnswer == null ? null : t.studentAnswer, normalizedAnswer: t.normalizedAnswer == null ? null : t.normalizedAnswer,
+      status: t.closed ? (t.skipped ? 'not_done' : t.status) : 'not_done',
+      score: t.score == null ? null : t.score, maxScore: t.maxScore,
+      attempts: (t.attempts || []).map(function (a) { return { n: a.n, answer: a.answer, at: a.at, status: a.status, score: a.score }; }),
+      hintsUsed: t.hintsUsed || 0, hintLevelsShown: t.hintLevelsShown || [],
+      presentedAt: t.presentedAt || null, answeredAt: t.answeredAt || null, responseTimeSec: t.responseTimeSec == null ? null : t.responseTimeSec,
+      answeredAfterLimit: !!t.answeredAfterLimit, answerChanges: t.answerChanges || 0, openedCount: t.openedCount || 1,
+      errorType: t.errorType || null, errorTags: t.errorTags || [], autoGraded: t.status !== 'pending_review',
+      skipped: !!t.skipped, solutionShown: !!t.solutionShown, loop: !!t.loop, teacherReview: t.teacherReview || null
+    };
+  }
+
+  /** attempt → lesson_report (без поля integrity.reportHash; оно ставится при экспорте). */
+  function buildLessonReport(o) {
+    var lesson = o.lesson, at = o.attempt, st = o.student, P = producer(), now = o.now || U.nowIso();
+    var limit = lesson.timeLimitSec && lesson.timeLimitSec.final ? lesson.timeLimitSec.final : null;
+    var finalStage = (lesson.stages || []).filter(function (sg) { return sg.group === 'final'; })[0];
+    var finalState = (finalStage && at.stageState && at.stageState[finalStage.id]) || {};
+    var c = S.computeMetrics({ tasks: at.tasks, stagePlan: at.stagePlan, lesson: lesson, instruction: at.instruction || null, finalTime: { limitSec: limit, activeSec: finalState.activeSec || 0 } });
+    var fixedAt = at.fixedAt || now;
+    var loops = (at.loops || []).map(function (l) { return { loopId: l.loopId, subskillId: l.subskillId, errorType: l.errorType || null, route: l.route, tasksPresented: l.tasksPresented || 0, outcome: l.outcome === 'pending' ? 'no_progress' : l.outcome, startedAt: l.startedAt }; });
+    var stages = (lesson.stages || []).map(function (sg) {
+      var ss = (at.stageState && at.stageState[sg.id]) || {}, ts = at.tasks.filter(function (t) { return t.stageId === sg.id && !t.loop; });
+      var ev = ts.filter(S.evaluated);
+      return {
+        stageId: sg.id, name: sg.title, group: sg.group || (sg.type === 'reflection' ? 'reflection' : 'learning'),
+        mode: sg.deliveryMode || 'digital', status: ss.status || 'not_started', startedAt: ss.startedAt || null, finishedAt: ss.finishedAt || null,
+        earned: U.round2(U.sum(ev.map(function (t) { return t.score || 0; }))), max: U.sum(ev.map(function (t) { return t.maxScore; })), activeSec: ss.activeSec || 0
+      };
+    });
+    var strengths = [], difficulties = [], recs = [], toReview = [];
+    c.subskills.forEach(function (s) {
+      var def = (lesson.subskills || []).filter(function (x) { return x.id === s.subskillId; })[0] || {};
+      if (s.presented >= 2 && s.pct >= 80) strengths.push(s.text);
+      else if (s.presented >= 1 && !s.mastery.mastered) { difficulties.push(s.text); recs.push(def.recommend || ('Повторить: ' + s.text)); }
+    });
+    at.tasks.forEach(function (t) { if (t.closed && !t.loop && (t.status === 'incorrect' || t.status === 'partial' || t.skipped)) toReview.push({ taskId: t.taskId, subskillId: t.subskillId || null, reason: t.skipped ? 'skipped' : (t.errorType || t.status) }); });
+
+    var r = {
+      schemaVersion: SCHEMA_VERSION, reportType: 'lesson_report', reportId: U.uuid(),
+      dedupeKey: dedupeKey(st, lesson.lessonId, at.attemptNumber, at.startedAt),
+      source: 'digital', legacy: false,
+      producer: { materialId: P.materialId, engineVersion: P.engineVersion, contentVersion: P.contentVersion, contentHash: P.contentHash },
+      student: { studentId: st.studentId, name: st.name, class: st.class },
+      context: {
+        subject: lesson.subject, language: lesson.language || 'ru', section: lesson.section || null,
+        series: lesson.series || null, lessonId: lesson.lessonId, moduleId: lesson.moduleId || lesson.lessonId, lessonTitle: lesson.title,
+        assessmentType: lesson.assessmentType || 'formative', assessmentLabel: lesson.assessmentLabel || null, checkKind: lesson.checkKind || 'learning'
+      },
+      objectives: { learningObjectives: lesson.objectives || [], lessonObjectives: lesson.lessonObjectives || [] },
+      attempt: { attemptNumber: at.attemptNumber, countsForMark: at.countsForMark !== false, startedAt: at.startedAt, lastActivityAt: at.lastActivityAt || fixedAt, fixedAt: fixedAt, completionReason: at.status === 'completed' ? 'completed' : (at.stopReason || 'student_stopped') },
+      time: {
+        timeLimitSec: limit, elapsedWallTimeSec: sec(at.startedAt, fixedAt), activeTimeSec: Math.round(at.activeSec || 0), activeTimeMethod: 'events_idle120',
+        sessions: (at.sessions || []).map(function (s) { return { startedAt: s.startedAt, endedAt: s.endedAt, activeSec: Math.round(s.activeSec || 0) }; }),
+        timeExceeded: c.timeExceeded, overtimeSec: c.overtimeSec, pageLeaves: at.pageLeaves || 0
+      },
+      scoring: c.scoring,
+      metrics: c.metrics,
+      coreResult: c.coreResult, extensionResult: c.extensionResult,
+      criteriaResults: c.criteriaResults, descriptorResults: c.descriptorResults, subskills: c.subskills,
+      correctionLoops: loops, toReview: toReview,
+      stages: stages, tasks: at.tasks.map(taskForReport),
+      retrievalResults: [], reflection: at.reflection || null,
+      strengths: strengths, difficulties: difficulties, recommendations: recs,
+      accessibilityAdaptationsUsed: at.adaptations || [],
+      paper: null, integrity: { reportHash: null, algorithm: null, warnings: [] }
+    };
+    return r;
+  }
+
+  /** Подпись отчёта (SHA-256 при наличии, иначе cyrb53). Возвращает Promise<report>. */
+  function seal(r) {
+    var copy = U.clone(r); copy.integrity.reportHash = null; copy.integrity.algorithm = null; copy.reportId = null;
+    return U.sha256Hex(U.canonical(copy)).then(function (h) { r.integrity.reportHash = h.hash; r.integrity.algorithm = h.algorithm; return r; });
+  }
+
+  var ENUM = {
+    source: ['digital', 'paper_manual', 'paper_omr'],
+    status: ['correct', 'partial', 'incorrect', 'not_done', 'pending_review'],
+    markBasis: ['with_control', 'formative_without_control', 'control_work', 'none'],
+    completionReason: ['completed', 'student_stopped', 'time_expired'],
+    weightsSource: ['instruction', 'KSP', 'default', 'legacy'],
+    weightsProfile: ['learning', 'final', 'custom', 'legacy']
+  };
+  function inEnum(v, a) { return a.indexOf(v) >= 0; }
+
+  /** Проверка отчёта v1.0. Возвращает массив проблем. */
+  function validateReport(r) {
+    var p = [];
+    if (!r || typeof r !== 'object') return ['не объект'];
+    if (r.reportType !== 'lesson_report') p.push('reportType');
+    if (!/^1\./.test(String(r.schemaVersion))) p.push('schemaVersion: ' + r.schemaVersion);
+    ['reportId', 'dedupeKey', 'source', 'producer', 'student', 'context', 'attempt', 'time', 'scoring', 'metrics', 'tasks', 'stages'].forEach(function (k) { if (r[k] == null) p.push('нет поля ' + k); });
+    if (p.length) return p;
+    if (!inEnum(r.source, ENUM.source)) p.push('source');
+    if (!r.student.name) p.push('student.name');
+    if (!r.context.lessonId) p.push('context.lessonId');
+    if (!inEnum(r.attempt.completionReason, ENUM.completionReason)) p.push('attempt.completionReason');
+    if (!inEnum(r.scoring.markBasis, ENUM.markBasis)) p.push('scoring.markBasis');
+    if (!inEnum(r.scoring.weightsSource, ENUM.weightsSource)) p.push('scoring.weightsSource');
+    if (!inEnum(r.scoring.weightsProfile, ENUM.weightsProfile)) p.push('scoring.weightsProfile');
+    ['completionPct', 'accuracyPct', 'achievementPct', 'mark10'].forEach(function (k) {
+      var v = r.metrics[k]; if (v != null && (typeof v !== 'number' || v < 0 || v > (k === 'mark10' ? 10 : 100))) p.push('metrics.' + k + ' вне диапазона');
+    });
+    if (!Array.isArray(r.tasks)) p.push('tasks'); else r.tasks.forEach(function (t, i) {
+      if (!t.taskId) p.push('tasks[' + i + '].taskId');
+      if (!inEnum(t.status, ENUM.status)) p.push('tasks[' + i + '].status');
+      if (t.score != null && (t.score < 0 || t.score > t.maxScore + 1e-9)) p.push('tasks[' + i + '].score вне диапазона');
+    });
+    return p;
+  }
+
+  function packageReport(reports) {
+    return { schemaVersion: SCHEMA_VERSION, reportType: 'package_report', packageId: U.uuid(), createdAt: U.nowIso(), reports: reports, lessonSummaries: S.summarize(reports) };
+  }
+
+  K.schema = { SCHEMA_VERSION: SCHEMA_VERSION, dedupeKey: dedupeKey, buildLessonReport: buildLessonReport, taskForReport: taskForReport, seal: seal, validateReport: validateReport, packageReport: packageReport, ENUM: ENUM, producer: producer };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/legacy.js --- */
+/* KAP engine · legacy: адаптеры прежних схем (Приложение C). Заполняется после проверки на корпусе. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  K.legacy = { detect: function () { return null; }, toReports: function () { return []; } };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* содержание */
+/* --- content/demo/pack.js · contentHash 00f858221f913a --- */
+/* ДЕМОНСТРАЦИОННОЕ СОДЕРЖАНИЕ для проверки ядра. Не является КСП и не привязано к программе РК.
+   Показывает, как один и тот же движок работает с разными предметами: математика 6 и информатика 8. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  var N = K.norm, U = K.util;
+
+  // ---------- вспомогательное ----------
+  function fr(n, d) { return '<span class="fr"><i>' + n + '</i><b>' + d + '</b></span>'; }
+  var SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+  function sup(n) { return String(n).split('').map(function (c) { return SUP[+c]; }).join(''); }
+  function sub2(s) { return s + '₂'; }
+  function bin(n) { return n.toString(2); }
+  function rev(s) { return s.split('').reverse().join(''); }
+  function reduced(n, d) { return N.rat(n, d); }
+  // Выбор формулировок дистракторов так, чтобы верный ответ не был систематически самым длинным.
+  function pickBalanced(rng, correct, slots) {
+    var chosen = slots.map(function (arr) { return rng.pick(arr); });
+    var maxLen = Math.max.apply(null, chosen.map(function (c) { return c.length; }));
+    if (correct.length > maxLen && rng.chance(0.85)) {
+      var i = rng.int(0, slots.length - 1), longer = slots[i].filter(function (x) { return x.length >= correct.length; });
+      chosen[i] = longer.length ? rng.pick(longer) : slots[i].slice().sort(function (a, b) { return b.length - a.length; })[0];
+    }
+    return chosen;
+  }
+
+  // =====================  МАТЕМАТИКА · дроби  =====================
+  var READ_TPL = [
+    function (d, a) { return 'Полоса разделена на ' + d + ' равных частей, закрашено ' + a + '. Какая дробь показывает закрашенную часть?'; },
+    function (d, a) { return 'Шоколадка состоит из ' + d + ' одинаковых долек, съели ' + a + '. Какая дробь показывает съеденную часть?'; },
+    function (d, a) { return 'Забор состоит из ' + d + ' одинаковых досок, покрашено ' + a + '. Какая дробь показывает покрашенную часть?'; }
+  ];
+  K.gen.register({
+    id: 'frac_read_part', version: '1.1', taskType: 'single_choice', subskill: 'm_read', cognitiveLevel: 'recognition', minUnique: 100,
+    profiles: { standard: { dMin: 3, dMax: 14 } },
+    generate: function (rng, P) {
+      var d = rng.int(P.dMin, P.dMax), a = rng.int(1, d - 1), t = rng.int(0, READ_TPL.length - 1), bars = '';
+      for (var i = 0; i < d; i++) bars += '<span class="bar' + (i < a ? ' on' : '') + '"></span>';
+      return {
+        parameters: { a: a, d: d, t: t },
+        condition: READ_TPL[t](d, a) + '<div class="bars">' + bars + '</div>',
+        correct: a + '/' + d,
+        distractors: [{ text: d + '/' + a, errorType: 'inverted' }, { text: (d - a) + '/' + d, errorType: 'complement' }, { text: a + '/' + (d - a), errorType: 'part_to_part' }, { text: a + '/' + (d + 1), errorType: 'miscount' }].filter(function (x) { return x.text !== a + '/' + d; }).slice(0, 3),
+        hints: ['Знаменатель показывает, на сколько равных частей разделено целое.', 'Числитель показывает, сколько частей закрашено.'],
+        explanation: 'Всего частей — ' + d + ', выделено — ' + a + '. Значит, это ' + fr(a, d) + '.'
+      };
+    }
+  });
+
+  K.gen.register({
+    id: 'frac_add_same', version: '1.0', taskType: 'number', subskill: 'm_add', cognitiveLevel: 'reproduction',
+    profiles: { basic: { dMin: 3, dMax: 10, improper: false, reducible: false }, standard: { dMin: 4, dMax: 12, improper: true, reducible: false }, advanced: { dMin: 6, dMax: 16, improper: true, reducible: true } },
+    minUnique: { basic: 90, standard: 100, advanced: 100 },
+    generate: function (rng, P) {
+      for (var g = 0; g < 200; g++) {
+        var d = rng.int(P.dMin, P.dMax), a = rng.int(1, d - 1), b = rng.int(1, d - 1), s = a + b;
+        if (!P.improper && s >= d) continue;
+        if (P.reducible && N.rat(s, d).d === d) continue;
+        if (!P.reducible && P.improper === false && N.rat(s, d).d !== d) { /* допускаем */ }
+        return {
+          parameters: { a: a, b: b, d: d, red: !!P.reducible },
+          condition: 'Вычисли: ' + fr(a, d) + ' + ' + fr(b, d) + (P.reducible ? ' (ответ запиши сокращённой дробью)' : ''),
+          value: N.rat(s, d), requireIrreducible: !!P.reducible, display: s + '/' + d,
+          wrongValues: [{ value: reduced(s, 2 * d), errorType: 'denominator_added' }, { value: reduced(a * b, d), errorType: 'numerators_multiplied' }],
+          hints: ['Доли одного размера: знаменатель показывает размер доли, он не меняется.', 'Сложи только числители: ' + a + ' + ' + b + '.'],
+          explanation: fr(a, d) + ' + ' + fr(b, d) + ' = ' + fr(a + '+' + b, d) + ' = ' + fr(s, d) + (P.reducible ? ' = ' + fr(N.rat(s, d).n, N.rat(s, d).d) : '') + '. Знаменатель остаётся ' + d + '.'
+        };
+      }
+      throw new Error('нет параметров');
+    }
+  });
+
+  var CONTEXTS = [
+    'Из пирога сначала съели %A%, потом ещё %B% пирога. Какую часть пирога съели?',
+    'Турист в первый день прошёл %A% маршрута, во второй день ещё %B% маршрута. Какую часть маршрута он прошёл?',
+    'В бассейн налили %A% его объёма, затем долили ещё %B% объёма. Какая часть бассейна заполнена?',
+    'Огородник вскопал %A% участка утром и %B% участка днём. Какую часть участка вскопали?',
+    'От ленты отрезали %A% её длины, а потом ещё %B% длины. Какую часть ленты отрезали?',
+    'Книгу читали два вечера: %A% книги в первый вечер и %B% книги во второй. Какую часть книги прочитали?'
+  ];
+  K.gen.register({
+    id: 'frac_add_choice', version: '1.0', taskType: 'single_choice', subskill: 'm_add', cognitiveLevel: 'understanding',
+    profiles: { standard: { dMin: 5, dMax: 12 } },
+    generate: function (rng, P) {
+      var d = rng.int(P.dMin, P.dMax), a = rng.int(1, d - 2), b = rng.int(1, d - 1 - a), s = a + b, ci = rng.int(0, CONTEXTS.length - 1);
+      var pool = [{ text: s + '/' + (2 * d), errorType: 'denominator_added' }, { text: String(s), errorType: 'denominator_dropped' }, { text: (a * b) + '/' + d, errorType: 'numerators_multiplied' }, { text: Math.abs(a - b) + '/' + d, errorType: 'subtracted' }, { text: s + '/' + (d + 1), errorType: 'denominator_changed' }];
+      var picked = rng.shuffle(pool).slice(0, 3);
+      return {
+        parameters: { a: a, b: b, d: d, ctx: ci },
+        condition: CONTEXTS[ci].replace('%A%', fr(a, d)).replace('%B%', fr(b, d)),
+        correct: s + '/' + d, distractors: picked,
+        hints: ['Это сложение долей одного размера.', 'Размер доли (знаменатель) не меняется: ' + d + '.'],
+        explanation: fr(a, d) + ' + ' + fr(b, d) + ' = ' + fr(s, d) + '.'
+      };
+    }
+  });
+
+  K.gen.register({
+    id: 'frac_find_error', version: '1.1', taskType: 'single_choice', subskill: 'm_rule', cognitiveLevel: 'understanding',
+    profiles: { standard: { dMin: 5, dMax: 12 } },
+    generate: function (rng, P) {
+      var d = rng.int(P.dMin, P.dMax), a = rng.int(1, d - 2), b = rng.int(1, d - 1 - a), kind = rng.int(0, 1), s = a + b, cond, correct, dis, d2 = Math.max(2, d - 1);
+      if (kind === 0) {
+        cond = 'Ученик решил так: ' + fr(a, d) + ' + ' + fr(b, d) + ' = ' + fr(s, 2 * d) + '. В чём ошибка?';
+        correct = rng.pick(['Знаменатель нельзя складывать: он остаётся ' + d, 'При сложении долей одного размера знаменатель не меняется: он остаётся равным ' + d, 'Доли одного размера, поэтому знаменатель остаётся ' + d, 'Знаменатель нужно оставить прежним, ' + d + ', а складывать только числители']);
+        var p0 = pickBalanced(rng, correct, [
+          ['Числители нужно было перемножить, а не сложить', 'Нужно было вычесть меньший числитель из большего, а не складывать', 'Складывать нужно не числители, а только знаменатели', 'Числители следовало перемножить'],
+          ['Ответ нужно записать целым числом без дроби', 'Дроби нужно было сначала привести к знаменателю ' + d2 + ', а потом складывать', 'Нужно было сократить обе дроби до сложения', 'Сначала следует перевернуть вторую дробь'],
+          ['Ошибки нет: так складывают любые дроби', 'Ошибки нет: знаменатели при сложении тоже складывают, это правильно', 'Всё верно, знаменатели складывают так же, как числители', 'Ошибки нет, это правило сложения дробей']]);
+        dis = [{ text: p0[0], errorType: 'operation' }, { text: p0[1], errorType: 'format' }, { text: p0[2], errorType: 'concept' }];
+      } else {
+        cond = 'Ученик решил так: ' + fr(a, d) + ' + ' + fr(b, d) + ' = ' + fr(a * b, d) + '. В чём ошибка?';
+        correct = rng.pick(['Числители нужно складывать, а не перемножать', 'Нужно сложить числители: ' + a + ' + ' + b + ', а не умножать их', 'При сложении долей одного размера числители складывают', 'Умножать числители нельзя, их складывают, а знаменатель оставляют']);
+        var p1 = pickBalanced(rng, correct, [
+          ['Знаменатели нужно было сложить: ' + d + ' + ' + d, 'Нужно было умножить знаменатель на два', 'Знаменатель следовало заменить на ' + (d + 1) + ' при сложении', 'Складывать нужно только знаменатели'],
+          ['Дробь следовало перевернуть перед сложением', 'Нужно было вычесть числители друг из друга и оставить знаменатель', 'Сначала нужно обе дроби превратить в целые числа', 'Числитель и знаменатель надо поменять местами'],
+          ['Ошибки нет: так складывают любые дроби', 'Ошибки нет: числители при сложении перемножают, это правильно', 'Всё верно, числители при сложении дробей перемножают', 'Ошибки нет, это правило сложения дробей']]);
+        dis = [{ text: p1[0], errorType: 'denominator_added' }, { text: p1[1], errorType: 'operation' }, { text: p1[2], errorType: 'concept' }];
+      }
+      return { parameters: { a: a, b: b, d: d, kind: kind }, condition: cond, correct: correct, distractors: dis,
+        hints: ['Проверь, как менялся знаменатель и что произошло с числителями.', 'Что показывает знаменатель? Складываем ли мы размеры долей?'],
+        explanation: 'Верно: ' + fr(a, d) + ' + ' + fr(b, d) + ' = ' + fr(s, d) + '.' };
+    }
+  });
+
+  K.gen.register({
+    id: 'frac_word_transfer', version: '1.0', taskType: 'number', subskill: 'm_apply', cognitiveLevel: 'transfer', minUnique: 80,
+    profiles: { standard: { dMin: 6, dMax: 14 } },
+    generate: function (rng, P) {
+      var d = rng.int(P.dMin, P.dMax), b = rng.int(1, d - 3), c = rng.int(1, d - 1 - b), left = d - b - c, who = rng.pick(['Турист', 'Велосипедист', 'Лыжник']);
+      return {
+        parameters: { d: d, b: b, c: c, who: who },
+        condition: 'Путь разделён на ' + d + ' равных частей. ' + who + ' прошёл ' + b + ' частей утром и ещё ' + c + ' частей днём. Какую часть пути ему осталось пройти? Запиши дробью.',
+        value: N.rat(left, d), display: left + '/' + d,
+        wrongValues: [{ value: N.rat(b + c, d), errorType: 'asked_done_not_left' }],
+        hints: ['Сначала узнай, какая часть пути уже пройдена.', 'Весь путь — это ' + d + ' частей из ' + d + '. Что останется?'],
+        explanation: 'Пройдено ' + (b + c) + ' частей из ' + d + '. Осталось ' + d + ' − ' + (b + c) + ' = ' + left + ' частей, то есть ' + fr(left, d) + ' пути.'
+      };
+    }
+  });
+
+  K.gen.register({
+    id: 'frac_order_steps', version: '1.0', taskType: 'ordering', subskill: 'm_rule', cognitiveLevel: 'understanding',
+    profiles: { standard: { dMin: 4, dMax: 14 } },
+    generate: function (rng, P) {
+      var d = rng.int(P.dMin, P.dMax), a = rng.int(1, d - 2), b = rng.int(1, d - 1 - a), s = a + b;
+      return {
+        parameters: { a: a, b: b, d: d },
+        condition: 'Расставь шаги сложения ' + fr(a, d) + ' + ' + fr(b, d) + ' по порядку.',
+        items: [{ id: 'i1', text: 'Видим одинаковые знаменатели: ' + d + ' и ' + d }, { id: 'i2', text: 'Складываем числители: ' + a + ' + ' + b + ' = ' + s },
+          { id: 'i3', text: 'Знаменатель оставляем прежним: ' + d }, { id: 'i4', text: 'Записываем ответ: ' + s + '/' + d }],
+        hints: ['Сначала посмотри, какие знаменатели.', 'Запись ответа — последний шаг.'],
+        explanation: 'Порядок: сравнить знаменатели, сложить числители, оставить знаменатель, записать ответ.'
+      };
+    }
+  });
+
+  var WHY = [
+    'Объясни своими словами, почему при сложении дробей с одинаковыми знаменателями знаменатель не складывают.',
+    'Придумай свою жизненную задачу, где нужно сложить две дроби с одинаковыми знаменателями, и реши её.',
+    'Чем отличается сложение ' + '1/4 + 1/4' + ' от сложения «1 яблоко + 1 яблоко»? Что общего?'
+  ];
+  K.gen.register({
+    id: 'frac_open_explain', version: '1.0', taskType: 'open', subskill: 'm_rule', cognitiveLevel: 'understanding', minUnique: 3,
+    profiles: { standard: {} },
+    generate: function (rng) {
+      var i = rng.int(0, WHY.length - 1);
+      return { parameters: { i: i }, condition: WHY[i], rubric: 'Ответ ученика сохранён для просмотра учителем.', hints: ['Вспомни, что показывает знаменатель.'], explanation: '' };
+    }
+  });
+
+  K.gen.register({
+    id: 'frac_club_missing', version: '1.0', taskType: 'number', subskill: 'm_apply', cognitiveLevel: 'investigation', mode: 'CLUB', minUnique: 60,
+    profiles: { standard: { dMin: 6, dMax: 16 } },
+    generate: function (rng, P) {
+      var d = rng.int(P.dMin, P.dMax), c = rng.int(3, d - 1), a = rng.int(1, c - 1), x = c - a;
+      return {
+        parameters: { a: a, c: c, d: d },
+        condition: 'Две дроби с одинаковым знаменателем ' + d + ' в сумме дают ' + fr(c, d) + '. Одна из них равна ' + fr(a, d) + '. Найди вторую. Подумай, как проверить свой ответ.',
+        value: N.rat(x, d), display: x + '/' + d, wrongValues: [{ value: N.rat(c + a, d), errorType: 'added_instead' }],
+        hints: ['Что нужно сложить с ' + a + ', чтобы получить ' + c + '?'], explanation: 'Нужно ' + c + ' − ' + a + ' = ' + x + ', то есть ' + fr(x, d) + '. Проверка: ' + a + ' + ' + x + ' = ' + c + '.'
+      };
+    }
+  });
+
+  // =====================  ИНФОРМАТИКА · двоичная система  =====================
+  K.gen.register({
+    id: 'dec_place_value', version: '1.0', taskType: 'single_choice', subskill: 'i_place', cognitiveLevel: 'recognition', minUnique: 100,
+    profiles: { standard: {} },
+    generate: function (rng) {
+      var names = ['единиц', 'десятков', 'сотен', 'тысяч', 'десятков тысяч'], digs, n, pos, digit, cnt;
+      for (var g = 0; g < 100; g++) {
+        digs = [rng.int(1, 9), rng.int(0, 9), rng.int(0, 9), rng.int(0, 9), rng.int(0, 9)].slice(0, rng.int(4, 5));
+        pos = rng.int(0, digs.length - 1); digit = digs[pos]; cnt = digs.filter(function (x) { return x === digit; }).length;
+        if (cnt === 1) break;
+      }
+      n = digs.join(''); var idx = digs.length - 1 - pos;
+      var others = [0, 1, 2, 3, 4].filter(function (i) { return i !== idx && i < digs.length + 1; });
+      var dis = rng.shuffle(others).slice(0, 3).map(function (i) { return { text: names[i], errorType: 'place_confusion' }; });
+      return {
+        parameters: { n: n, pos: pos }, condition: 'В числе ' + n + ' цифра ' + digit + ' стоит в разряде…',
+        correct: names[idx], distractors: dis,
+        hints: ['Считай разряды справа налево: единицы, десятки, сотни…'], explanation: 'Справа налево: ' + n.split('').reverse().map(function (c, i) { return c + ' — ' + names[i]; }).join('; ') + '.'
+      };
+    }
+  });
+
+  var TPL = ['Переведи число {N} из десятичной системы счисления в двоичную.', 'Запиши число {N} в двоичной системе счисления.', 'Найди двоичную запись десятичного числа {N}.'];
+  K.gen.register({
+    id: 'bin_dec_to_bin', version: '1.0', taskType: 'base', subskill: 'i_d2b', cognitiveLevel: 'reproduction',
+    profiles: { basic: { lo: 1, hi: 31 }, standard: { lo: 8, hi: 63 }, advanced: { lo: 32, hi: 127 } },
+    minUnique: { basic: 90, standard: 100, advanced: 100 },
+    generate: function (rng, P) {
+      var n = rng.int(P.lo, P.hi), t = rng.int(0, TPL.length - 1);
+      return {
+        parameters: { n: n, t: t }, condition: TPL[t].replace('{N}', n), base: 2, value: n, display: bin(n),
+        hints: ['Дели число на 2 с остатком, пока частное не станет равным 0.', 'Остатки читай снизу вверх: последний остаток — первая цифра.'],
+        explanation: n + ' в двоичной системе: ' + sub2(bin(n)) + '. (Делим на 2, остатки читаем снизу вверх.)'
+      };
+    }
+  });
+
+  K.gen.register({
+    id: 'bin_to_dec', version: '1.0', taskType: 'number', subskill: 'i_b2d', cognitiveLevel: 'reproduction',
+    profiles: { basic: { lo: 3, hi: 5 }, standard: { lo: 4, hi: 6 }, advanced: { lo: 6, hi: 8 } },
+    minUnique: { basic: 80, standard: 100, advanced: 100 },
+    generate: function (rng, P) {
+      var len = rng.int(P.lo, P.hi), s = '1', t = rng.int(0, 2);
+      for (var i = 1; i < len; i++) s += rng.int(0, 1);
+      var v = parseInt(s, 2), wrong = [];
+      var rv = parseInt(rev(s), 2); if (rv !== v) wrong.push({ value: N.rat(rv, 1), errorType: 'reversed_order' });
+      if (+s !== v && +s < 1e9) wrong.push({ value: N.rat(+s, 1), errorType: 'decimal_reading' });
+      var q = ['Переведи двоичное число {X} в десятичную систему.', 'Найди десятичное значение двоичного числа {X}.', 'Чему равно двоичное число {X} в десятичной записи?'][t].replace('{X}', sub2(s));
+      return { parameters: { s: s, t: t }, condition: q, value: N.rat(v, 1), display: String(v), wrongValues: wrong,
+        hints: ['Каждая цифра — это степень двойки: справа налево 1, 2, 4, 8…', 'Сложи степени двойки там, где стоит 1.'],
+        explanation: sub2(s) + ' = ' + s.split('').map(function (c, i) { return c === '1' ? Math.pow(2, s.length - 1 - i) : null; }).filter(function (x) { return x !== null; }).join(' + ') + ' = ' + v + '.' };
+    }
+  });
+
+  K.gen.register({
+    id: 'bin_choice', version: '1.1', taskType: 'single_choice', subskill: 'i_d2b', cognitiveLevel: 'understanding', minUnique: 100,
+    profiles: { standard: { lo: 9, hi: 127 } },
+    generate: function (rng, P) {
+      var n = rng.int(P.lo, P.hi), c = bin(n), t = rng.int(0, 1), pool = [], seen = {};
+      seen[c] = 1;
+      function add(text, err) { if (!seen[text] && text && text[0] === '1') { seen[text] = 1; pool.push({ text: text, errorType: err }); } }
+      add(rev(c), 'reversed_order'); add(bin(n + 1), 'off_by_one'); add(bin(n - 1), 'off_by_one');
+      for (var i = 1; i < c.length; i++) add(c.slice(0, i) + (c[i] === '1' ? '0' : '1') + c.slice(i + 1), 'bit_error');
+      if (pool.length < 3) throw new Error('мало различных дистракторов');
+      var dis = rng.shuffle(pool).slice(0, 3);
+      return { parameters: { n: n, t: t }, condition: t ? 'Выбери двоичную запись десятичного числа ' + n + '.' : 'Какая запись соответствует десятичному числу ' + n + ' в двоичной системе?', correct: c, distractors: dis,
+        hints: ['Раздели число на 2 с остатком и запиши остатки.', 'Проверь: сумма степеней двойки должна дать ' + n + '.'], explanation: n + ' = ' + sub2(c) + '.' };
+    }
+  });
+
+  var LAMPS = ['Сигнал передают с помощью {k} лампочек: каждая горит или не горит. Сколько различных сигналов можно получить?',
+    'На панели {k} переключателей, каждый включён или выключен. Сколько различных комбинаций можно составить?',
+    'Для кода используют {k} двоичных разрядов. Сколько различных чисел можно записать?'];
+  K.gen.register({
+    id: 'bin_count_bits', version: '1.2', taskType: 'number', subskill: 'i_bits', cognitiveLevel: 'transfer', minUnique: 40,
+    profiles: { standard: { lo: 3, hi: 12 } },
+    generate: function (rng, P) {
+      var dir = rng.int(0, 1), t = rng.int(0, LAMPS.length - 1), k;
+      if (dir === 0) {
+        do { k = rng.int(P.lo, P.hi); } while (k === 4);
+        var v = Math.pow(2, k);
+        return { parameters: { dir: 0, k: k, t: t }, condition: LAMPS[t].replace('{k}', k), value: N.rat(v, 1), display: String(v),
+          wrongValues: [{ value: N.rat(k * k, 1), errorType: 'square_confusion' }, { value: N.rat(2 * k, 1), errorType: 'multiplication_confusion' }],
+          hints: ['Одна лампочка даёт 2 варианта. Что будет, если добавить вторую?', 'Каждая новая лампочка удваивает число вариантов.'],
+          explanation: 'Каждый разряд удваивает число вариантов: 2 × 2 × … (' + k + ' раз) = 2' + sup(k) + ' = ' + v + '.' };
+      }
+      var m = rng.int(3, 10), V = Math.pow(2, m);
+      return { parameters: { dir: 1, m: m, t: t }, condition: ['Нужно различать ' + V + ' разных сигналов с помощью лампочек (горит или не горит). Какое наименьшее число лампочек нужно?', 'Нужно закодировать ' + V + ' различных значений двоичными разрядами. Сколько разрядов потребуется как минимум?', 'Чтобы пронумеровать ' + V + ' предметов двоичными числами одинаковой длины, сколько разрядов нужно как минимум?'][t],
+        value: N.rat(m, 1), display: String(m), wrongValues: [{ value: N.rat(V, 1), errorType: 'value_instead' }, { value: N.rat(V / 2, 1), errorType: 'half' }],
+        hints: ['Сколько значений дают 2 разряда? 3 разряда? Когда дойдёшь до ' + V + '?', 'Ищи степень двойки, равную ' + V + '.'], explanation: V + ' = 2' + sup(m) + ', поэтому нужно ' + m + ' разрядов.' };
+    }
+  });
+
+  K.gen.register({
+    id: 'bin_algorithm_order', version: '1.0', taskType: 'ordering', subskill: 'i_d2b', cognitiveLevel: 'understanding',
+    profiles: { standard: { lo: 5, hi: 120 } },
+    generate: function (rng, P) {
+      var n = rng.int(P.lo, P.hi), q = Math.floor(n / 2), r = n % 2;
+      return { parameters: { n: n }, condition: 'Расставь шаги перевода числа ' + n + ' в двоичную систему по порядку.',
+        items: [{ id: 'i1', text: 'Делим ' + n + ' на 2: частное ' + q + ', остаток ' + r }, { id: 'i2', text: 'Частное ' + q + ' снова делим на 2 и записываем остаток' },
+          { id: 'i3', text: 'Повторяем деление, пока частное не станет равным 0' }, { id: 'i4', text: 'Читаем остатки снизу вверх: ' + bin(n) }],
+        hints: ['Сначала делим, потом читаем.', 'Чтение остатков снизу вверх — последний шаг.'], explanation: 'Деление → остаток → повтор до нуля → чтение остатков снизу вверх.' };
+    }
+  });
+
+  K.gen.register({
+    id: 'bin_match_powers', version: '1.0', taskType: 'matching', subskill: 'i_b2d', cognitiveLevel: 'recognition', minUnique: 100,
+    profiles: { standard: {} },
+    generate: function (rng) {
+      var ks = rng.shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).slice(0, 4).sort(function (a, b) { return a - b; }), pairs = {}, left = [], right = [];
+      ks.forEach(function (k) { left.push({ id: 'l' + k, text: '2' + sup(k) }); right.push({ id: 'r' + k, text: String(Math.pow(2, k)) }); pairs['l' + k] = 'r' + k; });
+      return { parameters: { ks: ks }, condition: 'Соедини степень двойки с её значением.', left: left, right: right, pairs: pairs,
+        hints: ['2¹ = 2, каждая следующая степень вдвое больше.'], explanation: ks.map(function (k) { return '2' + sup(k) + ' = ' + Math.pow(2, k); }).join('; ') + '.' };
+    }
+  });
+
+  K.gen.register({
+    id: 'bin_multi_select', version: '1.0', taskType: 'multi_choice', subskill: 'i_digits', cognitiveLevel: 'recognition', minUnique: 100,
+    profiles: { standard: {} },
+    generate: function (rng) {
+      function b(len) { var s = ''; for (var i = 0; i < len; i++) s += rng.int(0, 1); return s; }
+      function bad(len) { var s = b(len), p = rng.int(0, len - 1); return s.slice(0, p) + rng.int(2, 9) + s.slice(p + 1); }
+      var good = [], wrong = [], guard = 0;
+      while (good.length < 3 && guard++ < 50) { var x = b(rng.int(3, 5)); if (good.indexOf(x) < 0) good.push(x); }
+      guard = 0; while (wrong.length < 2 && guard++ < 50) { var y = bad(rng.int(3, 5)); if (wrong.indexOf(y) < 0) wrong.push(y); }
+      var opts = good.map(function (t) { return { text: t, correct: true }; }).concat(wrong.map(function (t) { return { text: t, correct: false, errorType: 'digit_out_of_range' }; }));
+      return { parameters: { good: good, wrong: wrong }, condition: 'Выбери все записи, которые могут быть двоичными числами.', options: opts,
+        hints: ['В двоичной системе только две цифры.'], explanation: 'Двоичные числа состоят только из цифр 0 и 1: ' + good.join(', ') + '.' };
+    }
+  });
+
+  var WHYB = ['Объясни, почему компьютер хранит информацию с помощью двух цифр, 0 и 1.', 'Приведи пример из жизни, где есть только два состояния (как 0 и 1).', 'Как ты проверишь, что перевод числа в двоичную систему выполнен верно?'];
+  K.gen.register({
+    id: 'bin_open_why', version: '1.0', taskType: 'open', subskill: 'i_bits', cognitiveLevel: 'understanding', minUnique: 3,
+    profiles: { standard: {} },
+    generate: function (rng) { var i = rng.int(0, WHYB.length - 1); return { parameters: { i: i }, condition: WHYB[i], rubric: 'Ответ сохранён для просмотра учителем.', hints: ['Подумай о лампочке: горит или не горит.'], explanation: '' }; }
+  });
+
+  K.gen.register({
+    id: 'bin_club_ones', version: '1.0', taskType: 'number', subskill: 'i_bits', cognitiveLevel: 'investigation', mode: 'CLUB', minUnique: 20,
+    profiles: { standard: { lo: 3, hi: 14 } },
+    generate: function (rng, P) {
+      var k = rng.int(P.lo, P.hi), v = rng.int(0, 1);
+      return { parameters: { k: k, v: v }, condition: v ? 'Сколько единиц в двоичной записи числа 2' + sup(k) + ' − 1? Проверь на маленьких k и найди закономерность.' : 'Сколько нулей в двоичной записи числа 2' + sup(k) + '? Проверь на маленьких k и найди закономерность.',
+        value: N.rat(v ? k : k, 1), display: String(k), hints: ['Запиши 2² − 1, 2³ − 1, 2⁴ − 1 в двоичной системе и сравни.'], explanation: v ? '2' + sup(k) + ' − 1 в двоичной записи — это ' + k + ' единиц подряд.' : '2' + sup(k) + ' — единица и ' + k + ' нулей.' };
+    }
+  });
+
+  // =====================  УРОКИ  =====================
+  var STEP_ENTRY = function (can) { return { id: 'entry', type: 'entry', title: 'Вход', group: 'entry', can: can }; };
+
+  var LESSON_FRAC = {
+    lessonId: 'demo-math-6-frac-L01', moduleId: 'demo-m1', title: 'Сложение дробей с одинаковыми знаменателями', subject: 'Математика', class: '6', language: 'ru',
+    section: 'Демонстрация · дроби', series: { seriesId: 'demo-frac', lessonIndex: 1, lessonsTotal: 1 },
+    assessmentType: 'formative', assessmentLabel: 'Формативное оценивание (демо)', checkKind: 'learning', weights: null, timeLimitSec: { final: 480 },
+    objectives: [{ code: 'DEMO-M-1', text: 'Складывать дроби с одинаковыми знаменателями' }], lessonObjectives: [{ code: 'DEMO-M-1.1', text: 'Выполнять сложение и объяснять правило' }],
+    programMap: { current: ['сложение дробей с одинаковыми знаменателями'], confirmed: ['понятие дроби', 'сравнение частей и целого'], notYet: ['сложение дробей с разными знаменателями'], forbidden: ['приведение к общему знаменателю'] },
+    criteria: [
+      { criterionId: 'c0', text: 'Читает дробь', descriptors: [{ descriptorId: 'd0.1', text: 'Определяет дробь по рисунку' }] },
+      { criterionId: 'c1', text: 'Складывает дроби', descriptors: [{ descriptorId: 'd1.1', text: 'Вычисляет сумму' }, { descriptorId: 'd1.2', text: 'Объясняет правило' }] },
+      { criterionId: 'c2', text: 'Применяет в задачах', descriptors: [{ descriptorId: 'd2.1', text: 'Решает текстовую задачу' }] }
+    ],
+    subskills: [
+      { id: 'm_read', text: 'Читать дробь по рисунку', recommend: 'Повторить: что показывают числитель и знаменатель.', ruleCard: { title: 'Что показывает дробь', html: '<p>Знаменатель — на сколько равных частей разделили целое. Числитель — сколько частей взяли.</p>' } },
+      { id: 'm_add', text: 'Складывать дроби с одинаковыми знаменателями', recommend: 'Повторить правило: числители складываем, знаменатель остаётся.', ruleCard: { title: 'Правило сложения', html: '<p>Доли одного размера складываем как предметы: считаем, сколько долей получилось вместе.</p><p>' + fr('2', '7') + ' + ' + fr('3', '7') + ' = ' + fr('5', '7') + '</p>' }, example: { html: '<p>Знаменатель показывает размер доли — он не меняется.</p>' } },
+      { id: 'm_rule', text: 'Объяснять правило сложения', recommend: 'Попробуй объяснить правило на примере с пирогом.', ruleCard: { title: 'Почему знаменатель не меняется', html: '<p>Мы складываем <b>количество</b> долей, а размер доли остаётся тем же: 2 седьмых + 3 седьмых = 5 седьмых.</p>' } },
+      { id: 'm_apply', text: 'Применять сложение в задачах', recommend: 'Решай задачи по шагам: что известно, что найти.', ruleCard: { title: 'Как решать задачу', html: '<p>Выпиши, что известно и что нужно найти. Потом выбери действие.</p>' } }
+    ],
+    stages: [
+      STEP_ENTRY(['Я смогу определить дробь по рисунку', 'Я смогу сложить дроби с одинаковыми знаменателями', 'Я смогу объяснить, почему знаменатель не меняется']),
+      { id: 'diagnostic', type: 'tasks', group: 'diagnostic', title: 'Входная диагностика', hints: false, maxAttempts: 1, feedback: 'neutral', plan: [{ gen: 'frac_read_part', count: 4, descriptors: ['d0.1'] }] },
+      { id: 'open', type: 'cards', group: 'learning', title: 'Открытие', cards: [
+        { title: 'Складываем доли', html: '<p>Пирог разрезан на 7 равных частей. Взяли 2 части, потом ещё 3.</p><p>' + fr(2, 7) + ' + ' + fr(3, 7) + ' = ?</p><p>Сколько седьмых получилось вместе? Подумай, прежде чем листать дальше.</p>' },
+        { title: 'Правило', html: '<p>Размер доли (знаменатель) не меняется. Складываем только числители.</p><p>' + fr(2, 7) + ' + ' + fr(3, 7) + ' = ' + fr(5, 7) + '</p>' }] },
+      { id: 'train', type: 'tasks', group: 'learning', title: 'Тренировка', hints: true, maxAttempts: 3, plan: [
+        { gen: 'frac_add_same', profile: 'basic', count: 3, descriptors: ['d1.1'] }, { gen: 'frac_add_same', profile: 'standard', count: 2, descriptors: ['d1.1'] }, { gen: 'frac_add_choice', count: 2, descriptors: ['d1.1'] }] },
+      { id: 'practice', type: 'tasks', group: 'learning', title: 'Практика', hints: true, maxAttempts: 2, plan: [
+        { gen: 'frac_find_error', count: 1, descriptors: ['d1.2'] }, { gen: 'frac_order_steps', count: 1, descriptors: ['d1.2'] }, { gen: 'frac_word_transfer', count: 2, descriptors: ['d2.1'] }, { gen: 'frac_open_explain', count: 1, descriptors: ['d1.2'] }] },
+      { id: 'final', type: 'tasks', group: 'final', title: 'Итоговая проверка (по желанию)', hints: false, maxAttempts: 1, feedback: 'deferred', timed: true, plan: [
+        { gen: 'frac_add_same', profile: 'standard', count: 2, descriptors: ['d1.1'] }, { gen: 'frac_add_choice', count: 1, descriptors: ['d1.1'] }, { gen: 'frac_find_error', count: 1, descriptors: ['d1.2'] }, { gen: 'frac_word_transfer', count: 2, descriptors: ['d2.1'] }] },
+      { id: 'club', type: 'tasks', group: 'club', title: 'Клуб (по желанию)', mode: 'CLUB', hints: true, maxAttempts: 3, plan: [{ gen: 'frac_club_missing', count: 2 }] },
+      { id: 'reflect', type: 'reflection', group: 'reflection', title: 'Рефлексия', prompt: 'Что тебе было понятно сегодня, а что стоит повторить?' }
+    ]
+  };
+
+  var INF_SUBS = [
+    { id: 'i_place', text: 'Различать разряды числа', recommend: 'Повторить разряды: единицы, десятки, сотни.', ruleCard: { title: 'Разряды', html: '<p>Разряды считаем справа налево: единицы, десятки, сотни, тысячи.</p>' } },
+    { id: 'i_d2b', text: 'Переводить из десятичной в двоичную', recommend: 'Повторить деление на 2 и чтение остатков снизу вверх.', ruleCard: { title: 'Перевод 10 → 2', html: '<p>Делим число на 2 с остатком, пока частное не станет 0. Остатки читаем <b>снизу вверх</b>.</p><p>13 → 1101₂</p>' } },
+    { id: 'i_b2d', text: 'Переводить из двоичной в десятичную', recommend: 'Повторить степени двойки: 1, 2, 4, 8, 16…', ruleCard: { title: 'Перевод 2 → 10', html: '<p>Справа налево разряды равны 1, 2, 4, 8… Складываем те, где стоит 1.</p><p>1101₂ = 8 + 4 + 1 = 13</p>' } },
+    { id: 'i_bits', text: 'Считать число значений', recommend: 'Повторить: каждый разряд удваивает число вариантов.', ruleCard: { title: 'Сколько значений', html: '<p>Один разряд даёт 2 значения. Каждый новый разряд удваивает их число: 2 × 2 × 2 …</p>' } },
+    { id: 'i_digits', text: 'Знать двоичные цифры', recommend: 'Повторить: в двоичной системе только цифры 0 и 1.', ruleCard: { title: 'Двоичные цифры', html: '<p>В двоичной системе используются только 0 и 1.</p>' } }
+  ];
+  var LESSON_BIN = {
+    lessonId: 'demo-inf-8-bin-L01', moduleId: 'demo-m2', title: 'Двоичная система счисления', subject: 'Информатика', class: '8', language: 'ru',
+    section: 'Демонстрация · системы счисления', series: { seriesId: 'demo-bin', lessonIndex: 1, lessonsTotal: 2 },
+    assessmentType: 'formative', assessmentLabel: 'Формативное оценивание (демо)', checkKind: 'learning', weights: null, timeLimitSec: { final: 600 },
+    objectives: [{ code: 'DEMO-I-1', text: 'Переводить числа между десятичной и двоичной системами' }], lessonObjectives: [{ code: 'DEMO-I-1.1', text: 'Переводить небольшие числа и считать число значений' }],
+    programMap: { current: ['перевод 10↔2'], confirmed: ['десятичная система, разряды'], notYet: ['восьмеричная и шестнадцатеричная системы'], forbidden: ['арифметика в двоичной системе'] },
+    criteria: [
+      { criterionId: 'c0', text: 'Знает разряды', descriptors: [{ descriptorId: 'd0.1', text: 'Определяет разряд цифры' }] },
+      { criterionId: 'c1', text: 'Переводит числа', descriptors: [{ descriptorId: 'd1.1', text: 'Переводит из десятичной в двоичную' }, { descriptorId: 'd1.2', text: 'Переводит из двоичной в десятичную' }] },
+      { criterionId: 'c2', text: 'Применяет и объясняет', descriptors: [{ descriptorId: 'd2.1', text: 'Считает число значений' }, { descriptorId: 'd2.2', text: 'Объясняет' }] }
+    ],
+    subskills: INF_SUBS,
+    stages: [
+      STEP_ENTRY(['Я смогу перевести число из десятичной системы в двоичную', 'Я смогу перевести двоичное число в десятичное', 'Я смогу посчитать, сколько значений даёт несколько разрядов']),
+      { id: 'diagnostic', type: 'tasks', group: 'diagnostic', title: 'Входная диагностика', hints: false, maxAttempts: 1, feedback: 'neutral', plan: [{ gen: 'dec_place_value', count: 4, descriptors: ['d0.1'] }] },
+      { id: 'open', type: 'cards', group: 'learning', title: 'Открытие', cards: [
+        { title: 'Две цифры', html: '<p>Лампочка горит (1) или не горит (0). Из таких состояний компьютер строит числа.</p><p>Как ты думаешь, сколько разных сигналов дадут две лампочки?</p>' },
+        { title: 'Перевод 10 → 2', html: '<p>Делим число на 2 с остатком, пока частное не станет 0. Остатки читаем снизу вверх.</p><p>13 = 1101₂</p>' }] },
+      { id: 'train', type: 'tasks', group: 'learning', title: 'Тренировка', hints: true, maxAttempts: 3, plan: [
+        { gen: 'bin_dec_to_bin', profile: 'basic', count: 3, descriptors: ['d1.1'] }, { gen: 'bin_to_dec', profile: 'basic', count: 2, descriptors: ['d1.2'] }, { gen: 'bin_choice', count: 2, descriptors: ['d1.1'] }] },
+      { id: 'practice', type: 'tasks', group: 'learning', title: 'Практика', hints: true, maxAttempts: 2, plan: [
+        { gen: 'bin_dec_to_bin', profile: 'standard', count: 2, descriptors: ['d1.1'] }, { gen: 'bin_algorithm_order', count: 1, descriptors: ['d1.1'] }, { gen: 'bin_match_powers', count: 1, descriptors: ['d1.2'] },
+        { gen: 'bin_multi_select', count: 1, descriptors: ['d2.2'] }, { gen: 'bin_count_bits', count: 1, descriptors: ['d2.1'] }, { gen: 'bin_open_why', count: 1, descriptors: ['d2.2'] }] },
+      { id: 'final', type: 'tasks', group: 'final', title: 'Итоговая проверка (по желанию)', hints: false, maxAttempts: 1, feedback: 'deferred', timed: true, plan: [
+        { gen: 'bin_dec_to_bin', profile: 'standard', count: 2, descriptors: ['d1.1'] }, { gen: 'bin_to_dec', profile: 'standard', count: 2, descriptors: ['d1.2'] }, { gen: 'bin_choice', count: 1, descriptors: ['d1.1'] }, { gen: 'bin_count_bits', count: 1, descriptors: ['d2.1'] }] },
+      { id: 'club', type: 'tasks', group: 'club', title: 'Клуб (по желанию)', mode: 'CLUB', hints: true, maxAttempts: 3, plan: [{ gen: 'bin_club_ones', count: 2 }] },
+      { id: 'reflect', type: 'reflection', group: 'reflection', title: 'Рефлексия', prompt: 'Что получилось легко, а что стоит повторить?' }
+    ]
+  };
+
+  // Тренировка к СОР (контрольная работа: подсказок нет, время фиксируется, потолок 84% при превышении)
+  var LESSON_SOR = {
+    lessonId: 'demo-inf-8-bin-SOR', moduleId: 'demo-m3', title: 'Тренировка к СОР · двоичная система', subject: 'Информатика', class: '8', language: 'ru',
+    section: 'Демонстрация · системы счисления', series: { seriesId: 'demo-bin', lessonIndex: 2, lessonsTotal: 2 },
+    assessmentType: 'SOR', assessmentLabel: 'СОР (тренировочный аналог, демо)', checkKind: 'learning', weights: null, timeLimitSec: { final: 300 },
+    objectives: LESSON_BIN.objectives, lessonObjectives: LESSON_BIN.lessonObjectives, programMap: LESSON_BIN.programMap,
+    criteria: [{ criterionId: 'c1', text: 'Переводит числа', descriptors: [{ descriptorId: 'd1.1', text: 'Из десятичной в двоичную' }, { descriptorId: 'd1.2', text: 'Из двоичной в десятичную' }] },
+      { criterionId: 'c2', text: 'Применяет', descriptors: [{ descriptorId: 'd2.1', text: 'Считает число значений' }] }],
+    subskills: INF_SUBS,
+    stages: [
+      STEP_ENTRY(['Это тренировочная работа: подсказок нет, время фиксируется']),
+      { id: 'train', type: 'tasks', group: 'learning', title: 'Повторение', hints: true, maxAttempts: 3, plan: [{ gen: 'bin_dec_to_bin', profile: 'basic', count: 2, descriptors: ['d1.1'] }, { gen: 'bin_to_dec', profile: 'basic', count: 2, descriptors: ['d1.2'] }] },
+      { id: 'final', type: 'tasks', group: 'final', title: 'Контрольная часть', hints: false, maxAttempts: 1, feedback: 'deferred', timed: true, plan: [
+        { gen: 'bin_dec_to_bin', profile: 'standard', count: 2, descriptors: ['d1.1'] }, { gen: 'bin_to_dec', profile: 'standard', count: 2, descriptors: ['d1.2'] }, { gen: 'bin_count_bits', count: 1, descriptors: ['d2.1'] }] },
+      { id: 'reflect', type: 'reflection', group: 'reflection', title: 'Рефлексия', prompt: 'Что стоит повторить перед настоящей работой?' }
+    ]
+  };
+
+  // Подсказки об ошибках, привязанные к типам ошибок дистракторов (текст для ученика).
+  var ERROR_LABELS = {
+    inverted: 'Числитель и знаменатель перепутаны местами: знаменатель — на сколько частей разделили целое.',
+    complement: 'Здесь указана незакрашенная часть, а нужна закрашенная.',
+    part_to_part: 'Дробь сравнивает часть с целым, а не часть с другой частью.',
+    miscount: 'Пересчитай части ещё раз: знаменатель равен числу всех частей.',
+    denominator_added: 'Знаменатель при сложении не складывают: размер долей не меняется.',
+    numerators_multiplied: 'Числители складывают, а не умножают.',
+    denominator_dropped: 'Ответ — это не просто число: нужно записать дробью, указав размер долей.',
+    subtracted: 'Здесь числители вычитали, а в задаче доли соединяют вместе.',
+    denominator_changed: 'Размер доли остаётся прежним: знаменатель не меняется.',
+    operation: 'Выбрано не то действие. Подумай, что происходит с долями.',
+    format: 'Ответ записан не в том виде, который нужен.',
+    asked_done_not_left: 'Найдена пройденная часть, а в задаче спрашивают, сколько осталось.',
+    added_instead: 'Нужно найти недостающую часть, а не сложить числа ещё раз.',
+    place_confusion: 'Разряды считают справа налево: единицы, десятки, сотни.',
+    reversed_order: 'Порядок цифр обратный: остатки читают снизу вверх, а цифры двоичного числа — слева направо по степеням.',
+    decimal_reading: 'Число записано двоичными цифрами, его нельзя читать как десятичное.',
+    off_by_one: 'Ответ отличается на единицу. Проверь последнее действие.',
+    bit_error: 'В одной цифре ошибка. Проверь перевод по степеням двойки.',
+    square_confusion: 'Каждый разряд удваивает число вариантов, а не возводит в квадрат.',
+    multiplication_confusion: 'Число вариантов удваивается с каждым разрядом: нужны степени двойки.',
+    value_instead: 'Нужно найти число разрядов, а не число значений.',
+    half: 'Проверь: сколько значений дают найденные разряды?',
+    digit_out_of_range: 'В двоичной системе есть только цифры 0 и 1.'
+  };
+
+  K.PACK = {
+    errorLabels: ERROR_LABELS,
+    materialId: 'demo-core-check', contentVersion: '1.0.0', title: 'Демонстрация ядра ЦОМ', language: 'ru',
+    notice: 'Демонстрационное содержание для проверки ядра. Не является КСП и не привязано к программе РК.',
+    lessons: [LESSON_FRAC, LESSON_BIN, LESSON_SOR]
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+KAP.PRODUCER = {"materialId":"demo-core-check","engineVersion":"1.0.0","contentVersion":"1.0.0","contentHash":"00f858221f913a"};
+/* интерфейс */
+/* --- student/i18n.js --- */
+/* KAP engine · i18n: все строки интерфейса ученика в словаре (раздел 23.6). Технических терминов здесь нет (п. 25.3).
+   Казахские строки — рабочий вариант, требуют проверки носителем языка. Отсутствующая строка берётся из русского словаря. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+
+  var ru = {
+    'app.title': 'Мои уроки',
+    'storage.warn': 'В этом браузере прогресс не сохраняется: после закрытия страницы он пропадёт. Сохраняй результат в файл.',
+    'profile.who': 'Кто занимается?', 'profile.new': 'Новый ученик', 'profile.name': 'Имя и фамилия', 'profile.class': 'Класс',
+    'profile.start': 'Начать', 'profile.nameRequired': 'Напиши имя и фамилию.', 'profile.classRequired': 'Укажи класс (число от 1 до 11, можно с буквой).',
+    'profile.hint': 'Мы запоминаем только имя и класс.', 'profile.choose': 'Выбери себя',
+    'home.lessons': 'Мои уроки', 'home.total': 'Уроков', 'home.done': 'Завершено', 'home.progress': 'В процессе', 'home.new': 'Не начато',
+    'home.passing': 'Пройдено', 'home.passingNote': 'Это только прохождение набора уроков, а не отметка.',
+    'home.saveAll': 'Сохранить все результаты (файл для учителя)', 'home.switch': 'Сменить ученика', 'home.search': 'Найти урок',
+    'status.0': 'Не начат', 'status.1': 'В процессе', 'status.2': 'Завершён',
+    'lesson.start': 'Начать урок', 'lesson.continue': 'Продолжить', 'lesson.newAttempt': 'Новая попытка', 'lesson.attempts': 'Мои попытки',
+    'lesson.back': 'К урокам', 'lesson.objectives': 'Чему я научусь', 'lesson.attempt': 'Попытка', 'lesson.open': 'Смотреть итог', 'lesson.mark': 'Отметка',
+    'stage.next': 'Дальше', 'stage.prev': 'Назад', 'stage.begin': 'Начать', 'stage.stopToday': 'Закончить на сегодня',
+    'stage.saved': 'Всё сохранено. Можно продолжить позже с того же места.', 'stage.whatICan': 'Что я смогу',
+    'stage.finalTitle': 'Итоговая проверка — по желанию', 'stage.finalInfo': 'Здесь нет подсказок, ответ даётся один раз. Время записывается, но работа не останавливается.',
+    'stage.skipFinal': 'Пропустить и перейти к итогам', 'stage.clubTitle': 'Клуб — по желанию', 'stage.clubInfo': 'Задачи на размышление. Они не влияют на отметку.', 'stage.skipClub': 'Пропустить',
+    'stage.diagInfo': 'Короткая проверка того, что ты уже знаешь. Подсказок нет, это не страшно: так мы поймём, с чего начать.',
+    'stage.of': 'из',
+    'task.check': 'Проверить', 'task.hint': 'Подсказка', 'task.solution': 'Показать разбор', 'task.skip': 'Пропустить', 'task.next': 'Дальше', 'task.retry': 'Попробовать ещё',
+    'task.rule': 'Посмотреть правило', 'task.empty': 'Сначала дай ответ.', 'task.placeholder': 'Твой ответ', 'task.accepted': 'Ответ принят.',
+    'task.openSaved': 'Ответ сохранён. Его посмотрит учитель.', 'task.confirmSolution': 'Показать разбор? За это задание можно будет получить не больше 40% баллов.',
+    'task.attemptsLeft': 'Осталось попыток', 'task.openLabel': 'Напиши ответ', 'task.up': 'Выше', 'task.down': 'Ниже', 'task.pick': 'выбери', 'task.hintsLeft': 'Подсказок больше нет.',
+    'fb.right': 'Верно!', 'fb.partly': 'Почти получилось', 'fb.notYet': 'Пока не получилось',
+    'fb.rightClean': 'Верно, и без подсказок.', 'fb.rightHint': 'Верно. В следующий раз попробуй без подсказки.', 'fb.rightRetry': 'Верно: ошибка исправлена.',
+    'fb.whatRight': 'Что уже верно', 'fb.whatWrong': 'Где ошибка', 'fb.tryNext': 'Что попробовать', 'fb.explain': 'Разбор', 'fb.yourAnswer': 'Твой ответ', 'fb.correctAnswer': 'Верный ответ',
+    'fb.tried': 'Ты нашёл(ла) способ и довёл(а) решение до ответа — теперь осталось проверить ход.', 'fb.partOk': 'Часть ответа верна.', 'fb.general': 'Давай разберём ход решения.',
+    'err.calc': 'Ответ не совпал с верным. Проверь вычисления по шагам.', 'err.format': 'Ответ записан в непонятной форме. Запиши число, дробь или слово.',
+    'err.concept': 'Здесь стоит вспомнить правило.', 'err.order': 'Порядок шагов не совпал.', 'err.match': 'Не все пары соединены верно.',
+    'err.multi_extra': 'Среди выбранных есть лишние ответы.', 'err.multi_miss': 'Выбраны не все верные ответы.',
+    'err.not_reduced': 'Значение верное, но дробь нужно записать сокращённой.', 'err.form': 'Значение верное, но запись не такая, как просили.', 'err.skipped': 'Задание пропущено.',
+    'series.title': 'Потренируем слабые места', 'series.text': 'Вот что пока даётся труднее. Несколько новых заданий помогут закрепить.',
+    'series.start': 'Потренировать', 'series.skip': 'Не сейчас', 'series.refer': 'Если снова не получится, спроси учителя или одноклассника — это нормально.',
+    'series.done': 'Серия закончена', 'series.mastered': 'Получается', 'series.improved': 'Стало лучше', 'series.same': 'Пока трудно',
+    'rule.title': 'Правило', 'common.close': 'Закрыть', 'common.ok': 'Хорошо', 'common.save': 'Сохранить',
+    'reflect.title': 'Подведём итог', 'reflect.feel': 'Как у тебя получилось?', 'reflect.e1': 'Всё понятно', 'reflect.e2': 'Почти всё понятно', 'reflect.e3': 'Нужно повторить',
+    'reflect.phrase': 'Закончи фразу: «Сегодня мне удалось…»', 'reflect.scale': 'Насколько понятна тема (от 1 до 5)?', 'reflect.comment': 'Что было трудно, а что получилось легко?',
+    'reflect.next': 'Что дальше?', 'reflect.n1': 'Повторю правила и примеры', 'reflect.n2': 'Потренирую трудные задания', 'reflect.n3': 'Пройду урок ещё раз', 'reflect.n4': 'Спрошу учителя или одноклассника',
+    'reflect.finish': 'Завершить урок', 'reflect.chooseOne': 'Выбери один из вариантов.',
+    'report.title': 'Итог урока', 'report.completed': 'Урок завершён', 'report.byLearning': 'Урок завершён по обучающей части', 'report.inProgress': 'Урок не закончен',
+    'report.time': 'Время', 'report.active': 'Рабочее время', 'report.calendar': 'От начала до конца', 'report.completion': 'Выполнено', 'report.accuracy': 'Точность',
+    'report.achievement': 'Цели урока', 'report.mark': 'Отметка', 'report.independence': 'Без подсказок',
+    'report.basis.formative_without_control': 'Отметка за пройденную часть урока (итоговая проверка не выполнялась).',
+    'report.basis.with_control': 'Отметка за урок вместе с итоговой проверкой.', 'report.basis.control_work': 'Результат контрольной работы.', 'report.basis.none': 'Отметки пока нет: ещё не было оценённых заданий.',
+    'report.strengths': 'Получается', 'report.difficulties': 'Нужно повторить', 'report.recs': 'Что делать дальше', 'report.criteria': 'Цели и критерии',
+    'report.summary': 'Итог по уроку из нескольких попыток', 'report.summaryRule': 'Среднее лучшей и последней попыток.',
+    'report.save': 'Сохранить результат (файл для учителя)', 'report.review': 'Разбор ответов', 'report.saved': 'Файл сохранён. Отправь его учителю.',
+    'report.cap': 'Время превысило лимит: за контрольную работу можно получить не больше 84%. Скорость тоже развивается тренировкой.',
+    'report.pending': 'Есть ответы, которые посмотрит учитель', 'report.club': 'Клуб (не влияет на отметку)',
+    'timer.label': 'Время', 'timer.over': 'Время по плану вышло. Продолжай: работа не останавливается, время записывается.'
+  };
+
+  var kk = {
+    'app.title': 'Менің сабақтарым', 'home.lessons': 'Менің сабақтарым', 'status.0': 'Басталмаған', 'status.1': 'Орындалуда', 'status.2': 'Аяқталды',
+    'profile.who': 'Кім жұмыс істейді?', 'profile.name': 'Аты-жөнің', 'profile.class': 'Сынып', 'profile.start': 'Бастау',
+    'lesson.start': 'Сабақты бастау', 'lesson.continue': 'Жалғастыру', 'lesson.newAttempt': 'Жаңа әрекет', 'lesson.back': 'Сабақтарға',
+    'stage.next': 'Әрі қарай', 'stage.begin': 'Бастау', 'stage.stopToday': 'Бүгінгі жұмысты аяқтау',
+    'task.check': 'Тексеру', 'task.hint': 'Кеңес', 'task.skip': 'Өткізу', 'task.next': 'Әрі қарай', 'task.retry': 'Тағы байқап көру',
+    'fb.right': 'Дұрыс!', 'fb.notYet': 'Әзірге болмады',
+    'reflect.title': 'Қорытынды жасайық', 'reflect.finish': 'Сабақты аяқтау', 'report.title': 'Сабақ қорытындысы', 'report.mark': 'Баға', 'common.close': 'Жабу'
+  };
+
+  var I = { lang: 'ru', STR: { ru: ru, kk: kk } };
+  I.t = function (key, vars) {
+    var s = (I.STR[I.lang] && I.STR[I.lang][key]) || ru[key] || key;
+    if (vars) Object.keys(vars).forEach(function (k) { s = s.replace('{' + k + '}', vars[k]); });
+    return s;
+  };
+  I.setLang = function (l) { I.lang = I.STR[l] ? l : 'ru'; };
+  K.i18n = I;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- student/app.js --- */
+/* KAP engine · student app: профили, «Мои уроки», этапы урока, подсказки, коррекционный цикл, отчёт, экспорт. */
+(function (root) {
+  'use strict';
+  var K = root.KAP, U = K.util, S = K.scoring, I = K.i18n, esc = U.esc;
+  var T = function (k, v) { return I.t(k, v); };
+  var PACK = K.PACK, LESSONS = PACK.lessons;
+  I.setLang(PACK.language || 'ru');
+  var STORE_KEY = 'kap:' + K.PRODUCER.materialId;
+  var PAGE_ID = U.hashHex(String(Date.now()) + Math.random());
+  var appEl = document.getElementById('app');
+  var memOnly = false;
+  var FORBIDDEN_UI = ['seed', 'генератор', 'валидатор', 'json', 'fingerprint', 'парсер', 'движок'];
+
+  // ================= хранилище =================
+  function emptyState() { return { v: 1, profiles: {}, current: null }; }
+  function load() {
+    try { var raw = root.localStorage.getItem(STORE_KEY); if (raw) { var s = JSON.parse(raw); if (s && s.profiles) return s; } }
+    catch (e) { memOnly = true; }
+    return emptyState();
+  }
+  var state = load();
+  var saveTimer = null;
+  function save() { try { root.localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { memOnly = true; } }
+  function saveSoon() { if (saveTimer) return; saveTimer = setTimeout(function () { saveTimer = null; save(); }, 300); }
+  (function probe() { try { root.localStorage.setItem(STORE_KEY + ':probe', '1'); root.localStorage.removeItem(STORE_KEY + ':probe'); } catch (e) { memOnly = true; } })();
+
+  var ui = { view: 'home', lessonId: null, draft: null, modal: null, hideFb: null, reportNo: null, filter: '', msg: null, seriesInfo: null };
+
+  function P() { return state.profiles[state.current] || null; }
+  function lessonById(id) { return LESSONS.filter(function (l) { return l.lessonId === id; })[0]; }
+  function LS(id) { var p = P(); p.lessons = p.lessons || {}; return (p.lessons[id] = p.lessons[id] || { attempts: [], seen: [] }); }
+  function curAttempt() {
+    if (!P() || !ui.lessonId) return null;
+    var a = LS(ui.lessonId).attempts; return a.length ? a[a.length - 1] : null;
+  }
+  function activeAttempt() { var a = curAttempt(); return a && a.status === 'in_progress' ? a : null; }
+  function bandClass(cls) { var n = parseInt(cls, 10); if (!n) return 'age-5-6'; return n <= 2 ? 'age-1-2' : n <= 4 ? 'age-3-4' : n <= 6 ? 'age-5-6' : n <= 9 ? 'age-7-9' : 'age-10-11'; }
+  function pctText(x) { return x == null ? '—' : String(x).replace('.', ',') + '%'; }
+  function markText(x) { return x == null ? '—' : String(x).replace('.', ',') + ' из 10'; }
+  function fmtSec(s) { s = Math.max(0, Math.round(s || 0)); var m = Math.floor(s / 60), r = s % 60; return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r; }
+
+  // ================= учёт времени =================
+  var lastEv = 0;
+  function stageStateOf(at, id) { return at.stageState[id] || (at.stageState[id] = { status: 'not_started', activeSec: 0 }); }
+  function curStage() { var at = activeAttempt(), L = ui.lessonId && lessonById(ui.lessonId); return at && L ? L.stages[at.stageIdx] : null; }
+  function touch() {
+    var at = activeAttempt(); if (!at || ui.view !== 'runner') { lastEv = 0; return; }
+    var now = Date.now();
+    if (lastEv) {
+      var gap = (now - lastEv) / 1000, ses = at.sessions[at.sessions.length - 1];
+      if (gap <= 120) {
+        at.activeSec += gap; if (ses) ses.activeSec += gap;
+        var st = curStage(); if (st) stageStateOf(at, st.id).activeSec = (stageStateOf(at, st.id).activeSec || 0) + gap;
+      } else if (gap > 1800) { if (ses) ses.endedAt = at.lastActivityAt; at.sessions.push({ startedAt: U.nowIso(), endedAt: null, activeSec: 0, pageId: PAGE_ID }); }
+    }
+    lastEv = now; at.lastActivityAt = U.nowIso(); saveSoon();
+  }
+  ['pointerdown', 'keydown', 'input'].forEach(function (ev) { document.addEventListener(ev, touch, true); });
+  document.addEventListener('visibilitychange', function () {
+    var at = activeAttempt();
+    if (document.hidden) { if (at && ui.view === 'runner') { at.pageLeaves = (at.pageLeaves || 0) + 1; } lastEv = 0; save(); }
+  });
+  root.addEventListener('beforeunload', function () { var at = activeAttempt(); if (at) { var ses = at.sessions[at.sessions.length - 1]; if (ses) ses.endedAt = U.nowIso(); } save(); });
+  function ensureSession(at) {
+    var ses = at.sessions[at.sessions.length - 1];
+    if (!ses || ses.pageId !== PAGE_ID) { if (ses && !ses.endedAt) ses.endedAt = at.lastActivityAt; at.sessions.push({ startedAt: U.nowIso(), endedAt: null, activeSec: 0, pageId: PAGE_ID }); }
+  }
+
+  // ================= попытки и задания =================
+  function defaultProfile(def, item) { return item.profile || (def.profiles.standard ? 'standard' : Object.keys(def.profiles)[0]); }
+  function planStages(L) {
+    return L.stages.filter(function (s) { return s.type === 'tasks'; }).map(function (s) {
+      var max = 0; s.plan.forEach(function (it) { max += it.count * (K.gen.get(it.gen).maxScore || 1); });
+      return { stageId: s.id, group: s.group, mode: s.mode || 'CORE', plannedMax: max };
+    });
+  }
+  function newAttempt(L) {
+    var ls = LS(L.lessonId), at = {
+      attemptNumber: ls.attempts.length + 1, countsForMark: true, seed: U.randomSeed(), startedAt: U.nowIso(), lastActivityAt: U.nowIso(), fixedAt: null,
+      status: 'in_progress', stopReason: null, stageIdx: 0, taskIdx: 0, tasks: [], stagePlan: planStages(L), stageState: {},
+      sessions: [{ startedAt: U.nowIso(), endedAt: null, activeSec: 0, pageId: PAGE_ID }], activeSec: 0, loops: [], series: null, reflection: null, pageLeaves: 0, adaptations: [], instruction: null
+    };
+    ls.attempts.push(at); enterStage(at, L, L.stages[0]); save(); return at;
+  }
+  function toRecord(t, stage, item, L, id) {
+    t.taskId = id; t.stageId = stage.id; t.group = stage.group; t.mode = stage.mode || t.mode || 'CORE';
+    t.descriptorIds = item.descriptors || t.descriptorIds || []; t.goalCode = (L.objectives[0] || {}).code || null;
+    t.closed = false; t.status = null; t.score = null; t.attempts = []; t.hintsUsed = 0; t.hintLevelsShown = []; t.solutionShown = false; t.skipped = false;
+    t.answerChanges = 0; t.openedCount = 0; t.presentedAt = null; t.answeredAt = null; t.responseTimeSec = null; t.errorType = null; t.errorTags = [];
+    t.studentAnswer = null; t.normalizedAnswer = null; t.loop = false; t.maxAttempts = stage.maxAttempts || 1; t.hintsAllowed = stage.hints !== false;
+    return t;
+  }
+  function seenSet(at, L) { var s = new Set(LS(L.lessonId).seen); at.tasks.forEach(function (t) { s.add(t.fingerprint); }); return s; }
+  function buildStageTasks(at, L, stage) {
+    var ctx = { seen: seenSet(at, L) }, made = [];
+    stage.plan.forEach(function (item, pi) {
+      var def = K.gen.get(item.gen), prof = defaultProfile(def, item);
+      for (var i = 0; i < item.count; i++) {
+        var t = K.gen.make(item.gen, prof, U.deriveSeed(at.seed, stage.id + ':' + pi + ':' + i), ctx);
+        made.push(toRecord(t, stage, item, L, null));
+      }
+    });
+    var rng = U.makeRng(U.deriveSeed(at.seed, stage.id + ':order')), ordered = stage.ordered ? made : rng.shuffle(made);
+    ordered.forEach(function (t, i) { t.taskId = L.lessonId + '#' + stage.id + '#' + (i + 1); at.tasks.push(t); });
+  }
+  function hasIntro(stage) { return stage.type === 'tasks' && (stage.group === 'diagnostic' || stage.group === 'final' || stage.group === 'club'); }
+  function enterStage(at, L, stage) {
+    var ss = stageStateOf(at, stage.id);
+    if (ss.status === 'not_started' || !ss.startedAt) ss.startedAt = U.nowIso();
+    if (stage.type === 'tasks' && hasIntro(stage)) { ss.status = 'not_started'; return; }
+    ss.status = 'in_progress';
+    if (stage.type === 'tasks' && !at.tasks.some(function (t) { return t.stageId === stage.id; })) buildStageTasks(at, L, stage);
+  }
+  function beginStage(at, L, stage) {
+    var ss = stageStateOf(at, stage.id); ss.status = 'in_progress'; ss.startedAt = U.nowIso();
+    if (!at.tasks.some(function (t) { return t.stageId === stage.id; })) buildStageTasks(at, L, stage);
+    at.taskIdx = 0;
+  }
+  function stageTasks(at, stage) {
+    if (at.series) return at.tasks.filter(function (t) { return t.seriesId === at.series.id; });
+    return at.tasks.filter(function (t) { return t.stageId === stage.id && !t.loop; });
+  }
+
+  function limitOver(at, L) {
+    var lim = L.timeLimitSec && L.timeLimitSec.final, fs = L.stages.filter(function (s) { return s.group === 'final'; })[0];
+    return !!(lim && fs && (stageStateOf(at, fs.id).activeSec || 0) > lim);
+  }
+
+  /** Фиксирует ответ. Возвращает результат проверки. Общая логика для интерфейса и автопрохождения. */
+  function answerTask(at, L, stage, task, answer) {
+    var res = K.check(task, answer);
+    if (res.status === 'empty') return res;
+    var n = task.attempts.length + 1, now = U.nowIso();
+    task.studentAnswer = answer; task.normalizedAnswer = res.normalized; task.errorType = res.errorType;
+    var coef = S.coefficient(task.hintsUsed, n, task.solutionShown);
+    task.attempts.push({ n: n, answer: answer, at: now, status: res.status, fraction: res.fraction, score: U.round2(task.maxScore * res.fraction * coef) });
+    var closing = res.status === 'correct' || res.status === 'pending_review' || n >= task.maxAttempts;
+    if (closing) {
+      task.closed = true; task.status = res.status; task.answeredAt = now;
+      task.responseTimeSec = task.presentedAt ? Math.max(0, Math.round((Date.parse(now) - Date.parse(task.presentedAt)) / 1000)) : null;
+      task.answeredAfterLimit = stage.timed ? limitOver(at, L) : false;
+      S.finalizeScore(task);
+      noteLoopOutcome(at, task);
+    }
+    saveSoon();
+    return res;
+  }
+  function skipTask(at, L, stage, task) {
+    var now = U.nowIso();
+    task.closed = true; task.skipped = true; task.status = 'incorrect'; task.score = 0; task.answeredAt = now; task.errorType = 'skipped';
+    task.responseTimeSec = task.presentedAt ? Math.max(0, Math.round((Date.parse(now) - Date.parse(task.presentedAt)) / 1000)) : null;
+    saveSoon();
+  }
+  function noteLoopOutcome(at, task) {
+    (at.loops || []).forEach(function (l) { if (l.route === 'rule_card' && l.outcome === 'pending' && l.subskillId === task.subskillId && l.afterTask !== task.taskId) l.outcome = task.status === 'correct' ? 'improved' : 'no_progress'; });
+  }
+
+  // ================= коррекционный цикл (раздел 26) =================
+  function weakSubskills(at, L) {
+    return (L.subskills || []).filter(function (s) {
+      var ts = at.tasks.filter(function (t) { return t.subskillId === s.id && t.mode !== 'CLUB' && t.closed && t.group !== 'diagnostic' && t.status !== 'pending_review'; });
+      var bad = ts.some(function (t) { return t.status === 'incorrect' || t.status === 'partial' || t.skipped; });
+      var loops = at.loops.filter(function (l) { return l.subskillId === s.id && l.route === 'targeted_series'; }).length;
+      return bad && !S.masteryOf(at.tasks.filter(function (t) { return t.subskillId === s.id && t.mode !== 'CLUB'; })).mastered && loops < 2 && seriesGenerator(L, s.id);
+    });
+  }
+  function seriesGenerator(L, sid) {
+    for (var i = 0; i < L.stages.length; i++) {
+      var st = L.stages[i]; if (st.type !== 'tasks' || st.mode === 'CLUB') continue;
+      for (var j = 0; j < st.plan.length; j++) {
+        var def = K.gen.get(st.plan[j].gen);
+        if (def.subskill === sid && def.taskType !== 'open' && (def.mode || 'CORE') !== 'CLUB') return { item: st.plan[j], def: def };
+      }
+    }
+    return null;
+  }
+  function startSeries(at, L, stage, weak) {
+    var per = Math.max(1, Math.min(3, Math.floor(5 / weak.length))), id = 'series-' + (at.loops.length + 1), ctx = { seen: seenSet(at, L) }, made = 0;
+    weak.forEach(function (s, si) {
+      var g = seriesGenerator(L, s.id), prof = g.item.profile ? g.item.profile : (g.def.profiles.basic ? 'basic' : defaultProfile(g.def, g.item));
+      var errs = {}; at.tasks.forEach(function (t) { if (t.subskillId === s.id && t.errorType) errs[t.errorType] = (errs[t.errorType] || 0) + 1; });
+      var et = Object.keys(errs).sort(function (a, b) { return errs[b] - errs[a]; })[0] || null;
+      var before = S.masteryOf(at.tasks.filter(function (t) { return t.subskillId === s.id && t.mode !== 'CLUB'; })).windowAvg;
+      at.loops.push({ loopId: id + '-' + s.id, subskillId: s.id, errorType: et, route: 'targeted_series', tasksPresented: per, outcome: 'pending', startedAt: U.nowIso(), before: before, seriesId: id });
+      for (var i = 0; i < per; i++) {
+        var t = K.gen.make(g.item.gen, prof, U.deriveSeed(at.seed, id + ':' + s.id + ':' + i), ctx);
+        toRecord(t, stage, g.item, L, L.lessonId + '#' + id + '#' + (++made));
+        t.loop = true; t.seriesId = id; t.maxAttempts = 3; t.hintsAllowed = true; at.tasks.push(t);
+      }
+    });
+    at.series = { id: id, subskills: weak.map(function (s) { return s.id; }) }; at.taskIdx = 0;
+  }
+  function finishSeries(at, L) {
+    var info = [];
+    at.loops.filter(function (l) { return l.seriesId === at.series.id; }).forEach(function (l) {
+      var m = S.masteryOf(at.tasks.filter(function (t) { return t.subskillId === l.subskillId && t.mode !== 'CLUB'; }));
+      l.outcome = m.mastered ? 'mastered' : (m.windowAvg > (l.before || 0) ? 'improved' : 'no_progress');
+      var done = at.loops.filter(function (x) { return x.subskillId === l.subskillId && x.route === 'targeted_series'; }).length;
+      if (!m.mastered && done >= 2) { at.loops.push({ loopId: 'teacher-' + l.subskillId, subskillId: l.subskillId, errorType: l.errorType, route: 'teacher', tasksPresented: 0, outcome: 'referred_to_teacher', startedAt: U.nowIso() }); }
+      var sk = (L.subskills || []).filter(function (s) { return s.id === l.subskillId; })[0];
+      info.push({ text: sk ? sk.text : l.subskillId, outcome: l.outcome, refer: !m.mastered && done >= 2 });
+    });
+    ui.seriesInfo = info; at.series = null; at.taskIdx = 0;
+  }
+
+  // ================= переходы =================
+  function advance() {
+    var at = activeAttempt(), L = lessonById(ui.lessonId); if (!at) return;
+    var st = L.stages[at.stageIdx], ss = stageStateOf(at, st.id);
+    if (ss.status !== 'skipped') ss.status = 'completed'; ss.finishedAt = U.nowIso();
+    at.stageIdx++; at.taskIdx = 0; at.series = null; ui.draft = null; ui.hideFb = null;
+    var next = L.stages[at.stageIdx];
+    if (!next) { completeAttempt(at, L); return; }
+    enterStage(at, L, next); save();
+  }
+  function completeAttempt(at, L) {
+    var ses = at.sessions[at.sessions.length - 1]; if (ses) ses.endedAt = U.nowIso();
+    at.status = 'completed'; at.fixedAt = U.nowIso(); at.lastActivityAt = at.fixedAt;
+    var ls = LS(L.lessonId), seen = new Set(ls.seen); at.tasks.forEach(function (t) { seen.add(t.fingerprint); }); ls.seen = Array.from(seen).slice(-3000);
+    ui.view = 'report'; ui.reportNo = at.attemptNumber; save();
+  }
+  function stopToday() {
+    var at = activeAttempt(); if (!at) return;
+    var ses = at.sessions[at.sessions.length - 1]; if (ses) ses.endedAt = U.nowIso();
+    at.status = 'stopped'; at.stopReason = 'student_stopped'; at.fixedAt = U.nowIso(); save();
+    ui.view = 'home'; ui.msg = T('stage.saved');
+  }
+
+  // ================= отчёты и выгрузка =================
+  function studentInfo() { var p = P(); return { studentId: p.studentId, name: p.name, class: p['class'] }; }
+  function reportOf(at, L) { return K.schema.buildLessonReport({ lesson: L, attempt: at, student: studentInfo() }); }
+  function allReports(lessonId) {
+    var out = [];
+    LESSONS.forEach(function (L) { if (lessonId && L.lessonId !== lessonId) return; if (!P().lessons || !P().lessons[L.lessonId]) return; P().lessons[L.lessonId].attempts.forEach(function (at) { out.push(reportOf(at, L)); }); });
+    return out;
+  }
+  function download(name, obj) {
+    var blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' }), a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  var TR = { а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'e', ж: 'zh', з: 'z', и: 'i', й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f', х: 'kh', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'shch', ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu', я: 'ya', ә: 'a', ғ: 'g', қ: 'k', ң: 'n', ө: 'o', ұ: 'u', ү: 'u', һ: 'h', і: 'i' };
+  function safeName(s) { return Array.from(String(s)).map(function (ch) { var l = ch.toLowerCase(); return TR[l] != null ? TR[l] : ch; }).join('').replace(/[^A-Za-z0-9.\-]+/g, '_'); }
+  function exportReport(at, L) {
+    var r = reportOf(at, L);
+    return K.schema.seal(r).then(function (sealed) {
+      download(safeName(P()['class'] + '_' + L.lessonId + '_p' + at.attemptNumber + '_' + sealed.attempt.fixedAt.slice(0, 10)) + '.json', sealed);
+      ui.msg = T('report.saved'); render(); return sealed;
+    });
+  }
+  function exportAll() {
+    var reps = allReports(); if (!reps.length) return;
+    Promise.all(reps.map(K.schema.seal)).then(function (sealed) {
+      download(safeName('paket_' + P()['class'] + '_' + U.nowIso().slice(0, 10)) + '.json', K.schema.packageReport(sealed));
+      ui.msg = T('report.saved'); render();
+    });
+  }
+
+  // ================= представления =================
+  function lessonStatus(L) {
+    var ls = P().lessons && P().lessons[L.lessonId]; if (!ls || !ls.attempts.length) return 0;
+    var last = ls.attempts[ls.attempts.length - 1];
+    if (last.status === 'completed') return 2; return 1;
+  }
+  function lessonProgress(L) {
+    var ls = P().lessons && P().lessons[L.lessonId]; if (!ls || !ls.attempts.length) return 0;
+    var at = ls.attempts[ls.attempts.length - 1]; if (at.status === 'completed') return 100;
+    return reportOf(at, L).metrics.completionPct || 0;
+  }
+  function lessonMarkText(L) {
+    var ls = P().lessons && P().lessons[L.lessonId]; if (!ls || !ls.attempts.length) return '';
+    var reps = ls.attempts.map(function (a) { return reportOf(a, L); }), sm = S.summarize(reps), r = reps[reps.length - 1];
+    if (sm.length) return markText(sm[0].mark10);
+    return r.metrics.mark10 != null ? markText(r.metrics.mark10) : '';
+  }
+
+  function viewProfile() {
+    var ps = Object.keys(state.profiles).map(function (k) { return state.profiles[k]; });
+    var h = '<h1>' + esc(PACK.title) + '</h1>';
+    if (PACK.notice) h += '<div class="note warn">' + esc(PACK.notice) + '</div>';
+    if (ps.length) {
+      h += '<div class="card"><h2>' + T('profile.choose') + '</h2><div class="grid">';
+      ps.forEach(function (p) { h += '<button class="lesson-card" data-act="selectProfile" data-v="' + esc(p.studentId) + '"><b>' + esc(p.name) + '</b><div class="muted small">' + esc(p['class']) + '</div></button>'; });
+      h += '</div></div>';
+    }
+    h += '<div class="card"><h2>' + T('profile.new') + '</h2><label for="pname">' + T('profile.name') + '</label><input type="text" id="pname" autocomplete="off">' +
+      '<label for="pclass">' + T('profile.class') + '</label><input type="text" id="pclass" autocomplete="off" placeholder="6А" maxlength="4">' +
+      '<p class="muted small">' + T('profile.hint') + '</p><div id="perr" class="note bad" style="display:none"></div><p><button class="btn" data-act="createProfile">' + T('profile.start') + '</button></p></div>';
+    return h;
+  }
+
+  function viewHome() {
+    var p = P(), n = LESSONS.length, st = LESSONS.map(lessonStatus), done = st.filter(function (x) { return x === 2; }).length, prog = st.filter(function (x) { return x === 1; }).length;
+    var total = LESSONS.length ? Math.round(U.sum(LESSONS.map(lessonProgress)) / LESSONS.length) : 0;
+    var h = '<div class="row sb"><h1>' + T('home.lessons') + '</h1><div class="small muted">' + esc(p.name) + ' · ' + esc(p['class']) + '</div></div>';
+    if (memOnly) h += '<div class="banner">' + T('storage.warn') + '</div>';
+    if (ui.msg) { h += '<div class="note ok">' + esc(ui.msg) + '</div>'; ui.msg = null; }
+    if (PACK.notice) h += '<div class="note warn small">' + esc(PACK.notice) + '</div>';
+    h += '<div class="card"><div class="panel-total"><div><b>' + n + '</b>' + T('home.total') + '</div><div><b>' + done + '</b>' + T('home.done') + '</div><div><b>' + prog + '</b>' + T('home.progress') + '</div><div><b>' + (n - done - prog) + '</b>' + T('home.new') + '</div></div>' +
+      '<p class="small muted" style="margin-top:10px">' + T('home.passing') + ': ' + total + '%. ' + T('home.passingNote') + '</p></div>';
+    var list = LESSONS;
+    if (n > 15) { h += '<input type="search" data-act-input="filter" id="flt" value="' + esc(ui.filter) + '" placeholder="' + T('home.search') + '">'; list = LESSONS.filter(function (L) { return (L.title + ' ' + (L.section || '')).toLowerCase().indexOf(ui.filter.toLowerCase()) >= 0; }); }
+    h += '<div class="' + (n > 6 ? 'lesson-list' : 'grid') + '">';
+    list.forEach(function (L) {
+      var s = lessonStatus(L), sym = ['○', '◐', '✓'][s], pr = lessonProgress(L), mk = lessonMarkText(L);
+      h += '<button class="lesson-card" data-act="openLesson" data-v="' + esc(L.lessonId) + '"><div class="small muted">' + (LESSONS.indexOf(L) + 1) + ' · ' + esc(L.subject) + '</div>' +
+        '<div><span class="status s' + s + '" aria-hidden="true">' + sym + '</span><b>' + esc(L.title) + '</b></div>' +
+        '<div class="small muted">' + T('status.' + s) + (mk ? ' · ' + T('lesson.mark') + ': ' + mk : '') + '</div>' +
+        '<div class="bar-track" style="margin-top:8px"><div class="bar-fill" style="width:' + pr + '%"></div></div></button>';
+    });
+    h += '</div><p class="row" style="margin-top:16px"><button class="btn quiet" data-act="exportAll">' + T('home.saveAll') + '</button><button class="btn ghost" data-act="switchProfile">' + T('home.switch') + '</button></p>';
+    return h;
+  }
+
+  function viewLesson() {
+    var L = lessonById(ui.lessonId), ls = LS(L.lessonId), last = ls.attempts[ls.attempts.length - 1], open = last && last.status !== 'completed';
+    var h = '<p><button class="btn ghost" data-act="home">← ' + T('lesson.back') + '</button></p><h1>' + esc(L.title) + '</h1><p class="muted">' + esc(L.subject) + ' · ' + esc(L.assessmentLabel || '') + '</p>';
+    h += '<div class="card"><h2>' + T('lesson.objectives') + '</h2><ul>' + L.objectives.concat(L.lessonObjectives || []).map(function (o) { return '<li>' + esc(o.text) + '</li>'; }).join('') + '</ul>';
+    h += '<p>' + (open ? '<button class="btn" data-act="continue">' + T('lesson.continue') + '</button>' : '<button class="btn" data-act="start">' + (ls.attempts.length ? T('lesson.newAttempt') : T('lesson.start')) + '</button>') + '</p></div>';
+    if (ls.attempts.length) {
+      var sm = S.summarize(ls.attempts.map(function (a) { return reportOf(a, L); }));
+      h += '<div class="card"><h2>' + T('lesson.attempts') + '</h2>';
+      if (sm.length) h += '<div class="note ok small"><b>' + T('report.summary') + ': ' + markText(sm[0].mark10) + '</b> · ' + T('report.summaryRule') + '</div>';
+      ls.attempts.forEach(function (a) {
+        var r = reportOf(a, L);
+        h += '<div class="row sb" style="padding:6px 0;border-top:1px solid var(--line)"><span>' + T('lesson.attempt') + ' ' + a.attemptNumber + ' · ' + T(a.status === 'completed' ? 'status.2' : 'status.1') + ' · ' + markText(r.metrics.mark10) + '</span>' +
+          (a.status === 'completed' ? '<button class="btn quiet" data-act="viewReport" data-v="' + a.attemptNumber + '">' + T('lesson.open') + '</button>' : '') + '</div>';
+      });
+      h += '</div>';
+    }
+    return h;
+  }
+
+  function dotsFor(at, tasks, idx) {
+    return '<div class="dots" aria-hidden="true">' + tasks.map(function (t, i) {
+      var c = 'dot' + (i === idx ? ' cur' : '') + (t.closed ? ' done' : ''); return '<span class="' + c + '"></span>';
+    }).join('') + '</div>';
+  }
+
+  function viewRunner() {
+    var at = activeAttempt(), L = lessonById(ui.lessonId);
+    if (!at) { ui.view = 'lesson'; return viewLesson(); }
+    ensureSession(at);
+    var stage = L.stages[at.stageIdx], ss = stageStateOf(at, stage.id), body = '';
+    var head = '<div class="runner-head"><div class="row sb"><div><b>' + esc(L.title) + '</b><div class="small muted">' + esc(stage.title) + '</div></div>' +
+      '<button class="btn quiet" data-act="stopToday">' + T('stage.stopToday') + '</button></div>' + '<div id="timerBox"></div></div>';
+    if (ui.modal) body += viewModal(at, L, stage);
+    if (stage.type === 'entry') body += viewEntry(L, stage);
+    else if (stage.type === 'cards') body += viewCards(at, stage);
+    else if (stage.type === 'reflection') body += viewReflection(at, L, stage);
+    else if (ss.status === 'not_started') body += viewIntro(L, stage);
+    else if (ui.seriesInfo) body += viewSeriesDone();
+    else body += viewTask(at, L, stage);
+    return head + body;
+  }
+
+  function viewEntry(L, stage) {
+    return '<div class="card"><h2>' + T('stage.whatICan') + '</h2><ul>' + (stage.can || []).map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul><p><button class="btn" data-act="advance">' + T('stage.begin') + '</button></p></div>';
+  }
+  function viewCards(at, stage) {
+    var i = Math.min(at.taskIdx, stage.cards.length - 1), c = stage.cards[i];
+    return '<div class="card"><div class="small muted">' + (i + 1) + ' ' + T('stage.of') + ' ' + stage.cards.length + '</div><h2>' + esc(c.title) + '</h2><div>' + c.html + '</div><p class="row">' +
+      (i > 0 ? '<button class="btn quiet" data-act="cardPrev">' + T('stage.prev') + '</button>' : '') +
+      (i < stage.cards.length - 1 ? '<button class="btn" data-act="cardNext">' + T('stage.next') + '</button>' : '<button class="btn" data-act="advance">' + T('stage.next') + '</button>') + '</p></div>';
+  }
+  function viewIntro(L, stage) {
+    var title = stage.title, info = '', skip = '';
+    if (stage.group === 'diagnostic') info = T('stage.diagInfo');
+    else if (stage.group === 'final') { title = T('stage.finalTitle'); info = T('stage.finalInfo') + (L.timeLimitSec && L.timeLimitSec.final ? ' ' + T('timer.label') + ': ' + Math.round(L.timeLimitSec.final / 60) + ' мин.' : ''); skip = '<button class="btn quiet" data-act="skipStage">' + T('stage.skipFinal') + '</button>'; }
+    else if (stage.group === 'club') { title = T('stage.clubTitle'); info = T('stage.clubInfo'); skip = '<button class="btn quiet" data-act="skipStage">' + T('stage.skipClub') + '</button>'; }
+    return '<div class="card"><h2>' + esc(title) + '</h2><p>' + esc(info) + '</p><p class="row"><button class="btn" data-act="beginStage">' + T('stage.begin') + '</button>' + skip + '</p></div>';
+  }
+  function viewSeriesDone() {
+    var h = '<div class="card"><h2>' + T('series.done') + '</h2>';
+    ui.seriesInfo.forEach(function (x) { h += '<p><span class="chip ' + (x.outcome === 'mastered' ? 'ok' : x.outcome === 'improved' ? 'warn' : 'bad') + '">' + T(x.outcome === 'mastered' ? 'series.mastered' : x.outcome === 'improved' ? 'series.improved' : 'series.same') + '</span> ' + esc(x.text) + '</p>' + (x.refer ? '<p class="note">' + T('series.refer') + '</p>' : ''); });
+    return h + '<p><button class="btn" data-act="seriesContinue">' + T('stage.next') + '</button></p></div>';
+  }
+
+  function errorLabel(task) {
+    var et = task.errorType, L = PACK.errorLabels || {};
+    if (et && L[et]) return L[et];
+    var k = 'err.' + et; var s = T(k); return s === k ? T('fb.general') : s;
+  }
+  function fbFor(task, stage) {
+    var last = task.attempts[task.attempts.length - 1]; if (!last) return null;
+    if (task.taskType === 'open' || last.status === 'pending_review') return { kind: 'neutral', title: T('task.accepted'), lines: [T('task.openSaved')] };
+    var mode = stage.feedback || 'immediate';
+    if (mode !== 'immediate') return { kind: 'neutral', title: T('task.accepted'), lines: [] };
+    if (last.status === 'correct') {
+      var t = task.attempts.length > 1 ? T('fb.rightRetry') : (task.hintsUsed ? T('fb.rightHint') : T('fb.rightClean'));
+      return { kind: 'ok', title: T('fb.right') + ' ' + t, lines: [], explain: true };
+    }
+    var lines = [];
+    if (last.status === 'partial') lines.push('<b>' + T('fb.whatRight') + ':</b> ' + T('fb.partOk'));
+    lines.push('<b>' + T('fb.whatWrong') + ':</b> ' + esc(errorLabel(task)));
+    var left = task.maxAttempts - task.attempts.length;
+    lines.push('<b>' + T('fb.tryNext') + ':</b> ' + (left > 0 ? (task.hintsAllowed ? T('fb.general') + ' ' + T('task.hint') + '.' : T('fb.general')) : T('fb.explain') + ' ↓'));
+    return { kind: last.status === 'partial' ? 'part' : 'bad', title: last.status === 'partial' ? T('fb.partly') : T('fb.notYet'), lines: lines, explain: left <= 0, html: true };
+  }
+
+  function answerWidget(task, locked) {
+    var d = ui.draft, dis = locked ? ' disabled' : '', h = '';
+    switch (task.taskType) {
+      case 'single_choice':
+        h = '<div class="opts" role="group">' + task.options.map(function (o) {
+          var cls = 'opt' + (d === o.id ? ' sel' : '');
+          if (locked && task.rule.correctId === o.id && (task.status === 'correct' || task.attempts.length >= task.maxAttempts) && showKey(task)) cls += ' right';
+          return '<button class="' + cls + '" data-act="pick" data-v="' + o.id + '" aria-pressed="' + (d === o.id) + '"' + dis + '>' + esc(o.text) + '</button>';
+        }).join('') + '</div>'; break;
+      case 'multi_choice':
+        d = Array.isArray(d) ? d : [];
+        h = '<div class="opts" role="group">' + task.options.map(function (o) { var on = d.indexOf(o.id) >= 0; return '<button class="opt' + (on ? ' sel' : '') + '" data-act="toggle" data-v="' + o.id + '" aria-pressed="' + on + '"' + dis + '>' + (on ? '☑ ' : '☐ ') + esc(o.text) + '</button>'; }).join('') + '</div>'; break;
+      case 'ordering':
+        d = Array.isArray(d) ? d : task.items.map(function (x) { return x.id; });
+        h = '<ul class="ord">' + d.map(function (id, i) { var it = task.items.filter(function (x) { return x.id === id; })[0]; return '<li><span class="t">' + (i + 1) + '. ' + esc(it.text) + '</span><button class="btn quiet" data-act="move" data-v="' + i + ':-1" aria-label="' + T('task.up') + '"' + dis + '>↑</button><button class="btn quiet" data-act="move" data-v="' + i + ':1" aria-label="' + T('task.down') + '"' + dis + '>↓</button></li>'; }).join('') + '</ul>'; break;
+      case 'matching':
+        d = d && typeof d === 'object' && !Array.isArray(d) ? d : {};
+        h = task.left.map(function (l) {
+          return '<div class="match-row"><span>' + esc(l.text) + '</span><select data-match="' + l.id + '"' + dis + '><option value="">— ' + T('task.pick') + ' —</option>' + task.right.map(function (r) { return '<option value="' + r.id + '"' + (d[l.id] === r.id ? ' selected' : '') + '>' + esc(r.text) + '</option>'; }).join('') + '</select></div>';
+        }).join(''); break;
+      case 'open':
+        h = '<label for="ans">' + T('task.openLabel') + '</label><textarea id="ans"' + dis + '>' + esc(d || '') + '</textarea>'; break;
+      default:
+        h = '<input type="text" id="ans" autocomplete="off" autocapitalize="off" inputmode="text" placeholder="' + T('task.placeholder') + '" value="' + esc(d || '') + '"' + dis + '>';
+    }
+    return h;
+  }
+  function showKey(task) { return true; }
+
+  function viewTask(at, L, stage) {
+    var tasks = stageTasks(at, stage), idx = Math.min(at.taskIdx, tasks.length - 1), task = tasks[idx];
+    if (!task) { return '<div class="card"><p><button class="btn" data-act="afterTasks">' + T('stage.next') + '</button></p></div>'; }
+    if (!task.presentedAt) { task.presentedAt = U.nowIso(); task.openedCount = 1; saveSoon(); }
+    if (ui.draft === null) ui.draft = task.studentAnswer != null && !task.closed ? task.studentAnswer : null;
+    var fb = (ui.hideFb === task.taskId) ? null : fbFor(task, stage), locked = task.closed;
+    var h = '<div class="card"><div class="row sb"><span class="small muted">' + (at.series ? T('series.title') + ' · ' : '') + (idx + 1) + ' ' + T('stage.of') + ' ' + tasks.length + '</span>' + dotsFor(at, tasks, idx) + '</div>';
+    h += '<div class="task-cond">' + task.condition + '</div>';
+    for (var i = 0; i < task.hintsUsed; i++) if (task.hints[i]) h += '<div class="hint">💡 ' + esc(task.hints[i]) + '</div>';
+    h += answerWidget(task, locked);
+    if (fb) {
+      h += '<div class="fb ' + fb.kind + '"><h3>' + esc(fb.title) + '</h3>' + fb.lines.map(function (l) { return '<div class="line">' + (fb.html ? l : esc(l)) + '</div>'; }).join('');
+      if (fb.explain && task.explanation) h += '<details' + (fb.kind === 'ok' ? '' : ' open') + '><summary>' + T('fb.explain') + '</summary><div>' + task.explanation + '</div></details>';
+      if (!task.closed && stage.maxAttempts > 1) h += '<div class="small muted">' + T('task.attemptsLeft') + ': ' + (task.maxAttempts - task.attempts.length) + '</div>';
+      h += '</div>';
+    }
+    h += '<p class="row">';
+    if (!locked) {
+      var retry = fb && !task.closed && task.attempts.length && ui.hideFb !== task.taskId;
+      h += retry ? '<button class="btn" data-act="retry">' + T('task.retry') + '</button>' : '<button class="btn" data-act="check">' + T('task.check') + '</button>';
+      if (task.hintsAllowed && task.hintsUsed < Math.min(2, task.hints.length)) h += '<button class="btn quiet" data-act="hint">' + T('task.hint') + '</button>';
+      if (task.hintsAllowed && task.attempts.length && !task.solutionShown && task.explanation) h += '<button class="btn quiet" data-act="solution">' + T('task.solution') + '</button>';
+      if (retry && stageHasRule(L, task) && task.attempts.length) h += '<button class="btn quiet" data-act="rule">' + T('task.rule') + '</button>';
+      h += '<button class="btn ghost" data-act="skip">' + T('task.skip') + '</button>';
+    } else {
+      if (task.status !== 'correct' && stageHasRule(L, task) && (stage.feedback || 'immediate') === 'immediate' && task.hintsAllowed) h += '<button class="btn quiet" data-act="rule">' + T('task.rule') + '</button>';
+      h += '<button class="btn" data-act="nextTask">' + T('task.next') + '</button>';
+    }
+    h += '</p>';
+    if (task.solutionShown && task.explanation && !task.closed) h += '<div class="note"><b>' + T('fb.explain') + ':</b> ' + task.explanation + '</div>';
+    if (ui.msg) { h += '<div class="note bad">' + esc(ui.msg) + '</div>'; ui.msg = null; }
+    return h + '</div>';
+  }
+  function stageHasRule(L, task) { var s = (L.subskills || []).filter(function (x) { return x.id === task.subskillId; })[0]; return !!(s && s.ruleCard); }
+
+  function viewModal(at, L, stage) {
+    var m = ui.modal, c = '';
+    if (m.type === 'rule') { var s = (L.subskills || []).filter(function (x) { return x.id === m.subskillId; })[0]; c = '<h2>' + esc(s.ruleCard.title) + '</h2>' + s.ruleCard.html; }
+    if (m.type === 'confirmSolution') c = '<p>' + T('task.confirmSolution') + '</p><p class="row"><button class="btn" data-act="solutionYes">' + T('task.solution') + '</button><button class="btn quiet" data-act="closeModal">' + T('common.close') + '</button></p>';
+    if (m.type === 'series') {
+      c = '<h2>' + T('series.title') + '</h2><p>' + T('series.text') + '</p><ul>' + m.weak.map(function (s) { return '<li>' + esc(s.text) + '</li>'; }).join('') + '</ul><p class="row"><button class="btn" data-act="seriesYes">' + T('series.start') + '</button><button class="btn quiet" data-act="seriesNo">' + T('series.skip') + '</button></p>';
+    }
+    return '<div class="modal-back" role="dialog" aria-modal="true"><div class="modal">' + c + (m.type === 'rule' ? '<p><button class="btn" data-act="closeModal">' + T('common.close') + '</button></p>' : '') + '</div></div>';
+  }
+
+  function viewReflection(at, L, stage) {
+    var n = parseInt(P()['class'], 10) || 6, form = n <= 2 ? 'emoji' : n <= 4 ? 'choice_text' : n <= 9 ? 'scale_comment' : 'text';
+    var h = '<div class="card"><h2>' + T('reflect.title') + '</h2><p>' + esc(stage.prompt || '') + '</p>';
+    if (form === 'emoji') h += '<p>' + T('reflect.feel') + '</p><div class="emoji-row" id="rf">' + ['😀', '🙂', '🤔'].map(function (e, i) { return '<button class="btn quiet" data-act="rfEmoji" data-v="' + (i + 1) + '" aria-label="' + T('reflect.e' + (i + 1)) + '">' + e + '</button>'; }).join('') + '</div>';
+    if (form === 'choice_text') h += '<p>' + T('reflect.feel') + '</p><div class="opts">' + [1, 2, 3].map(function (i) { return '<button class="opt" data-act="rfChoice" data-v="' + i + '" aria-pressed="false">' + T('reflect.e' + i) + '</button>'; }).join('') + '</div><label for="rtext">' + T('reflect.phrase') + '</label><input type="text" id="rtext">';
+    if (form === 'scale_comment') h += '<label for="rscale">' + T('reflect.scale') + '</label><select id="rscale">' + [1, 2, 3, 4, 5].map(function (i) { return '<option value="' + i + '">' + i + '</option>'; }).join('') + '</select><label for="rtext">' + T('reflect.comment') + '</label><textarea id="rtext"></textarea>';
+    if (form === 'text') h += '<label for="rscale">' + T('reflect.scale') + '</label><select id="rscale">' + [1, 2, 3, 4, 5].map(function (i) { return '<option value="' + i + '">' + i + '</option>'; }).join('') + '</select><label for="rtext">' + T('reflect.comment') + '</label><textarea id="rtext"></textarea>';
+    h += '<h3>' + T('reflect.next') + '</h3><div class="opts" id="rnext">' + [1, 2, 3, 4].map(function (i) { return '<button class="opt" data-act="rfNext" data-v="' + i + '" aria-pressed="false">' + T('reflect.n' + i) + '</button>'; }).join('') + '</div>';
+    h += '<div id="rerr" class="note bad" style="display:none"></div><p><button class="btn" data-act="finish" data-form="' + form + '">' + T('reflect.finish') + '</button></p></div>';
+    return h;
+  }
+
+  function levelNames() { return { recognition: 'Узнавание', reproduction: 'Воспроизведение', understanding: 'Понимание', transfer: 'Перенос', investigation: 'Исследование', generalization: 'Обобщение' }; }
+  function viewReport() {
+    var L = lessonById(ui.lessonId), ls = LS(L.lessonId), at = ls.attempts.filter(function (a) { return a.attemptNumber === ui.reportNo; })[0] || ls.attempts[ls.attempts.length - 1];
+    var r = reportOf(at, L), m = r.metrics, sc = r.scoring, sm = S.summarize(ls.attempts.map(function (a) { return reportOf(a, L); }));
+    var statusKey = sc.markBasis === 'formative_without_control' ? 'report.byLearning' : 'report.completed';
+    var h = '<p><button class="btn ghost" data-act="home">← ' + T('lesson.back') + '</button></p><h1>' + T('report.title') + '</h1>';
+    if (ui.msg) { h += '<div class="note ok">' + esc(ui.msg) + '</div>'; ui.msg = null; }
+    h += '<div class="card"><h2>' + esc(L.title) + '</h2><p class="muted">' + esc(r.student.name) + ' · ' + esc(r.student['class']) + ' · ' + T('lesson.attempt') + ' ' + at.attemptNumber + '</p><p><span class="chip ok">' + T(statusKey) + '</span></p>';
+    h += '<div class="kv"><div><b>' + markText(m.mark10) + '</b>' + T('report.mark') + '</div><div><b>' + pctText(m.completionPct) + '</b>' + T('report.completion') + '</div><div><b>' + pctText(m.accuracyPct) + '</b>' + T('report.accuracy') + '</div><div><b>' + pctText(m.achievementPct) + '</b>' + T('report.achievement') + '</div><div><b>' + pctText(m.independencePct) + '</b>' + T('report.independence') + '</div></div>';
+    h += '<p class="small muted">' + T('report.basis.' + sc.markBasis) + '</p>';
+    if (sc.scoreCap.applied) h += '<div class="note warn">' + T('report.cap') + '</div>';
+    h += '<p class="small muted">' + T('report.active') + ': ' + fmtSec(r.time.activeTimeSec) + ' · ' + T('report.calendar') + ': ' + fmtSec(r.time.elapsedWallTimeSec) + '</p></div>';
+    if (sm.length) h += '<div class="card"><h3>' + T('report.summary') + '</h3><p><b>' + markText(sm[0].mark10) + '</b> <span class="muted small">(' + sm[0].bestMark10 + ' / ' + sm[0].lastMark10 + ' — ' + T('report.summaryRule') + ')</span></p></div>';
+    if (r.criteriaResults.length) {
+      h += '<div class="card"><h3>' + T('report.criteria') + '</h3>';
+      r.criteriaResults.forEach(function (c) { h += '<div class="crit">' + esc(c.text) + ': ' + pctText(c.pct) + '<div class="bar-track"><div class="bar-fill" style="width:' + (c.pct || 0) + '%"></div></div></div>'; });
+      h += '</div>';
+    }
+    if (r.strengths.length) h += '<div class="card"><h3>' + T('report.strengths') + '</h3><ul>' + r.strengths.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>';
+    if (r.difficulties.length) h += '<div class="card"><h3>' + T('report.difficulties') + '</h3><ul>' + r.difficulties.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul><h3>' + T('report.recs') + '</h3><ul>' + r.recommendations.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>';
+    var pend = at.tasks.filter(function (t) { return t.status === 'pending_review'; }).length;
+    if (pend) h += '<div class="note">' + T('report.pending') + ': ' + pend + '</div>';
+    if (r.extensionResult) h += '<div class="card"><h3>' + T('report.club') + '</h3><p>' + T('report.accuracy') + ': ' + pctText(r.extensionResult.accuracyPct) + '</p></div>';
+    var finals = at.tasks.filter(function (t) { return t.group === 'final' && t.closed; });
+    if (finals.length) {
+      h += '<details class="card"><summary>' + T('report.review') + '</summary>' + finals.map(function (t, i) {
+        return '<div style="margin:10px 0"><div class="small muted">' + (i + 1) + '</div><div>' + t.condition + '</div><div class="small"><b>' + T('fb.yourAnswer') + ':</b> ' + esc(Array.isArray(t.studentAnswer) ? t.studentAnswer.join(', ') : typeof t.studentAnswer === 'object' && t.studentAnswer ? JSON.stringify(t.studentAnswer) : t.studentAnswer == null ? '—' : t.studentAnswer) + ' · <b>' + T('fb.correctAnswer') + ':</b> ' + esc(Array.isArray(t.expectedAnswer) ? t.expectedAnswer.join(' → ') : t.expectedAnswer) + '</div>' + (t.explanation ? '<div class="small muted">' + t.explanation + '</div>' : '') + '</div>';
+      }).join('') + '</details>';
+    }
+    h += '<p class="row"><button class="btn" data-act="saveReport" data-v="' + at.attemptNumber + '">' + T('report.save') + '</button><button class="btn quiet" data-act="start">' + T('lesson.newAttempt') + '</button></p>';
+    return h;
+  }
+
+  // ================= самопроверка (#selftest) =================
+  function viewSelftest() {
+    return '<h1>Самопроверка</h1><p class="muted small">Служебный режим. Для учеников не предназначен.</p><p><button class="btn" data-act="runSelftest">Запустить</button> <button class="btn ghost" data-act="home">Закрыть</button></p><div id="stOut" class="selftest scroll"></div>';
+  }
+  function runSelftest(n) {
+    var out = document.getElementById('stOut'); if (!out) return;
+    var rows = [], defs = K.gen.list(), list = [];
+    defs.forEach(function (d) { Object.keys(d.profiles).forEach(function (p) { list.push([d, p]); }); });
+    out.innerHTML = '<p>Идёт проверка…</p>';
+    var i = 0;
+    (function step() {
+      if (i < list.length) {
+        var d = list[i][0], p = list[i][1], st = K.gen.test(d.id, n || 300, { profile: p });
+        rows.push('<tr><td>' + esc(d.id) + '</td><td>' + esc(d.version) + '</td><td>' + p + '</td><td>' + st.tried + '</td><td>' + st.accepted + '</td><td>' + st.rejected + '</td><td>' + st.uniqueVariants + '</td><td class="' + (st.verdict.ok ? 'ok' : 'bad') + '">' + (st.verdict.ok ? 'OK' : esc(st.verdict.problems.join('; '))) + '</td></tr>');
+        i++; setTimeout(step, 0); return;
+      }
+      var jarg = Object.keys(I.STR.ru).filter(function (k) { return FORBIDDEN_UI.some(function (w) { return String(I.STR.ru[k]).toLowerCase().indexOf(w) >= 0; }); });
+      var storage = !memOnly;
+      out.innerHTML = '<table><tr><th>Генератор</th><th>Версия</th><th>Профиль</th><th>Проверено</th><th>Успешно</th><th>Отклонено</th><th>Различимых</th><th>Итог</th></tr>' + rows.join('') + '</table>' +
+        '<p>Хранилище браузера: <b class="' + (storage ? 'ok' : 'bad') + '">' + (storage ? 'работает' : 'недоступно') + '</b></p><p>Служебные слова на экранах ученика: <b class="' + (jarg.length ? 'bad' : 'ok') + '">' + (jarg.length ? esc(jarg.join(', ')) : 'нет') + '</b></p><p>Версии: ядро ' + esc(K.PRODUCER.engineVersion) + ', содержание ' + esc(K.PRODUCER.contentVersion) + ', контрольная сумма ' + esc(K.PRODUCER.contentHash) + '</p>';
+      out.setAttribute('data-done', '1');
+    })();
+  }
+
+  // ================= отрисовка и события =================
+  function render() {
+    var p = P();
+    document.documentElement.className = p ? bandClass(p['class']) : '';
+    var h;
+    if (location.hash === '#selftest') h = viewSelftest();
+    else if (!p) h = viewProfile();
+    else if (ui.view === 'home') h = viewHome();
+    else if (ui.view === 'lesson') h = viewLesson();
+    else if (ui.view === 'runner') h = viewRunner();
+    else if (ui.view === 'report') h = viewReport();
+    else h = viewHome();
+    appEl.innerHTML = h;
+    var a = document.getElementById('ans'); if (a && a.tagName === 'INPUT') { /* фокус не отнимаем у пользователя */ }
+    if (ui.view === 'runner') updateTimer();
+    window.scrollTo(0, 0);
+  }
+  function updateTimer() {
+    var box = document.getElementById('timerBox'); if (!box) return;
+    var at = activeAttempt(), L = lessonById(ui.lessonId), st = curStage(); if (!at || !st || !st.timed || stageStateOf(at, st.id).status !== 'in_progress') { box.innerHTML = ''; return; }
+    var ss = stageStateOf(at, st.id), extra = (lastEv && Date.now() - lastEv <= 120000) ? (Date.now() - lastEv) / 1000 : 0, el = (ss.activeSec || 0) + extra, lim = L.timeLimitSec && L.timeLimitSec.final;
+    box.innerHTML = '<div class="small timer muted">' + T('timer.label') + ': ' + fmtSec(el) + (lim ? ' / ' + fmtSec(lim) : '') + '</div>' + (lim && el > lim ? '<div class="note small">' + T('timer.over') + '</div>' : '');
+  }
+  setInterval(updateTimer, 1000);
+
+  function readDraft(task) {
+    var t = task.taskType;
+    if (t === 'matching') { var d = {}; appEl.querySelectorAll('select[data-match]').forEach(function (s) { if (s.value) d[s.getAttribute('data-match')] = s.value; }); return Object.keys(d).length ? d : null; }
+    if (t === 'single_choice' || t === 'multi_choice' || t === 'ordering') return ui.draft;
+    var el = document.getElementById('ans'); return el ? el.value : ui.draft;
+  }
+  function currentTaskObj() {
+    var at = activeAttempt(), L = lessonById(ui.lessonId); if (!at) return null;
+    var stage = L.stages[at.stageIdx], tasks = stageTasks(at, stage); return { at: at, L: L, stage: stage, task: tasks[Math.min(at.taskIdx, tasks.length - 1)], tasks: tasks };
+  }
+  function afterTasks() {
+    var c = currentTaskObj();
+    if (c.at.series) { finishSeries(c.at, c.L); render(); return; }
+    var learningHints = c.stage.group === 'learning' && c.stage.hints !== false && (c.stage.maxAttempts || 1) > 1;
+    if (learningHints) { var weak = weakSubskills(c.at, c.L); if (weak.length) { ui.modal = { type: 'series', weak: weak }; render(); return; } }
+    advance(); render();
+  }
+
+  appEl.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]'); if (!b) return;
+    var act = b.getAttribute('data-act'), v = b.getAttribute('data-v'), c;
+    switch (act) {
+      case 'createProfile': {
+        var name = document.getElementById('pname').value.trim(), cls = document.getElementById('pclass').value.trim(), er = document.getElementById('perr');
+        if (name.length < 2) { er.style.display = 'block'; er.textContent = T('profile.nameRequired'); return; }
+        var n = parseInt(cls, 10); if (!(n >= 1 && n <= 11)) { er.style.display = 'block'; er.textContent = T('profile.classRequired'); return; }
+        var id = 'p' + U.hashHex(name + cls + Date.now()).slice(0, 8);
+        state.profiles[id] = { studentId: id, name: name, 'class': cls, createdAt: U.nowIso(), lessons: {} }; state.current = id; ui.view = 'home'; save(); render(); return;
+      }
+      case 'selectProfile': state.current = v; ui.view = 'home'; save(); render(); return;
+      case 'switchProfile': state.current = null; ui.view = 'home'; save(); render(); return;
+      case 'home': ui.view = 'home'; ui.modal = null; ui.seriesInfo = null; location.hash = ''; render(); return;
+      case 'openLesson': ui.lessonId = v; ui.view = 'lesson'; render(); return;
+      case 'start': { var L = lessonById(ui.lessonId); newAttempt(L); ui.view = 'runner'; ui.draft = null; ui.seriesInfo = null; lastEv = 0; render(); return; }
+      case 'continue': { var a = curAttempt(); if (a) { a.status = 'in_progress'; a.fixedAt = null; ensureSession(a); } ui.view = 'runner'; ui.draft = null; lastEv = 0; save(); render(); return; }
+      case 'viewReport': ui.reportNo = +v; ui.view = 'report'; render(); return;
+      case 'exportAll': exportAll(); return;
+      case 'saveReport': { var L2 = lessonById(ui.lessonId), at2 = LS(L2.lessonId).attempts.filter(function (x) { return x.attemptNumber === +v; })[0]; exportReport(at2, L2); return; }
+      case 'stopToday': stopToday(); render(); return;
+      case 'advance': advance(); render(); return;
+      case 'cardNext': { var at3 = activeAttempt(); at3.taskIdx++; save(); render(); return; }
+      case 'cardPrev': { var at4 = activeAttempt(); at4.taskIdx = Math.max(0, at4.taskIdx - 1); save(); render(); return; }
+      case 'beginStage': { c = currentTaskObj(); beginStage(c.at, c.L, c.stage); ui.draft = null; save(); render(); return; }
+      case 'skipStage': { c = currentTaskObj(); stageStateOf(c.at, c.stage.id).status = 'skipped'; advance(); render(); return; }
+      case 'seriesContinue': ui.seriesInfo = null; advance(); render(); return;
+      case 'pick': { c = currentTaskObj(); if (ui.draft !== v && ui.draft != null) c.task.answerChanges++; ui.draft = v; render(); return; }
+      case 'toggle': { c = currentTaskObj(); var arr = Array.isArray(ui.draft) ? ui.draft.slice() : [], ix = arr.indexOf(v); if (ix >= 0) arr.splice(ix, 1); else arr.push(v); c.task.answerChanges++; ui.draft = arr; render(); return; }
+      case 'move': {
+        c = currentTaskObj(); var p2 = v.split(':'), i = +p2[0], dlt = +p2[1], arr2 = Array.isArray(ui.draft) ? ui.draft.slice() : c.task.items.map(function (x) { return x.id; });
+        if (i + dlt >= 0 && i + dlt < arr2.length) { var t = arr2[i]; arr2[i] = arr2[i + dlt]; arr2[i + dlt] = t; c.task.answerChanges++; } ui.draft = arr2; render(); return;
+      }
+      case 'check': {
+        c = currentTaskObj(); var ans = readDraft(c.task); ui.draft = ans;
+        if (c.task.taskType === 'ordering' && !Array.isArray(ans)) ans = c.task.items.map(function (x) { return x.id; });
+        var res = answerTask(c.at, c.L, c.stage, c.task, ans);
+        if (res.status === 'empty') { ui.msg = T('task.empty'); } else { ui.hideFb = null; }
+        render(); return;
+      }
+      case 'retry': { c = currentTaskObj(); ui.hideFb = c.task.taskId; render(); return; }
+      case 'hint': { c = currentTaskObj(); var cur = readDraft(c.task); if (c.task.hintsUsed < Math.min(2, c.task.hints.length)) { c.task.hintLevelsShown.push(c.task.hintsUsed + 1); c.task.hintsUsed++; } ui.draft = cur; saveSoon(); render(); return; }
+      case 'solution': ui.modal = { type: 'confirmSolution' }; render(); return;
+      case 'solutionYes': { c = currentTaskObj(); c.task.solutionShown = true; ui.modal = null; save(); render(); return; }
+      case 'rule': {
+        c = currentTaskObj(); ui.modal = { type: 'rule', subskillId: c.task.subskillId };
+        if (!c.at.loops.some(function (l) { return l.route === 'rule_card' && l.subskillId === c.task.subskillId && l.outcome === 'pending'; })) c.at.loops.push({ loopId: 'rule-' + (c.at.loops.length + 1), subskillId: c.task.subskillId, errorType: c.task.errorType, route: 'rule_card', tasksPresented: 0, outcome: 'pending', startedAt: U.nowIso(), afterTask: c.task.taskId });
+        saveSoon(); render(); return;
+      }
+      case 'closeModal': ui.modal = null; render(); return;
+      case 'skip': { c = currentTaskObj(); skipTask(c.at, c.L, c.stage, c.task); render(); return; }
+      case 'nextTask': {
+        c = currentTaskObj(); ui.draft = null; ui.hideFb = null;
+        if (c.at.taskIdx + 1 >= c.tasks.length) { afterTasks(); return; }
+        c.at.taskIdx++; save(); render(); return;
+      }
+      case 'seriesYes': { c = currentTaskObj(); var weak = ui.modal.weak; ui.modal = null; startSeries(c.at, c.L, c.stage, weak); ui.draft = null; save(); render(); return; }
+      case 'seriesNo': ui.modal = null; advance(); render(); return;
+      case 'rfEmoji': case 'rfChoice': { appEl.querySelectorAll('[data-act="' + act + '"]').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); x.classList.remove('sel'); }); b.setAttribute('aria-pressed', 'true'); b.classList.add('sel'); b.setAttribute('data-picked', '1'); return; }
+      case 'rfNext': { appEl.querySelectorAll('[data-act="rfNext"]').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); x.classList.remove('sel'); x.removeAttribute('data-picked'); }); b.setAttribute('aria-pressed', 'true'); b.classList.add('sel'); b.setAttribute('data-picked', '1'); return; }
+      case 'finish': {
+        var form = b.getAttribute('data-form'), pick = appEl.querySelector('[data-act="rfEmoji"][data-picked],[data-act="rfChoice"][data-picked]'), nx = appEl.querySelector('[data-act="rfNext"][data-picked]'), err = document.getElementById('rerr');
+        var scale = document.getElementById('rscale'), txt = document.getElementById('rtext');
+        if (!nx || ((form === 'emoji' || form === 'choice_text') && !pick)) { err.style.display = 'block'; err.textContent = T('reflect.chooseOne'); return; }
+        c = currentTaskObj() || { at: activeAttempt(), L: lessonById(ui.lessonId) };
+        c.at.reflection = { form: form, answers: { feel: pick ? +pick.getAttribute('data-v') : null, scale: scale ? +scale.value : null, text: txt ? txt.value : null }, nextStep: +nx.getAttribute('data-v') };
+        var st = c.L.stages[c.at.stageIdx]; stageStateOf(c.at, st.id).status = 'completed'; stageStateOf(c.at, st.id).finishedAt = U.nowIso();
+        c.at.stageIdx++; completeAttempt(c.at, c.L); render(); return;
+      }
+      case 'runSelftest': runSelftest(600); return;
+    }
+  });
+  appEl.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.id === 'ans') { ui.draft = t.value; }
+    if (t.id === 'flt') { ui.filter = t.value; var pos = t.selectionStart; render(); var f = document.getElementById('flt'); if (f) { f.focus(); f.setSelectionRange(pos, pos); } }
+  });
+  appEl.addEventListener('change', function (e) { if (e.target.hasAttribute('data-match')) { var c = currentTaskObj(); if (c) { c.task.answerChanges++; ui.draft = readDraft(c.task); } } });
+  appEl.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.id === 'ans' && e.target.tagName === 'INPUT') { var btn = appEl.querySelector('[data-act="check"],[data-act="retry"]'); if (btn) btn.click(); } });
+  root.addEventListener('hashchange', render);
+
+  // ================= отладочный интерфейс (для испытаний) =================
+  function autoplay(lessonId, o) {
+    o = o || {}; var L = lessonById(lessonId);
+    if (!P()) { var id = 'ptest'; state.profiles[id] = { studentId: id, name: o.name || 'Тест Тестов', 'class': o['class'] || '6А', createdAt: U.nowIso(), lessons: {} }; state.current = id; }
+    ui.lessonId = lessonId;
+    var at = newAttempt(L), rng = U.makeRng(o.seed || 7);
+    while (at.stageIdx < L.stages.length) {
+      var stage = L.stages[at.stageIdx];
+      if (stage.type === 'tasks') {
+        if (stage.group === 'club' && o.skipClub !== false) { stageStateOf(at, stage.id).status = 'skipped'; at.stageIdx++; if (L.stages[at.stageIdx]) enterStage(at, L, L.stages[at.stageIdx]); continue; }
+        if (stage.group === 'final' && o.skipFinal) { stageStateOf(at, stage.id).status = 'skipped'; at.stageIdx++; if (L.stages[at.stageIdx]) enterStage(at, L, L.stages[at.stageIdx]); continue; }
+        beginStage(at, L, stage);
+        stageTasks(at, stage).forEach(function (t) {
+          t.presentedAt = U.nowIso(); t.openedCount = 1;
+          var good = rng.next() < (o.accuracy != null ? o.accuracy : 0.8), n = 0;
+          if (t.taskType === 'open') { answerTask(at, L, stage, t, 'Ответ ученика для проверки учителем'); return; }
+          while (!t.closed && n++ < 4) {
+            var ans = good ? t.correctAnswer : (t.taskType === 'single_choice' ? Object.keys(t.distractorMap)[0] : t.taskType === 'ordering' ? t.rule.order.slice().reverse() : t.taskType === 'multi_choice' ? [] .concat('o99') : t.taskType === 'matching' ? {} : 'неверно');
+            if (!good && t.taskType === 'matching') ans = { x: 'y' };
+            answerTask(at, L, stage, t, ans);
+          }
+        });
+        if (stage.group === 'final') stageStateOf(at, stage.id).activeSec = o.finalActiveSec != null ? o.finalActiveSec : 60;
+        var ss = stageStateOf(at, stage.id); ss.status = 'completed'; ss.finishedAt = U.nowIso();
+      } else if (stage.type === 'reflection') {
+        at.reflection = { form: 'text', answers: { feel: 2, scale: 4, text: 'автотест' }, nextStep: 2 };
+        stageStateOf(at, stage.id).status = 'completed';
+      } else { stageStateOf(at, stage.id).status = 'completed'; }
+      at.stageIdx++; if (L.stages[at.stageIdx]) enterStage(at, L, L.stages[at.stageIdx]);
+    }
+    at.activeSec = o.activeSec != null ? o.activeSec : 300;
+    completeAttempt(at, L); return reportOf(at, L);
+  }
+
+  K.app = {
+    state: function () { return state; }, ui: ui, render: render,
+    debug: {
+      autoplay: autoplay, reset: function () { state = emptyState(); save(); ui.view = 'home'; render(); },
+      setFinalLimit: function (id, sec) { var L = lessonById(id); L.timeLimitSec = L.timeLimitSec || {}; L.timeLimitSec.final = sec; render(); },
+      report: function () { var at = curAttempt(), L = lessonById(ui.lessonId); return at && L ? reportOf(at, L) : null; },
+      setActiveSec: function (stageId, sec) { var at = curAttempt(); if (at) { stageStateOf(at, stageId).activeSec = sec; save(); } },
+      lessons: function () { return LESSONS; }, forbiddenUi: FORBIDDEN_UI
+    }
+  };
+  render();
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+</body>
+</html>

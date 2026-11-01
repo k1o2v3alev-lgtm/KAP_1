@@ -1,0 +1,1479 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Кабинет учителя</title>
+<style>
+/* KAP engine · общие токены и компоненты. Единый облик всех продуктов (раздел 23.5). */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --surface2: #eef2f7; --ink: #1c2733; --muted: #5a6877; --line: #d5dde6;
+  --brand: #1f5f99; --brand-ink: #ffffff; --ok: #1b7f4b; --ok-bg: #e3f4ea; --warn: #9a5b00; --warn-bg: #fff2d9;
+  --bad: #a8321f; --bad-bg: #fbe7e3; --info-bg: #e6f0fa; --focus: #ffb000;
+  --radius: 12px; --gap: 12px; --fs: 17px; --fs-small: 14px; --tap: 48px; --font: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161c; --surface: #1a222b; --surface2: #222d38; --ink: #e8edf3; --muted: #a2b0bf; --line: #34424f;
+    --brand: #6db3f2; --brand-ink: #0d1722; --ok: #5fd08f; --ok-bg: #173325; --warn: #f0b660; --warn-bg: #3a2c12;
+    --bad: #ff8f7a; --bad-bg: #3d1d18; --info-bg: #1b2d40;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161c; --surface: #1a222b; --surface2: #222d38; --ink: #e8edf3; --muted: #a2b0bf; --line: #34424f;
+  --brand: #6db3f2; --brand-ink: #0d1722; --ok: #5fd08f; --ok-bg: #173325; --warn: #f0b660; --warn-bg: #3a2c12;
+  --bad: #ff8f7a; --bad-bg: #3d1d18; --info-bg: #1b2d40;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: var(--fs)/1.5 var(--font); }
+.app { max-width: 920px; margin: 0 auto; padding: 16px; overflow-wrap: anywhere; }
+h1 { font-size: 1.45em; margin: .2em 0 .4em; } h2 { font-size: 1.2em; margin: .2em 0 .4em; } h3 { font-size: 1.05em; margin: .2em 0; }
+p { margin: .5em 0; }
+.muted { color: var(--muted); } .small { font-size: var(--fs-small); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin: var(--gap) 0; }
+.row { display: flex; gap: var(--gap); flex-wrap: wrap; align-items: center; }
+.row.sb { justify-content: space-between; }
+.grid { display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.btn { min-height: var(--tap); padding: 10px 18px; border-radius: 10px; border: 1px solid var(--brand); background: var(--brand); color: var(--brand-ink); font: inherit; font-weight: 600; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--brand); }
+.btn.quiet { background: var(--surface2); color: var(--ink); border-color: var(--line); font-weight: 500; }
+.btn.warn { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+input[type=text], input[type=search], input[type=number], select, textarea { width: 100%; min-height: var(--tap); padding: 10px 12px; font: inherit; color: var(--ink); background: var(--surface); border: 2px solid var(--line); border-radius: 10px; }
+textarea { min-height: 120px; resize: vertical; }
+label { display: block; font-weight: 600; margin: 10px 0 4px; }
+.chip { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--surface2); border: 1px solid var(--line); font-size: var(--fs-small); }
+.chip.ok { background: var(--ok-bg); color: var(--ok); border-color: var(--ok); } .chip.warn { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); } .chip.bad { background: var(--bad-bg); color: var(--bad); border-color: var(--bad); }
+.bar-track { height: 10px; border-radius: 999px; background: var(--surface2); overflow: hidden; border: 1px solid var(--line); }
+.bar-fill { height: 100%; background: var(--brand); }
+.note { background: var(--info-bg); border-left: 4px solid var(--brand); padding: 10px 14px; border-radius: 8px; margin: 10px 0; }
+.note.warn { background: var(--warn-bg); border-left-color: var(--warn); } .note.bad { background: var(--bad-bg); border-left-color: var(--bad); } .note.ok { background: var(--ok-bg); border-left-color: var(--ok); }
+table { border-collapse: collapse; width: 100%; font-size: var(--fs-small); }
+th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+th { background: var(--surface2); }
+.scroll { overflow-x: auto; max-width: 100%; }
+.fr { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1.1; margin: 0 .15em; }
+.fr i { font-style: normal; padding: 0 .25em; border-bottom: 2px solid currentColor; } .fr b { font-weight: 600; padding: 0 .25em; }
+.bars { display: flex; gap: 3px; margin: 10px 0; max-width: 420px; }
+.bars .bar { flex: 1; height: 28px; border: 2px solid var(--brand); border-radius: 4px; background: var(--surface); }
+.bars .bar.on { background: var(--brand); }
+.modal-back { position: fixed; inset: 0; background: rgba(0, 0, 0, .5); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+.modal { background: var(--surface); border-radius: var(--radius); padding: 18px; max-width: 520px; width: 100%; max-height: 90vh; overflow: auto; }
+.sr-only { position: absolute; left: -9999px; }
+@media print { body { background: #fff; color: #000; } .no-print { display: none !important; } }
+
+/* teacher */
+
+</style>
+</head>
+<body>
+<div id="app" class="app"></div>
+<script>
+/* ядро */
+/* --- core/util.js --- */
+/* KAP engine · util: ГСЧ с seed, хеши, канонический JSON, время, экранирование. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+
+  function mulberry32(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function makeRng(seed) {
+    var f = mulberry32(seed);
+    return {
+      seed: seed >>> 0,
+      next: f,
+      int: function (a, b) { return a + Math.floor(f() * (b - a + 1)); },
+      pick: function (arr) { return arr[Math.floor(f() * arr.length)]; },
+      chance: function (p) { return f() < p; },
+      shuffle: function (arr) {
+        var x = arr.slice();
+        for (var i = x.length - 1; i > 0; i--) {
+          var j = Math.floor(f() * (i + 1)); var t = x[i]; x[i] = x[j]; x[j] = t;
+        }
+        return x;
+      }
+    };
+  }
+
+  function cyrb53(str, seed) {
+    seed = seed || 0;
+    var h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for (var i = 0, ch; i < str.length; i++) {
+      ch = str.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+  }
+  function hashHex(str) { var s = cyrb53(String(str)).toString(16); while (s.length < 14) s = '0' + s; return s; }
+  function deriveSeed(base, label) { return cyrb53(String(base) + '|' + String(label)) >>> 0; }
+
+  function randomSeed() {
+    try {
+      var a = new Uint32Array(1); root.crypto.getRandomValues(a); return a[0];
+    } catch (e) { return (Date.now() ^ Math.floor(Math.random() * 4294967296)) >>> 0; }
+  }
+  function uuid() {
+    try { if (root.crypto && root.crypto.randomUUID) return root.crypto.randomUUID(); } catch (e) { /* ниже запасной */ }
+    var s = '';
+    for (var i = 0; i < 4; i++) { var r = (randomSeed() >>> 0).toString(16); while (r.length < 8) r = '0' + r; s += r; }
+    return s.slice(0, 8) + '-' + s.slice(8, 12) + '-4' + s.slice(13, 16) + '-a' + s.slice(17, 20) + '-' + s.slice(20, 32);
+  }
+
+  function canonical(o) {
+    if (o === null || typeof o !== 'object') return JSON.stringify(o === undefined ? null : o);
+    if (Array.isArray(o)) return '[' + o.map(canonical).join(',') + ']';
+    return '{' + Object.keys(o).sort().map(function (k) { return JSON.stringify(k) + ':' + canonical(o[k]); }).join(',') + '}';
+  }
+
+  function sha256Hex(str) {
+    try {
+      if (root.crypto && root.crypto.subtle) {
+        return root.crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function (buf) {
+          return { algorithm: 'SHA-256', hash: Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('') };
+        });
+      }
+    } catch (e) { /* запасной вариант */ }
+    return Promise.resolve({ algorithm: 'cyrb53', hash: hashHex(str) });
+  }
+
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function nowIso(d) {
+    d = d || new Date();
+    var off = -d.getTimezoneOffset(), sign = off >= 0 ? '+' : '-'; off = Math.abs(off);
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + sign + pad(Math.floor(off / 60)) + ':' + pad(off % 60);
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
+  }
+  function clone(o) { return o === undefined ? undefined : JSON.parse(JSON.stringify(o)); }
+  function round1(x) { return Math.round(x * 10) / 10; }
+  function round2(x) { return Math.round(x * 100) / 100; }
+  function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = a % b; a = b; b = t; } return a; }
+  function sum(arr) { var s = 0; for (var i = 0; i < arr.length; i++) s += arr[i]; return s; }
+
+  K.util = { mulberry32: mulberry32, makeRng: makeRng, cyrb53: cyrb53, hashHex: hashHex, deriveSeed: deriveSeed, randomSeed: randomSeed, uuid: uuid, canonical: canonical, sha256Hex: sha256Hex, nowIso: nowIso, esc: esc, clone: clone, round1: round1, round2: round2, gcd: gcd, sum: sum };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/normalize.js --- */
+/* KAP engine · normalize: нормализация текста и чисел, точные дроби, системы счисления. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  var gcd = K.util.gcd;
+
+  // Латинские двойники кириллических букв (проверка по строчным).
+  var LOOK = { a: 'а', c: 'с', e: 'е', o: 'о', p: 'р', x: 'х', y: 'у', i: 'і', k: 'к', m: 'м', t: 'т' };
+
+  /** mode: default | orthography | exact */
+  function normText(s, mode) {
+    s = String(s == null ? '' : s).normalize('NFC').replace(/[   ]/g, ' ').trim().replace(/\s+/g, ' ');
+    if (mode === 'exact') return s;
+    s = s.toLowerCase();
+    if (mode === 'orthography') return s;               // ә ≠ а, қ ≠ к, ү ≠ у
+    s = s.replace(/ё/g, 'е').replace(/[.,;:!?]+$/, '');
+    return s.replace(/[a-z]/g, function (c) { return LOOK[c] || c; });
+  }
+
+  // ---- рациональные числа ----
+  function rat(n, d) {
+    if (d === 0) return null;
+    if (d < 0) { n = -n; d = -d; }
+    var g = gcd(n, d) || 1;
+    return { n: n / g, d: d / g };
+  }
+  function ratEq(a, b) { return !!a && !!b && a.n === b.n && a.d === b.d; }
+  function ratAdd(a, b) { return rat(a.n * b.d + b.n * a.d, a.d * b.d); }
+  function ratSub(a, b) { return rat(a.n * b.d - b.n * a.d, a.d * b.d); }
+  function ratMul(a, b) { return rat(a.n * b.n, a.d * b.d); }
+  function ratToStr(r) { return r.d === 1 ? String(r.n) : r.n + '/' + r.d; }
+
+  /** Разбор числа: целое, десятичное (точка/запятая), дробь a/b, смешанное "1 1/2". Возвращает {n,d,form,reduced} либо null. */
+  function parseNumber(str) {
+    var s = String(str == null ? '' : str).replace(/[−–]/g, '-').replace(/[   ]/g, ' ').trim();
+    if (!s) return null;
+    var m, r;
+    if ((m = /^([+-]?)(\d{1,9})\s+(\d{1,9})\s*\/\s*(\d{1,9})$/.exec(s))) {
+      var w = +m[2], a = +m[3], b = +m[4]; if (b === 0) return null;
+      r = rat((m[1] === '-' ? -1 : 1) * (w * b + a), b); r.form = 'mixed'; r.reduced = gcd(a, b) === 1; return r;
+    }
+    if ((m = /^([+-]?\d{1,9})\s*\/\s*(\d{1,9})$/.exec(s))) {
+      var n0 = +m[1], d0 = +m[2]; if (d0 === 0) return null;
+      r = rat(n0, d0); r.form = 'fraction'; r.reduced = gcd(n0, d0) === 1; return r;
+    }
+    if ((m = /^([+-]?)(\d{1,9})(?:[.,](\d{1,9}))?$/.exec(s))) {
+      var frac = m[3] || '', den = Math.pow(10, frac.length);
+      r = rat((m[1] === '-' ? -1 : 1) * (+(m[2] + frac)), den); r.form = frac ? 'decimal' : 'integer'; r.reduced = true; return r;
+    }
+    return null;
+  }
+
+  /** Число в системе счисления base (2..36) из строки; разделители групп и префиксы 0b/0x допускаются. */
+  function parseInBase(str, base) {
+    var s = String(str == null ? '' : str).trim().toLowerCase().replace(/[\s_']/g, '');
+    s = s.replace(/^0b/, '').replace(/^0x/, '').replace(/^0o/, '');
+    if (!s) return null;
+    var digits = '0123456789abcdefghijklmnopqrstuvwxyz', v = 0;
+    for (var i = 0; i < s.length; i++) {
+      var d = digits.indexOf(s[i]);
+      if (d < 0 || d >= base) return null;
+      v = v * base + d;
+      if (v > 9007199254740991) return null;
+    }
+    return v;
+  }
+
+  K.norm = { normText: normText, rat: rat, ratEq: ratEq, ratAdd: ratAdd, ratSub: ratSub, ratMul: ratMul, ratToStr: ratToStr, parseNumber: parseNumber, parseInBase: parseInBase };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/expr.js --- */
+/* KAP engine · expr: безопасный разбор алгебраических выражений (AST) без eval и new Function.
+   Проверка эквивалентности записей по набору контрольных точек. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+
+  function tokenize(src) {
+    var s = String(src == null ? '' : src)
+      .replace(/[−–—]/g, '-').replace(/[·×∙⋅]/g, '*').replace(/÷/g, '/')
+      .replace(/²/g, '^2').replace(/³/g, '^3').replace(/[хХ]/g, 'x').replace(/\s+/g, '').toLowerCase();
+    var toks = [], i = 0, m;
+    while (i < s.length) {
+      var c = s[i];
+      if ((m = /^\d+(?:[.,]\d+)?/.exec(s.slice(i)))) { toks.push({ t: 'n', v: parseFloat(m[0].replace(',', '.')) }); i += m[0].length; }
+      else if (/[a-z]/.test(c)) { toks.push({ t: 'v', v: c }); i++; }
+      else if ('+-*/^()'.indexOf(c) >= 0) { toks.push({ t: c }); i++; }
+      else throw new Error('bad char ' + c);
+    }
+    return toks;
+  }
+
+  function parse(src) {
+    var toks = tokenize(src), p = 0;
+    function peek() { return toks[p]; }
+    function startsFactor(t) { return t && (t.t === 'n' || t.t === 'v' || t.t === '('); }
+    function expr() {
+      var a = term();
+      while (peek() && (peek().t === '+' || peek().t === '-')) { var op = toks[p++].t; a = { t: 'bin', op: op, a: a, b: term() }; }
+      return a;
+    }
+    function term() {
+      var a = unary();
+      for (;;) {
+        var k = peek();
+        if (k && (k.t === '*' || k.t === '/')) { p++; a = { t: 'bin', op: k.t, a: a, b: unary() }; }
+        else if (startsFactor(k)) { a = { t: 'bin', op: '*', a: a, b: unary() }; }
+        else break;
+      }
+      return a;
+    }
+    function unary() {
+      var k = peek();
+      if (k && k.t === '-') { p++; return { t: 'neg', a: unary() }; }
+      if (k && k.t === '+') { p++; return unary(); }
+      return power();
+    }
+    function power() {
+      var a = atom();
+      if (peek() && peek().t === '^') { p++; return { t: 'bin', op: '^', a: a, b: unary() }; }
+      return a;
+    }
+    function atom() {
+      var k = toks[p++];
+      if (!k) throw new Error('unexpected end');
+      if (k.t === 'n') return { t: 'n', v: k.v };
+      if (k.t === 'v') return { t: 'v', v: k.v };
+      if (k.t === '(') { var e = expr(); if (!peek() || peek().t !== ')') throw new Error('missing )'); p++; return e; }
+      throw new Error('unexpected ' + k.t);
+    }
+    var tree = expr();
+    if (p !== toks.length) throw new Error('trailing tokens');
+    return tree;
+  }
+
+  function evalNode(n, env) {
+    switch (n.t) {
+      case 'n': return n.v;
+      case 'v': if (!(n.v in env)) throw new Error('free var ' + n.v); return env[n.v];
+      case 'neg': return -evalNode(n.a, env);
+      default:
+        var a = evalNode(n.a, env), b = evalNode(n.b, env);
+        if (n.op === '+') return a + b;
+        if (n.op === '-') return a - b;
+        if (n.op === '*') return a * b;
+        if (n.op === '/') return a / b;
+        return Math.pow(a, b);
+    }
+  }
+  function vars(n, acc) {
+    acc = acc || {};
+    if (n.t === 'v') acc[n.v] = 1; else { if (n.a) vars(n.a, acc); if (n.b) vars(n.b, acc); }
+    return acc;
+  }
+
+  var POINTS = [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5, 0.7, 1.3, 4.25];
+  /** Эквивалентны ли записи a и b как функции. Ошибка разбора → false. */
+  function equivalent(a, b) {
+    var ta, tb;
+    try { ta = parse(a); tb = parse(b); } catch (e) { return false; }
+    var names = Object.keys(Object.assign({}, vars(ta), vars(tb))).sort(), ok = 0;
+    for (var i = 0; i < POINTS.length; i++) {
+      var env = {};
+      names.forEach(function (nm, j) { env[nm] = POINTS[(i + 3 * j) % POINTS.length] + j * 0.37; });
+      var va, vb;
+      try { va = evalNode(ta, env); vb = evalNode(tb, env); } catch (e) { return false; }
+      if (!isFinite(va) || !isFinite(vb)) continue;
+      if (Math.abs(va - vb) > 1e-9 * Math.max(1, Math.abs(va), Math.abs(vb))) return false;
+      ok++;
+    }
+    return ok >= 5;
+  }
+
+  K.expr = { parse: parse, equivalent: equivalent };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/check.js --- */
+/* KAP engine · check: проверка ответов по типу правила. Без eval/new Function. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  var N = K.norm;
+
+  function res(status, fraction, normalized, errorType) {
+    return { status: status, fraction: fraction, normalized: normalized == null ? null : normalized, errorType: errorType || null };
+  }
+  function isEmpty(a) {
+    if (a == null) return true;
+    if (typeof a === 'string') return a.trim() === '';
+    if (Array.isArray(a)) return a.length === 0;
+    if (typeof a === 'object') return Object.keys(a).length === 0;
+    return false;
+  }
+
+  /** task.rule: см. раздел «Типы заданий» README. Возвращает {status, fraction, normalized, errorType}. */
+  function check(task, ans) {
+    var r = task.rule || task.evaluationRule || {};
+    if (r.type === 'open') return isEmpty(ans) ? res('empty', 0) : res('pending_review', 0, String(ans).trim());
+    if (isEmpty(ans)) return res('empty', 0);
+    var i, hit;
+    switch (r.type) {
+      case 'choice':
+        if (ans === r.correctId) return res('correct', 1, ans);
+        return res('incorrect', 0, ans, (task.distractorMap && task.distractorMap[ans]) || 'concept');
+
+      case 'multi': {
+        var ids = Array.isArray(ans) ? ans : [], want = r.correctIds || [];
+        var hits = ids.filter(function (x) { return want.indexOf(x) >= 0; }).length;
+        var wrong = ids.length - hits, f = Math.max(0, (hits - wrong) / want.length);
+        var norm = ids.slice().sort();
+        if (hits === want.length && wrong === 0) return res('correct', 1, norm);
+        return res(f > 0 ? 'partial' : 'incorrect', f, norm, wrong > 0 ? 'multi_extra' : 'multi_miss');
+      }
+
+      case 'number': {
+        var v = N.parseNumber(ans);
+        if (!v) return res('incorrect', 0, String(ans).trim(), 'format');
+        var norm1 = N.ratToStr(v);
+        if (r.tolerance) {
+          var diff = Math.abs(v.n / v.d - r.value.n / r.value.d);
+          if (diff <= r.tolerance) return res('correct', 1, norm1);
+        } else if (N.ratEq(v, r.value)) {
+          if (r.requireForm && v.form !== r.requireForm && !(r.requireForm === 'integer' && v.d === 1)) return res('partial', 0.5, norm1, 'form');
+          if (r.requireIrreducible && !v.reduced) return res('partial', 0.5, norm1, 'not_reduced');
+          return res('correct', 1, norm1);
+        }
+        var known = (r.wrongValues || []).filter(function (w) { return N.ratEq(v, w.value); })[0];
+        return res('incorrect', 0, norm1, known ? known.errorType : 'calc');
+      }
+
+      case 'text': {
+        var mode = r.mode || 'default', a = N.normText(ans, mode);
+        for (i = 0; i < r.accepted.length; i++) if (N.normText(r.accepted[i], mode) === a) return res('correct', 1, a);
+        hit = (r.wrongAnswers || []).filter(function (w) { return N.normText(w.text, mode) === a; })[0];
+        return res('incorrect', 0, a, hit ? hit.errorType : 'concept');
+      }
+
+      case 'expression':
+        return K.expr.equivalent(String(ans), r.expected) ? res('correct', 1, String(ans).replace(/\s+/g, ''))
+          : res('incorrect', 0, String(ans).replace(/\s+/g, ''), 'calc');
+
+      case 'base': {
+        var val = N.parseInBase(ans, r.base);
+        if (val == null) return res('incorrect', 0, String(ans).trim(), 'format');
+        return val === r.value ? res('correct', 1, String(val)) : res('incorrect', 0, String(val), 'calc');
+      }
+
+      case 'ordering': {
+        var o = Array.isArray(ans) ? ans : [], same = 0;
+        for (i = 0; i < r.order.length; i++) if (o[i] === r.order[i]) same++;
+        var fo = same / r.order.length;
+        if (same === r.order.length) return res('correct', 1, o);
+        return res(fo >= 0.5 ? 'partial' : 'incorrect', fo >= 0.5 ? fo : 0, o, 'order');
+      }
+
+      case 'matching': {
+        var keys = Object.keys(r.pairs), ok = 0;
+        keys.forEach(function (k) { if (ans[k] === r.pairs[k]) ok++; });
+        var fm = ok / keys.length;
+        if (ok === keys.length) return res('correct', 1, ans);
+        return res(ok > 0 ? 'partial' : 'incorrect', fm, ans, 'match');
+      }
+      default:
+        throw new Error('unknown rule type: ' + r.type);
+    }
+  }
+
+  K.check = check;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/scoring.js --- */
+/* KAP engine · scoring: коэффициенты, веса, отметка, освоение, потолок по времени, итог по уроку. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  var U = K.util;
+
+  var DEFAULTS = {
+    hint: [1, 0.75, 0.4],
+    attempt: [1, 0.85, 0.7],
+    solutionCap: 0.4,
+    mastery: { window: 5, minTasks: 3, avg: 0.8 },
+    descriptor: { achieved: 80, partially: 40 },
+    overtimeCapPct: 84,
+    skillsMinTasks: 2,
+    profiles: {
+      learning: { diagnostic: 20, learning: 50, final: 30 },
+      final: { diagnostic: 20, learning: 30, final: 50 }
+    },
+    controlTypes: ['intermediate', 'SOR', 'SOCH'],
+    finalCheckKinds: ['quarter_final', 'year_final', 'residual']
+  };
+
+  /** Итоговый коэффициент задания: минимум из коэффициента подсказок и попыток; разбор — не выше solutionCap. */
+  function coefficient(hints, attempts, solutionShown, c) {
+    c = c || DEFAULTS;
+    var h = c.hint[Math.min(hints || 0, c.hint.length - 1)];
+    var a = c.attempt[Math.min(Math.max((attempts || 1) - 1, 0), c.attempt.length - 1)];
+    var v = Math.min(h, a);
+    if (solutionShown) v = Math.min(v, c.solutionCap);
+    return v;
+  }
+
+  /** Закрывает задание: считает score по последней попытке. t.attempts[последняя].fraction в [0,1]. */
+  function finalizeScore(t, c) {
+    if (t.skipped) { t.score = 0; return t.score; }
+    if (t.status === 'pending_review') { t.score = null; return null; }
+    var last = t.attempts[t.attempts.length - 1];
+    var f = last ? last.fraction : 0;
+    t.score = U.round2(t.maxScore * f * coefficient(t.hintsUsed, t.attempts.length, t.solutionShown, c));
+    return t.score;
+  }
+
+  function resolveWeights(o) {
+    o = o || {};
+    var finalMode = DEFAULTS.finalCheckKinds.indexOf(o.checkKind) >= 0 || o.assessmentType === 'SOCH' || o.finalReview === true;
+    var base = DEFAULTS.profiles[finalMode ? 'final' : 'learning'];
+    var src = o.instruction ? 'instruction' : (o.lessonWeights ? 'KSP' : 'default');
+    var given = o.instruction || o.lessonWeights || null;
+    var w = { diagnostic: base.diagnostic, learning: base.learning, final: base.final };
+    if (given) ['diagnostic', 'learning', 'final'].forEach(function (k) { if (given[k] != null) w[k] = given[k]; });
+    return { weights: w, source: src, profile: given ? 'custom' : (finalMode ? 'final' : 'learning') };
+  }
+
+  function evaluated(t) { return t.closed && t.status !== 'pending_review'; }
+  function pct(a, b) { return b > 0 ? U.round1(100 * a / b) : null; }
+
+  function masteryOf(tasks, m) {
+    m = m || DEFAULTS.mastery;
+    var ev = tasks.filter(function (t) { return evaluated(t) && t.group !== 'diagnostic'; }).slice(-m.window);
+    var avg = ev.length ? U.sum(ev.map(function (t) { return t.maxScore ? (t.score || 0) / t.maxScore : 0; })) / ev.length : 0;
+    return { mastered: ev.length >= m.minTasks && avg >= m.avg, windowSize: m.window, windowAvg: U.round2(avg), tasksInWindow: ev.length };
+  }
+
+  /**
+   * a: { tasks[], stagePlan[{stageId,group,mode,plannedMax}], lesson, instruction, finalTime:{limitSec,activeSec} }
+   * Возвращает все показатели отчёта.
+   */
+  function computeMetrics(a) {
+    var lesson = a.lesson, tasks = a.tasks || [];
+    var main = tasks.filter(function (t) { return !t.loop && t.mode !== 'CLUB'; });
+    var ev = main.filter(evaluated);
+    var groups = ['diagnostic', 'learning', 'final'], agg = {};
+    groups.forEach(function (g) {
+      var list = ev.filter(function (t) { return t.group === g; });
+      agg[g] = { n: list.length, earned: U.sum(list.map(function (t) { return t.score || 0; })), max: U.sum(list.map(function (t) { return t.maxScore; })) };
+      agg[g].a = agg[g].max > 0 ? agg[g].earned / agg[g].max : null;
+    });
+
+    var plannedMax = U.sum((a.stagePlan || []).filter(function (s) { return s.mode !== 'CLUB' && groups.indexOf(s.group) >= 0; }).map(function (s) { return s.plannedMax; }));
+    var doneMax = U.sum(main.filter(function (t) { return t.closed; }).map(function (t) { return t.maxScore; }));
+    var completionPct = plannedMax > 0 ? Math.min(100, U.round1(100 * doneMax / plannedMax)) : 0;
+    var accuracyPct = pct(U.sum(ev.map(function (t) { return t.score || 0; })), U.sum(ev.map(function (t) { return t.maxScore; })));
+
+    // дескрипторы и критерии
+    var descriptorResults = [], criteriaResults = [], totE = 0, totM = 0;
+    (lesson.criteria || []).forEach(function (cr) {
+      var ce = 0, cm = 0;
+      cr.descriptors.forEach(function (d) {
+        var ts = ev.filter(function (t) { return (t.descriptorIds || []).indexOf(d.descriptorId) >= 0; });
+        var pend = main.filter(function (t) { return t.closed && t.status === 'pending_review' && (t.descriptorIds || []).indexOf(d.descriptorId) >= 0; }).length;
+        var e = U.sum(ts.map(function (t) { return t.score || 0; })), m = U.sum(ts.map(function (t) { return t.maxScore; }));
+        var p = pct(e, m), st;
+        if (m === 0) st = pend > 0 ? 'teacher_review' : 'not_shown';
+        else st = p >= DEFAULTS.descriptor.achieved ? 'achieved' : (p >= DEFAULTS.descriptor.partially ? 'partially' : 'not_yet');
+        descriptorResults.push({ descriptorId: d.descriptorId, criterionId: cr.criterionId, text: d.text, earned: U.round2(e), max: m, status: st });
+        ce += e; cm += m;
+      });
+      criteriaResults.push({ criterionId: cr.criterionId, text: cr.text, earned: U.round2(ce), max: cm, pct: pct(ce, cm) });
+      totE += ce; totM += cm;
+    });
+    var achievementPct = totM > 0 ? U.round1(100 * totE / totM) : null;
+    var touched = descriptorResults.filter(function (d) { return d.max > 0; }).length;
+    var descriptorCoveragePct = descriptorResults.length ? U.round1(100 * touched / descriptorResults.length) : null;
+
+    // поднавыки и освоение (возвратные задания учитываются)
+    var allCore = tasks.filter(function (t) { return t.mode !== 'CLUB'; });
+    var subskills = (lesson.subskills || []).map(function (s) {
+      var ts = allCore.filter(function (t) { return t.subskillId === s.id && evaluated(t); });
+      return {
+        subskillId: s.id, text: s.text, presented: ts.length,
+        correct: ts.filter(function (t) { return t.status === 'correct'; }).length,
+        pct: pct(U.sum(ts.map(function (t) { return t.score || 0; })), U.sum(ts.map(function (t) { return t.maxScore; }))),
+        hintsUsed: U.sum(ts.map(function (t) { return t.hintsUsed || 0; })),
+        mastery: masteryOf(allCore.filter(function (t) { return t.subskillId === s.id; }))
+      };
+    });
+    var covered = subskills.filter(function (s) { return s.presented >= DEFAULTS.skillsMinTasks; }).length;
+    var skillsCoveragePct = subskills.length ? U.round1(100 * covered / subskills.length) : null;
+
+    var levels = {};
+    ['recognition', 'reproduction', 'understanding', 'transfer', 'investigation', 'generalization'].forEach(function (l) { levels[l] = { presented: 0, correct: 0 }; });
+    ev.forEach(function (t) { var l = levels[t.cognitiveLevel]; if (l) { l.presented++; if (t.status === 'correct') l.correct++; } });
+
+    var indep = ev.length ? U.round1(100 * ev.filter(function (t) { return t.status === 'correct' && t.attempts.length === 1 && !t.hintsUsed && !t.solutionShown; }).length / ev.length) : null;
+    var diagnosticPct = agg.diagnostic.max ? pct(agg.diagnostic.earned, agg.diagnostic.max) : null;
+    var finalPct = agg.final.max ? pct(agg.final.earned, agg.final.max) : null;
+
+    // веса и отметка
+    var W = resolveWeights({ instruction: a.instruction, lessonWeights: lesson.weights, checkKind: lesson.checkKind, assessmentType: lesson.assessmentType, finalReview: lesson.finalReview });
+    function weighted(list) {
+      var present = list.filter(function (g) { return agg[g].a != null; });
+      if (!present.length) return null;
+      var wsum = U.sum(present.map(function (g) { return W.weights[g]; }));
+      return U.round1(10 * U.sum(present.map(function (g) { return W.weights[g] * agg[g].a; })) / wsum);
+    }
+    var control = DEFAULTS.controlTypes.indexOf(lesson.assessmentType) >= 0;
+    var formativeMark10 = weighted(['diagnostic', 'learning']);
+    var hasFinal = agg.final.a != null, basis = 'none', mark = null;
+    if (ev.length) {
+      if (control && hasFinal) { basis = 'control_work'; mark = U.round1(10 * agg.final.a); }
+      else if (hasFinal) { basis = 'with_control'; mark = weighted(groups); }
+      else { basis = 'formative_without_control'; mark = formativeMark10; }
+    }
+
+    // потолок по времени (раздел 14.4)
+    var ft = a.finalTime || {}, over = !!(ft.limitSec && ft.activeSec > ft.limitSec);
+    var cap = { applied: false, capPct: DEFAULTS.overtimeCapPct, reason: null, uncappedAchievementPct: null, uncappedMark10: null };
+    var capEligible = hasFinal && (basis === 'control_work' || W.profile === 'final');
+    var ach = achievementPct;
+    if (over && capEligible) {
+      var capMark = DEFAULTS.overtimeCapPct / 10;
+      if ((mark != null && mark > capMark) || (ach != null && ach > DEFAULTS.overtimeCapPct)) {
+        cap = { applied: true, capPct: DEFAULTS.overtimeCapPct, reason: 'time_limit_exceeded', uncappedAchievementPct: ach, uncappedMark10: mark };
+        if (mark != null) mark = Math.min(mark, capMark);
+        if (ach != null) ach = Math.min(ach, DEFAULTS.overtimeCapPct);
+      }
+    }
+
+    // CLUB отдельно
+    var club = tasks.filter(function (t) { return t.mode === 'CLUB'; }), clubEv = club.filter(evaluated);
+    var extensionResult = club.length ? {
+      completionPct: pct(club.filter(function (t) { return t.closed; }).length, club.length),
+      accuracyPct: pct(U.sum(clubEv.map(function (t) { return t.score || 0; })), U.sum(clubEv.map(function (t) { return t.maxScore; }))),
+      achievementPct: null, mark10: null
+    } : null;
+
+    return {
+      metrics: {
+        completionPct: completionPct, accuracyPct: accuracyPct, achievementPct: ach,
+        independencePct: indep, diagnosticPct: diagnosticPct, finalPct: finalPct,
+        deltaDiagnosticToFinal: (diagnosticPct != null && finalPct != null) ? U.round1(finalPct - diagnosticPct) : null,
+        skillsCoveragePct: skillsCoveragePct, descriptorCoveragePct: descriptorCoveragePct,
+        levelsProfile: levels, mark10: mark, formativeMark10: formativeMark10, metricSources: { mark10: 'auto', achievementPct: 'auto', accuracyPct: 'auto' }
+      },
+      scoring: { weightsSource: W.source, weightsProfile: W.profile, weights: W.weights, coefficients: { hint: DEFAULTS.hint, attempt: DEFAULTS.attempt, solutionCap: DEFAULTS.solutionCap, source: 'default' }, markBasis: basis, scoreCap: cap },
+      coreResult: { completionPct: completionPct, accuracyPct: accuracyPct, achievementPct: ach, mark10: mark },
+      extensionResult: extensionResult,
+      criteriaResults: criteriaResults, descriptorResults: descriptorResults, subskills: subskills,
+      timeExceeded: over, overtimeSec: over ? Math.round(ft.activeSec - ft.limitSec) : 0,
+      stageAgg: agg
+    };
+  }
+
+  // ---- итог по уроку из нескольких попыток (раздел 14.8) ----
+  function studentKey(r) { return String((r.student && r.student.class) || '') + '|' + K.norm.normText((r.student && r.student.name) || '', 'default'); }
+
+  function summarize(reports) {
+    var groups = {};
+    reports.forEach(function (r) {
+      if (!r || !r.metrics || r.metrics.mark10 == null) return;
+      if (r.attempt && r.attempt.completionReason !== 'completed') return;
+      if (r.attempt && r.attempt.countsForMark === false) return;
+      var prof = (r.scoring && r.scoring.weightsProfile) || 'learning';
+      var key = studentKey(r) + '||' + r.context.lessonId + '||' + prof;
+      (groups[key] = groups[key] || { list: [], prof: prof }).list.push(r);
+    });
+    return Object.keys(groups).map(function (k) {
+      var g = groups[k], list = g.list;
+      var withControl = list.filter(function (r) { var b = r.scoring.markBasis; return b === 'with_control' || b === 'control_work'; });
+      if (withControl.length) list = withControl; else list = list.filter(function (r) { return r.scoring.markBasis === 'formative_without_control'; });
+      if (!list.length) return null;
+      var best = list[0], last = list[0];
+      list.forEach(function (r) {
+        if (r.metrics.mark10 > best.metrics.mark10 || (r.metrics.mark10 === best.metrics.mark10 && r.attempt.attemptNumber > best.attempt.attemptNumber)) best = r;
+        if (r.attempt.attemptNumber > last.attempt.attemptNumber) last = r;
+      });
+      function avg(f) { var x = best.metrics[f], y = last.metrics[f]; return (x == null || y == null) ? (x != null ? x : y) : U.round1((x + y) / 2); }
+      return {
+        studentKey: k.split('||')[0], student: best.student, lessonId: best.context.lessonId, weightsProfile: g.prof, markBasis: best.scoring.markBasis,
+        rule: 'avg_best_last', attemptsCounted: list.length, bestAttemptNumber: best.attempt.attemptNumber, lastAttemptNumber: last.attempt.attemptNumber,
+        bestMark10: best.metrics.mark10, lastMark10: last.metrics.mark10, mark10: U.round1((best.metrics.mark10 + last.metrics.mark10) / 2),
+        completionPct: avg('completionPct'), accuracyPct: avg('accuracyPct'), achievementPct: avg('achievementPct'), overriddenByTeacher: false
+      };
+    }).filter(Boolean);
+  }
+
+  K.scoring = { DEFAULTS: DEFAULTS, coefficient: coefficient, finalizeScore: finalizeScore, resolveWeights: resolveWeights, masteryOf: masteryOf, computeMetrics: computeMetrics, summarize: summarize, evaluated: evaluated };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/generators.js --- */
+/* KAP engine · generators: реестр, сборка задания, валидатор, воспроизведение по seed, массовые тесты.
+   Конвейер: ПАРАМЕТРЫ → УСЛОВИЕ → ОТВЕТ → ДИСТРАКТОРЫ → ВАЛИДАЦИЯ → ПЕРЕМЕШИВАНИЕ → ПРЕДЪЯВЛЕНИЕ. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  var U = K.util, N = K.norm;
+  var registry = {};
+
+  function register(def) {
+    ['id', 'version', 'taskType', 'subskill', 'cognitiveLevel', 'generate'].forEach(function (k) { if (!def[k]) throw new Error('generator ' + (def.id || '?') + ': нет поля ' + k); });
+    if (!def.profiles) def.profiles = { standard: {} };
+    registry[def.id] = def;
+    return def;
+  }
+  function get(id) { var d = registry[id]; if (!d) throw new Error('неизвестный генератор: ' + id); return d; }
+  function list() { return Object.keys(registry).map(function (k) { return registry[k]; }); }
+  function clear() { registry = {}; }
+
+  /** Сборка: перемешивание и упаковка «сырого» результата generate(). */
+  function assemble(def, profile, rng, raw) {
+    var t = {
+      taskType: def.taskType, condition: raw.condition, explanation: raw.explanation || '', hints: raw.hints || [],
+      maxScore: def.maxScore || 1, cognitiveLevel: raw.cognitiveLevel || def.cognitiveLevel, subskillId: def.subskill,
+      goalCode: def.goalCode || null, descriptorIds: def.descriptors || [], mode: def.mode || 'CORE',
+      generator: { generatorId: def.id, generatorVersion: def.version, profile: profile, seed: null, parameters: raw.parameters || {} },
+      options: null, optionOrder: null, correctOptionPosition: null, distractorMap: {}, rule: null, expectedAnswer: null, correctAnswer: null
+    };
+    var i, order;
+    switch (def.taskType) {
+      case 'single_choice': {
+        var all = [{ text: raw.correct, errorType: null }].concat(raw.distractors || []);
+        order = rng.shuffle(all.map(function (_, ix) { return ix; }));
+        t.options = order.map(function (ix) { return { id: 'o' + ix, text: all[ix].text }; });
+        t.optionOrder = order; t.correctOptionPosition = order.indexOf(0);
+        all.forEach(function (o, ix) { if (ix > 0) t.distractorMap['o' + ix] = o.errorType || 'concept'; });
+        t.rule = { type: 'choice', correctId: 'o0' }; t.correctAnswer = 'o0'; t.expectedAnswer = raw.correct;
+        break;
+      }
+      case 'multi_choice': {
+        var opts = raw.options;
+        order = rng.shuffle(opts.map(function (_, ix) { return ix; }));
+        t.options = order.map(function (ix) { return { id: 'o' + ix, text: opts[ix].text }; });
+        t.optionOrder = order;
+        var ids = opts.map(function (o, ix) { return o.correct ? 'o' + ix : null; }).filter(Boolean);
+        t.rule = { type: 'multi', correctIds: ids }; t.correctAnswer = ids; t.expectedAnswer = ids.map(function (id) { return opts[+id.slice(1)].text; });
+        opts.forEach(function (o, ix) { if (!o.correct) t.distractorMap['o' + ix] = o.errorType || 'concept'; });
+        break;
+      }
+      case 'number':
+        t.rule = { type: 'number', value: raw.value, requireIrreducible: !!raw.requireIrreducible, requireForm: raw.requireForm || null, tolerance: raw.tolerance || 0, wrongValues: raw.wrongValues || [] };
+        t.correctAnswer = N.ratToStr(raw.value); t.expectedAnswer = raw.display || N.ratToStr(raw.value); break;
+      case 'text':
+        t.rule = { type: 'text', accepted: raw.accepted, mode: raw.mode || 'default', wrongAnswers: raw.wrongAnswers || [] };
+        t.correctAnswer = raw.accepted[0]; t.expectedAnswer = raw.accepted.join(' / '); break;
+      case 'expression':
+        t.rule = { type: 'expression', expected: raw.expected }; t.correctAnswer = raw.expected; t.expectedAnswer = raw.expected; break;
+      case 'base':
+        t.rule = { type: 'base', base: raw.base, value: raw.value }; t.correctAnswer = raw.display || raw.value.toString(raw.base); t.expectedAnswer = t.correctAnswer; break;
+      case 'ordering': {
+        var correct = raw.items, shuffled = rng.shuffle(correct);
+        for (i = 0; i < 20 && shuffled.every(function (x, ix) { return x.id === correct[ix].id; }); i++) shuffled = rng.shuffle(correct);
+        t.items = shuffled; t.optionOrder = shuffled.map(function (x) { return correct.indexOf(x); });
+        t.rule = { type: 'ordering', order: correct.map(function (x) { return x.id; }) };
+        t.correctAnswer = t.rule.order; t.expectedAnswer = correct.map(function (x) { return x.text; }); break;
+      }
+      case 'matching': {
+        var right = rng.shuffle(raw.right);
+        t.left = raw.left; t.right = right; t.rule = { type: 'matching', pairs: raw.pairs };
+        t.correctAnswer = raw.pairs; t.expectedAnswer = raw.left.map(function (l) { var r = raw.right.filter(function (x) { return x.id === raw.pairs[l.id]; })[0]; return l.text + ' → ' + r.text; });
+        break;
+      }
+      case 'open':
+        t.rule = { type: 'open', rubric: raw.rubric || '' }; t.expectedAnswer = raw.rubric || ''; t.correctAnswer = null; break;
+      default: throw new Error('неизвестный тип задания: ' + def.taskType);
+    }
+    t.fingerprint = U.hashHex(U.canonical({ g: def.id, p: raw.parameters || {} }));
+    return t;
+  }
+
+  /** Валидатор задания: возвращает массив проблем (пустой — задание принято). */
+  function validateTask(t, def, minOptions) {
+    var p = [], i;
+    if (!t.condition || !String(t.condition).trim()) p.push('пустое условие');
+    var rule = t.rule;
+    if (t.taskType === 'single_choice') {
+      var min = minOptions || def.minOptions || 3, seen = {};
+      if (t.options.length < min) p.push('мало вариантов ответа');
+      t.options.forEach(function (o) { var k = N.normText(o.text, 'default'); if (seen[k]) p.push('совпадающие варианты: ' + o.text); seen[k] = 1; });
+      var cn = N.parseNumber(String(t.expectedAnswer));
+      if (cn) t.options.forEach(function (o) { var v = N.parseNumber(o.text); if (v && o.id !== 'o0' && N.ratEq(v, cn)) p.push('дистрактор равен правильному ответу по значению'); });
+    }
+    if (t.taskType === 'multi_choice' && (!rule.correctIds.length || rule.correctIds.length === t.options.length)) p.push('нет различимых верных и неверных вариантов');
+    if (t.taskType === 'number') {
+      if (!rule.value || !rule.value.d) p.push('нет значения ответа');
+      else (rule.wrongValues || []).forEach(function (w) { if (N.ratEq(w.value, rule.value)) p.push('wrongValue равен ответу'); });
+    }
+    if (t.taskType === 'ordering' && t.rule.order.length < 3) p.push('мало элементов последовательности');
+    if (def.validate) { var extra = def.validate(t) || []; extra.forEach(function (m) { p.push(m); }); }
+    // Самопроверка ключа: ответ из ключа должен быть засчитан, дистракторы — нет.
+    if (t.taskType !== 'open') {
+      var r1 = K.check(t, t.correctAnswer);
+      if (r1.status !== 'correct') p.push('ключ не засчитывается: ' + r1.status);
+      if (t.taskType === 'single_choice') Object.keys(t.distractorMap).forEach(function (id) { if (K.check(t, id).status === 'correct') p.push('дистрактор засчитан: ' + id); });
+    }
+    return p;
+  }
+
+  function tryOne(def, profile, seed) {
+    var rng = U.makeRng(seed);
+    var P = def.profiles[profile] || def.profiles.standard || {};
+    var raw = def.generate(rng, P, profile);
+    var t = assemble(def, profile, rng, raw);
+    t.generator.seed = seed;
+    return t;
+  }
+
+  /** Создаёт принятое задание. ctx: { seen:Set, stats:{} }. Возвращает задание с generator.seed (эффективным). */
+  function make(genId, profile, seed, ctx) {
+    ctx = ctx || {};
+    var def = get(genId), stats = ctx.stats, lastValid = null;
+    for (var k = 0; k < 80; k++) {
+      var s = k === 0 ? (seed >>> 0) : U.deriveSeed(seed, 'retry' + k), t;
+      try { t = tryOne(def, profile, s); } catch (e) { if (stats) { stats.exceptions++; (stats.errors = stats.errors || []).push(String(e && e.message)); } continue; }
+      var probs = validateTask(t, def);
+      if (probs.length) { if (stats) { stats.rejected++; probs.forEach(function (m) { stats.reasons[m] = (stats.reasons[m] || 0) + 1; }); } continue; }
+      if (ctx.seen && ctx.seen.has(t.fingerprint)) { lastValid = t; if (stats) stats.duplicates++; continue; }
+      if (ctx.seen) ctx.seen.add(t.fingerprint);
+      if (stats) stats.accepted++;
+      return t;
+    }
+    if (lastValid) { lastValid.repeat = true; return lastValid; }
+    throw new Error('генератор ' + genId + ' не дал корректного задания');
+  }
+
+  /** Воспроизведение задания по записи отчёта: тот же seed, тот же профиль. */
+  function reproduce(genId, profile, seed) { return tryOne(get(genId), profile, seed); }
+
+  /** Массовое тестирование генератора (раздел 20.1–20.2). */
+  function test(genId, n, opts) {
+    opts = opts || {};
+    var def = get(genId), prof = opts.profile || Object.keys(def.profiles)[0];
+    var st = { generatorId: def.id, generatorVersion: def.version, profile: prof, tried: n, accepted: 0, rejected: 0, duplicates: 0, exceptions: 0, reasons: {}, errors: [] };
+    var fps = {}, pos = {}, k = null, longest = 0, extreme = 0, choiceN = 0, optCounts = {};
+    for (var i = 0; i < n; i++) {
+      var seed = U.deriveSeed('selftest:' + def.id + ':' + prof, i), t;
+      try { t = tryOne(def, prof, seed); } catch (e) { st.exceptions++; if (st.errors.length < 3) st.errors.push(String(e && e.message)); continue; }
+      var probs = validateTask(t, def);
+      if (probs.length) { st.rejected++; probs.forEach(function (m) { st.reasons[m] = (st.reasons[m] || 0) + 1; }); continue; }
+      st.accepted++; fps[t.fingerprint] = 1;
+      if (t.taskType === 'single_choice') {
+        choiceN++; k = t.options.length; optCounts[k] = (optCounts[k] || 0) + 1;
+        pos[t.correctOptionPosition] = (pos[t.correctOptionPosition] || 0) + 1;
+        var len = t.options.map(function (o) { return String(o.text).length; }), cl = String(t.expectedAnswer).length, mx = Math.max.apply(null, len);
+        if (cl === mx && len.filter(function (x) { return x === mx; }).length === 1) longest++;
+        var nums = t.options.map(function (o) { return N.parseNumber(o.text); });
+        if (nums.every(Boolean)) {
+          var vals = nums.map(function (r) { return r.n / r.d; }), cv = N.parseNumber(String(t.expectedAnswer)); cv = cv.n / cv.d;
+          if (cv === Math.max.apply(null, vals) || cv === Math.min.apply(null, vals)) extreme++;
+        }
+      }
+    }
+    st.uniqueVariants = Object.keys(fps).length;
+    st.choiceCount = choiceN;
+    st.positionPct = {}; Object.keys(pos).forEach(function (p) { st.positionPct[p] = U.round1(100 * pos[p] / choiceN); });
+    st.longestCorrectPct = choiceN ? U.round1(100 * longest / choiceN) : null;
+    st.extremeCorrectPct = choiceN ? U.round1(100 * extreme / choiceN) : null;
+    st.optionCountMode = Object.keys(optCounts).sort(function (a, b) { return optCounts[b] - optCounts[a]; })[0] || null;
+    st.verdict = verdict(st, def, opts);
+    return st;
+  }
+
+  /** Критерии приёмки: ошибок нет; уникальность; позиция правильного ответа ≈ равномерна; нет перекоса «самый длинный». */
+  function verdict(st, def, opts) {
+    var problems = [], mu = opts.minUnique != null ? opts.minUnique : def.minUnique, need = (mu && typeof mu === 'object') ? (mu[st.profile] != null ? mu[st.profile] : 100) : (mu != null ? mu : 100);
+    if (st.exceptions) problems.push('исключения: ' + st.exceptions);
+    if (st.rejected > st.tried * 0.5) problems.push('слишком много отбракованных (' + st.rejected + ')');
+    if (st.accepted < st.tried * 0.5) problems.push('принято менее половины');
+    if (st.uniqueVariants < Math.min(need, st.accepted)) problems.push('мало различимых вариантов: ' + st.uniqueVariants + ' < ' + need);
+    if (st.choiceCount >= 100 && st.optionCountMode) {
+      var k = +st.optionCountMode, lo = 0.6 * 100 / k, hi = 1.4 * 100 / k;
+      for (var p = 0; p < k; p++) { var v = st.positionPct[p] || 0; if (v < lo || v > hi) problems.push('позиция ' + p + ' правильного ответа: ' + v + '% вне [' + lo.toFixed(0) + '; ' + hi.toFixed(0) + ']'); }
+      if (st.longestCorrectPct > hi) problems.push('правильный ответ слишком часто самый длинный: ' + st.longestCorrectPct + '%');
+      if (st.extremeCorrectPct != null && k === 4 && st.extremeCorrectPct > 70) problems.push('правильное число слишком часто крайнее: ' + st.extremeCorrectPct + '%');
+    }
+    return { ok: problems.length === 0, problems: problems };
+  }
+
+  K.gen = { register: register, get: get, list: list, clear: clear, assemble: assemble, validateTask: validateTask, make: make, reproduce: reproduce, test: test, verdict: verdict };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/schema.js --- */
+/* KAP engine · schema: построение lesson_report v1.0 (Приложение A), проверка, дубликаты, пакет. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  var U = K.util, S = K.scoring;
+  var SCHEMA_VERSION = '1.0';
+
+  function producer() { return K.PRODUCER || { materialId: 'unknown', engineVersion: '0.0.0', contentVersion: '0.0.0', contentHash: '' }; }
+  function nameNorm(s) { return K.norm.normText(s || '', 'default'); }
+  function dedupeKey(student, lessonId, attemptNumber, startedAt) {
+    return [nameNorm(student.class), nameNorm(student.name), lessonId, attemptNumber, startedAt].join('|');
+  }
+  function sec(a, b) { var x = Date.parse(a), y = Date.parse(b); return (isNaN(x) || isNaN(y)) ? null : Math.max(0, Math.round((y - x) / 1000)); }
+
+  /** Запись задания для отчёта (только то, что нужно учителю; без служебных полей интерфейса). */
+  function taskForReport(t) {
+    return {
+      taskId: t.taskId, stage: t.stageId, mode: t.mode || 'CORE', taskType: t.taskType, cognitiveLevel: t.cognitiveLevel,
+      goalCode: t.goalCode || null, subskillId: t.subskillId || null, descriptorIds: t.descriptorIds || [],
+      generator: t.generator, variantFingerprint: t.fingerprint,
+      presentedCondition: t.condition,
+      presentedOptions: t.options ? t.options.map(function (o) { return o.text; }) : (t.items ? t.items.map(function (o) { return o.text; }) : []),
+      presentedOptionOrder: t.optionOrder || [],
+      correctOptionPosition: t.correctOptionPosition != null ? t.correctOptionPosition : null,
+      expectedAnswer: t.expectedAnswer, evaluationRule: t.rule, distractorMap: t.distractorMap || {},
+      studentAnswer: t.studentAnswer == null ? null : t.studentAnswer, normalizedAnswer: t.normalizedAnswer == null ? null : t.normalizedAnswer,
+      status: t.closed ? (t.skipped ? 'not_done' : t.status) : 'not_done',
+      score: t.score == null ? null : t.score, maxScore: t.maxScore,
+      attempts: (t.attempts || []).map(function (a) { return { n: a.n, answer: a.answer, at: a.at, status: a.status, score: a.score }; }),
+      hintsUsed: t.hintsUsed || 0, hintLevelsShown: t.hintLevelsShown || [],
+      presentedAt: t.presentedAt || null, answeredAt: t.answeredAt || null, responseTimeSec: t.responseTimeSec == null ? null : t.responseTimeSec,
+      answeredAfterLimit: !!t.answeredAfterLimit, answerChanges: t.answerChanges || 0, openedCount: t.openedCount || 1,
+      errorType: t.errorType || null, errorTags: t.errorTags || [], autoGraded: t.status !== 'pending_review',
+      skipped: !!t.skipped, solutionShown: !!t.solutionShown, loop: !!t.loop, teacherReview: t.teacherReview || null
+    };
+  }
+
+  /** attempt → lesson_report (без поля integrity.reportHash; оно ставится при экспорте). */
+  function buildLessonReport(o) {
+    var lesson = o.lesson, at = o.attempt, st = o.student, P = producer(), now = o.now || U.nowIso();
+    var limit = lesson.timeLimitSec && lesson.timeLimitSec.final ? lesson.timeLimitSec.final : null;
+    var finalStage = (lesson.stages || []).filter(function (sg) { return sg.group === 'final'; })[0];
+    var finalState = (finalStage && at.stageState && at.stageState[finalStage.id]) || {};
+    var c = S.computeMetrics({ tasks: at.tasks, stagePlan: at.stagePlan, lesson: lesson, instruction: at.instruction || null, finalTime: { limitSec: limit, activeSec: finalState.activeSec || 0 } });
+    var fixedAt = at.fixedAt || now;
+    var loops = (at.loops || []).map(function (l) { return { loopId: l.loopId, subskillId: l.subskillId, errorType: l.errorType || null, route: l.route, tasksPresented: l.tasksPresented || 0, outcome: l.outcome === 'pending' ? 'no_progress' : l.outcome, startedAt: l.startedAt }; });
+    var stages = (lesson.stages || []).map(function (sg) {
+      var ss = (at.stageState && at.stageState[sg.id]) || {}, ts = at.tasks.filter(function (t) { return t.stageId === sg.id && !t.loop; });
+      var ev = ts.filter(S.evaluated);
+      return {
+        stageId: sg.id, name: sg.title, group: sg.group || (sg.type === 'reflection' ? 'reflection' : 'learning'),
+        mode: sg.deliveryMode || 'digital', status: ss.status || 'not_started', startedAt: ss.startedAt || null, finishedAt: ss.finishedAt || null,
+        earned: U.round2(U.sum(ev.map(function (t) { return t.score || 0; }))), max: U.sum(ev.map(function (t) { return t.maxScore; })), activeSec: ss.activeSec || 0
+      };
+    });
+    var strengths = [], difficulties = [], recs = [], toReview = [];
+    c.subskills.forEach(function (s) {
+      var def = (lesson.subskills || []).filter(function (x) { return x.id === s.subskillId; })[0] || {};
+      if (s.presented >= 2 && s.pct >= 80) strengths.push(s.text);
+      else if (s.presented >= 1 && !s.mastery.mastered) { difficulties.push(s.text); recs.push(def.recommend || ('Повторить: ' + s.text)); }
+    });
+    at.tasks.forEach(function (t) { if (t.closed && !t.loop && (t.status === 'incorrect' || t.status === 'partial' || t.skipped)) toReview.push({ taskId: t.taskId, subskillId: t.subskillId || null, reason: t.skipped ? 'skipped' : (t.errorType || t.status) }); });
+
+    var r = {
+      schemaVersion: SCHEMA_VERSION, reportType: 'lesson_report', reportId: U.uuid(),
+      dedupeKey: dedupeKey(st, lesson.lessonId, at.attemptNumber, at.startedAt),
+      source: 'digital', legacy: false,
+      producer: { materialId: P.materialId, engineVersion: P.engineVersion, contentVersion: P.contentVersion, contentHash: P.contentHash },
+      student: { studentId: st.studentId, name: st.name, class: st.class },
+      context: {
+        subject: lesson.subject, language: lesson.language || 'ru', section: lesson.section || null,
+        series: lesson.series || null, lessonId: lesson.lessonId, moduleId: lesson.moduleId || lesson.lessonId, lessonTitle: lesson.title,
+        assessmentType: lesson.assessmentType || 'formative', assessmentLabel: lesson.assessmentLabel || null, checkKind: lesson.checkKind || 'learning'
+      },
+      objectives: { learningObjectives: lesson.objectives || [], lessonObjectives: lesson.lessonObjectives || [] },
+      attempt: { attemptNumber: at.attemptNumber, countsForMark: at.countsForMark !== false, startedAt: at.startedAt, lastActivityAt: at.lastActivityAt || fixedAt, fixedAt: fixedAt, completionReason: at.status === 'completed' ? 'completed' : (at.stopReason || 'student_stopped') },
+      time: {
+        timeLimitSec: limit, elapsedWallTimeSec: sec(at.startedAt, fixedAt), activeTimeSec: Math.round(at.activeSec || 0), activeTimeMethod: 'events_idle120',
+        sessions: (at.sessions || []).map(function (s) { return { startedAt: s.startedAt, endedAt: s.endedAt, activeSec: Math.round(s.activeSec || 0) }; }),
+        timeExceeded: c.timeExceeded, overtimeSec: c.overtimeSec, pageLeaves: at.pageLeaves || 0
+      },
+      scoring: c.scoring,
+      metrics: c.metrics,
+      coreResult: c.coreResult, extensionResult: c.extensionResult,
+      criteriaResults: c.criteriaResults, descriptorResults: c.descriptorResults, subskills: c.subskills,
+      correctionLoops: loops, toReview: toReview,
+      stages: stages, tasks: at.tasks.map(taskForReport),
+      retrievalResults: [], reflection: at.reflection || null,
+      strengths: strengths, difficulties: difficulties, recommendations: recs,
+      accessibilityAdaptationsUsed: at.adaptations || [],
+      paper: null, integrity: { reportHash: null, algorithm: null, warnings: [] }
+    };
+    return r;
+  }
+
+  /** Подпись отчёта (SHA-256 при наличии, иначе cyrb53). Возвращает Promise<report>. */
+  function seal(r) {
+    var copy = U.clone(r); copy.integrity.reportHash = null; copy.integrity.algorithm = null; copy.reportId = null;
+    return U.sha256Hex(U.canonical(copy)).then(function (h) { r.integrity.reportHash = h.hash; r.integrity.algorithm = h.algorithm; return r; });
+  }
+
+  var ENUM = {
+    source: ['digital', 'paper_manual', 'paper_omr'],
+    status: ['correct', 'partial', 'incorrect', 'not_done', 'pending_review'],
+    markBasis: ['with_control', 'formative_without_control', 'control_work', 'none'],
+    completionReason: ['completed', 'student_stopped', 'time_expired'],
+    weightsSource: ['instruction', 'KSP', 'default', 'legacy'],
+    weightsProfile: ['learning', 'final', 'custom', 'legacy']
+  };
+  function inEnum(v, a) { return a.indexOf(v) >= 0; }
+
+  /** Проверка отчёта v1.0. Возвращает массив проблем. */
+  function validateReport(r) {
+    var p = [];
+    if (!r || typeof r !== 'object') return ['не объект'];
+    if (r.reportType !== 'lesson_report') p.push('reportType');
+    if (!/^1\./.test(String(r.schemaVersion))) p.push('schemaVersion: ' + r.schemaVersion);
+    ['reportId', 'dedupeKey', 'source', 'producer', 'student', 'context', 'attempt', 'time', 'scoring', 'metrics', 'tasks', 'stages'].forEach(function (k) { if (r[k] == null) p.push('нет поля ' + k); });
+    if (p.length) return p;
+    if (!inEnum(r.source, ENUM.source)) p.push('source');
+    if (!r.student.name) p.push('student.name');
+    if (!r.context.lessonId) p.push('context.lessonId');
+    if (!inEnum(r.attempt.completionReason, ENUM.completionReason)) p.push('attempt.completionReason');
+    if (!inEnum(r.scoring.markBasis, ENUM.markBasis)) p.push('scoring.markBasis');
+    if (!inEnum(r.scoring.weightsSource, ENUM.weightsSource)) p.push('scoring.weightsSource');
+    if (!inEnum(r.scoring.weightsProfile, ENUM.weightsProfile)) p.push('scoring.weightsProfile');
+    ['completionPct', 'accuracyPct', 'achievementPct', 'mark10'].forEach(function (k) {
+      var v = r.metrics[k]; if (v != null && (typeof v !== 'number' || v < 0 || v > (k === 'mark10' ? 10 : 100))) p.push('metrics.' + k + ' вне диапазона');
+    });
+    if (!Array.isArray(r.tasks)) p.push('tasks'); else r.tasks.forEach(function (t, i) {
+      if (!t.taskId) p.push('tasks[' + i + '].taskId');
+      if (!inEnum(t.status, ENUM.status)) p.push('tasks[' + i + '].status');
+      if (t.score != null && (t.score < 0 || t.score > t.maxScore + 1e-9)) p.push('tasks[' + i + '].score вне диапазона');
+    });
+    return p;
+  }
+
+  function packageReport(reports) {
+    return { schemaVersion: SCHEMA_VERSION, reportType: 'package_report', packageId: U.uuid(), createdAt: U.nowIso(), reports: reports, lessonSummaries: S.summarize(reports) };
+  }
+
+  K.schema = { SCHEMA_VERSION: SCHEMA_VERSION, dedupeKey: dedupeKey, buildLessonReport: buildLessonReport, taskForReport: taskForReport, seal: seal, validateReport: validateReport, packageReport: packageReport, ENUM: ENUM, producer: producer };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- core/legacy.js --- */
+/* KAP engine · legacy: адаптеры прежних схем (Приложение C). Заполняется после проверки на корпусе. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  K.legacy = { detect: function () { return null; }, toReports: function () { return []; } };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* содержание */
+/* --- content/demo/pack.js · contentHash 00f858221f913a --- */
+/* ДЕМОНСТРАЦИОННОЕ СОДЕРЖАНИЕ для проверки ядра. Не является КСП и не привязано к программе РК.
+   Показывает, как один и тот же движок работает с разными предметами: математика 6 и информатика 8. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  var N = K.norm, U = K.util;
+
+  // ---------- вспомогательное ----------
+  function fr(n, d) { return '<span class="fr"><i>' + n + '</i><b>' + d + '</b></span>'; }
+  var SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+  function sup(n) { return String(n).split('').map(function (c) { return SUP[+c]; }).join(''); }
+  function sub2(s) { return s + '₂'; }
+  function bin(n) { return n.toString(2); }
+  function rev(s) { return s.split('').reverse().join(''); }
+  function reduced(n, d) { return N.rat(n, d); }
+  // Выбор формулировок дистракторов так, чтобы верный ответ не был систематически самым длинным.
+  function pickBalanced(rng, correct, slots) {
+    var chosen = slots.map(function (arr) { return rng.pick(arr); });
+    var maxLen = Math.max.apply(null, chosen.map(function (c) { return c.length; }));
+    if (correct.length > maxLen && rng.chance(0.85)) {
+      var i = rng.int(0, slots.length - 1), longer = slots[i].filter(function (x) { return x.length >= correct.length; });
+      chosen[i] = longer.length ? rng.pick(longer) : slots[i].slice().sort(function (a, b) { return b.length - a.length; })[0];
+    }
+    return chosen;
+  }
+
+  // =====================  МАТЕМАТИКА · дроби  =====================
+  var READ_TPL = [
+    function (d, a) { return 'Полоса разделена на ' + d + ' равных частей, закрашено ' + a + '. Какая дробь показывает закрашенную часть?'; },
+    function (d, a) { return 'Шоколадка состоит из ' + d + ' одинаковых долек, съели ' + a + '. Какая дробь показывает съеденную часть?'; },
+    function (d, a) { return 'Забор состоит из ' + d + ' одинаковых досок, покрашено ' + a + '. Какая дробь показывает покрашенную часть?'; }
+  ];
+  K.gen.register({
+    id: 'frac_read_part', version: '1.1', taskType: 'single_choice', subskill: 'm_read', cognitiveLevel: 'recognition', minUnique: 100,
+    profiles: { standard: { dMin: 3, dMax: 14 } },
+    generate: function (rng, P) {
+      var d = rng.int(P.dMin, P.dMax), a = rng.int(1, d - 1), t = rng.int(0, READ_TPL.length - 1), bars = '';
+      for (var i = 0; i < d; i++) bars += '<span class="bar' + (i < a ? ' on' : '') + '"></span>';
+      return {
+        parameters: { a: a, d: d, t: t },
+        condition: READ_TPL[t](d, a) + '<div class="bars">' + bars + '</div>',
+        correct: a + '/' + d,
+        distractors: [{ text: d + '/' + a, errorType: 'inverted' }, { text: (d - a) + '/' + d, errorType: 'complement' }, { text: a + '/' + (d - a), errorType: 'part_to_part' }, { text: a + '/' + (d + 1), errorType: 'miscount' }].filter(function (x) { return x.text !== a + '/' + d; }).slice(0, 3),
+        hints: ['Знаменатель показывает, на сколько равных частей разделено целое.', 'Числитель показывает, сколько частей закрашено.'],
+        explanation: 'Всего частей — ' + d + ', выделено — ' + a + '. Значит, это ' + fr(a, d) + '.'
+      };
+    }
+  });
+
+  K.gen.register({
+    id: 'frac_add_same', version: '1.0', taskType: 'number', subskill: 'm_add', cognitiveLevel: 'reproduction',
+    profiles: { basic: { dMin: 3, dMax: 10, improper: false, reducible: false }, standard: { dMin: 4, dMax: 12, improper: true, reducible: false }, advanced: { dMin: 6, dMax: 16, improper: true, reducible: true } },
+    minUnique: { basic: 90, standard: 100, advanced: 100 },
+    generate: function (rng, P) {
+      for (var g = 0; g < 200; g++) {
+        var d = rng.int(P.dMin, P.dMax), a = rng.int(1, d - 1), b = rng.int(1, d - 1), s = a + b;
+        if (!P.improper && s >= d) continue;
+        if (P.reducible && N.rat(s, d).d === d) continue;
+        if (!P.reducible && P.improper === false && N.rat(s, d).d !== d) { /* допускаем */ }
+        return {
+          parameters: { a: a, b: b, d: d, red: !!P.reducible },
+          condition: 'Вычисли: ' + fr(a, d) + ' + ' + fr(b, d) + (P.reducible ? ' (ответ запиши сокращённой дробью)' : ''),
+          value: N.rat(s, d), requireIrreducible: !!P.reducible, display: s + '/' + d,
+          wrongValues: [{ value: reduced(s, 2 * d), errorType: 'denominator_added' }, { value: reduced(a * b, d), errorType: 'numerators_multiplied' }],
+          hints: ['Доли одного размера: знаменатель показывает размер доли, он не меняется.', 'Сложи только числители: ' + a + ' + ' + b + '.'],
+          explanation: fr(a, d) + ' + ' + fr(b, d) + ' = ' + fr(a + '+' + b, d) + ' = ' + fr(s, d) + (P.reducible ? ' = ' + fr(N.rat(s, d).n, N.rat(s, d).d) : '') + '. Знаменатель остаётся ' + d + '.'
+        };
+      }
+      throw new Error('нет параметров');
+    }
+  });
+
+  var CONTEXTS = [
+    'Из пирога сначала съели %A%, потом ещё %B% пирога. Какую часть пирога съели?',
+    'Турист в первый день прошёл %A% маршрута, во второй день ещё %B% маршрута. Какую часть маршрута он прошёл?',
+    'В бассейн налили %A% его объёма, затем долили ещё %B% объёма. Какая часть бассейна заполнена?',
+    'Огородник вскопал %A% участка утром и %B% участка днём. Какую часть участка вскопали?',
+    'От ленты отрезали %A% её длины, а потом ещё %B% длины. Какую часть ленты отрезали?',
+    'Книгу читали два вечера: %A% книги в первый вечер и %B% книги во второй. Какую часть книги прочитали?'
+  ];
+  K.gen.register({
+    id: 'frac_add_choice', version: '1.0', taskType: 'single_choice', subskill: 'm_add', cognitiveLevel: 'understanding',
+    profiles: { standard: { dMin: 5, dMax: 12 } },
+    generate: function (rng, P) {
+      var d = rng.int(P.dMin, P.dMax), a = rng.int(1, d - 2), b = rng.int(1, d - 1 - a), s = a + b, ci = rng.int(0, CONTEXTS.length - 1);
+      var pool = [{ text: s + '/' + (2 * d), errorType: 'denominator_added' }, { text: String(s), errorType: 'denominator_dropped' }, { text: (a * b) + '/' + d, errorType: 'numerators_multiplied' }, { text: Math.abs(a - b) + '/' + d, errorType: 'subtracted' }, { text: s + '/' + (d + 1), errorType: 'denominator_changed' }];
+      var picked = rng.shuffle(pool).slice(0, 3);
+      return {
+        parameters: { a: a, b: b, d: d, ctx: ci },
+        condition: CONTEXTS[ci].replace('%A%', fr(a, d)).replace('%B%', fr(b, d)),
+        correct: s + '/' + d, distractors: picked,
+        hints: ['Это сложение долей одного размера.', 'Размер доли (знаменатель) не меняется: ' + d + '.'],
+        explanation: fr(a, d) + ' + ' + fr(b, d) + ' = ' + fr(s, d) + '.'
+      };
+    }
+  });
+
+  K.gen.register({
+    id: 'frac_find_error', version: '1.1', taskType: 'single_choice', subskill: 'm_rule', cognitiveLevel: 'understanding',
+    profiles: { standard: { dMin: 5, dMax: 12 } },
+    generate: function (rng, P) {
+      var d = rng.int(P.dMin, P.dMax), a = rng.int(1, d - 2), b = rng.int(1, d - 1 - a), kind = rng.int(0, 1), s = a + b, cond, correct, dis, d2 = Math.max(2, d - 1);
+      if (kind === 0) {
+        cond = 'Ученик решил так: ' + fr(a, d) + ' + ' + fr(b, d) + ' = ' + fr(s, 2 * d) + '. В чём ошибка?';
+        correct = rng.pick(['Знаменатель нельзя складывать: он остаётся ' + d, 'При сложении долей одного размера знаменатель не меняется: он остаётся равным ' + d, 'Доли одного размера, поэтому знаменатель остаётся ' + d, 'Знаменатель нужно оставить прежним, ' + d + ', а складывать только числители']);
+        var p0 = pickBalanced(rng, correct, [
+          ['Числители нужно было перемножить, а не сложить', 'Нужно было вычесть меньший числитель из большего, а не складывать', 'Складывать нужно не числители, а только знаменатели', 'Числители следовало перемножить'],
+          ['Ответ нужно записать целым числом без дроби', 'Дроби нужно было сначала привести к знаменателю ' + d2 + ', а потом складывать', 'Нужно было сократить обе дроби до сложения', 'Сначала следует перевернуть вторую дробь'],
+          ['Ошибки нет: так складывают любые дроби', 'Ошибки нет: знаменатели при сложении тоже складывают, это правильно', 'Всё верно, знаменатели складывают так же, как числители', 'Ошибки нет, это правило сложения дробей']]);
+        dis = [{ text: p0[0], errorType: 'operation' }, { text: p0[1], errorType: 'format' }, { text: p0[2], errorType: 'concept' }];
+      } else {
+        cond = 'Ученик решил так: ' + fr(a, d) + ' + ' + fr(b, d) + ' = ' + fr(a * b, d) + '. В чём ошибка?';
+        correct = rng.pick(['Числители нужно складывать, а не перемножать', 'Нужно сложить числители: ' + a + ' + ' + b + ', а не умножать их', 'При сложении долей одного размера числители складывают', 'Умножать числители нельзя, их складывают, а знаменатель оставляют']);
+        var p1 = pickBalanced(rng, correct, [
+          ['Знаменатели нужно было сложить: ' + d + ' + ' + d, 'Нужно было умножить знаменатель на два', 'Знаменатель следовало заменить на ' + (d + 1) + ' при сложении', 'Складывать нужно только знаменатели'],
+          ['Дробь следовало перевернуть перед сложением', 'Нужно было вычесть числители друг из друга и оставить знаменатель', 'Сначала нужно обе дроби превратить в целые числа', 'Числитель и знаменатель надо поменять местами'],
+          ['Ошибки нет: так складывают любые дроби', 'Ошибки нет: числители при сложении перемножают, это правильно', 'Всё верно, числители при сложении дробей перемножают', 'Ошибки нет, это правило сложения дробей']]);
+        dis = [{ text: p1[0], errorType: 'denominator_added' }, { text: p1[1], errorType: 'operation' }, { text: p1[2], errorType: 'concept' }];
+      }
+      return { parameters: { a: a, b: b, d: d, kind: kind }, condition: cond, correct: correct, distractors: dis,
+        hints: ['Проверь, как менялся знаменатель и что произошло с числителями.', 'Что показывает знаменатель? Складываем ли мы размеры долей?'],
+        explanation: 'Верно: ' + fr(a, d) + ' + ' + fr(b, d) + ' = ' + fr(s, d) + '.' };
+    }
+  });
+
+  K.gen.register({
+    id: 'frac_word_transfer', version: '1.0', taskType: 'number', subskill: 'm_apply', cognitiveLevel: 'transfer', minUnique: 80,
+    profiles: { standard: { dMin: 6, dMax: 14 } },
+    generate: function (rng, P) {
+      var d = rng.int(P.dMin, P.dMax), b = rng.int(1, d - 3), c = rng.int(1, d - 1 - b), left = d - b - c, who = rng.pick(['Турист', 'Велосипедист', 'Лыжник']);
+      return {
+        parameters: { d: d, b: b, c: c, who: who },
+        condition: 'Путь разделён на ' + d + ' равных частей. ' + who + ' прошёл ' + b + ' частей утром и ещё ' + c + ' частей днём. Какую часть пути ему осталось пройти? Запиши дробью.',
+        value: N.rat(left, d), display: left + '/' + d,
+        wrongValues: [{ value: N.rat(b + c, d), errorType: 'asked_done_not_left' }],
+        hints: ['Сначала узнай, какая часть пути уже пройдена.', 'Весь путь — это ' + d + ' частей из ' + d + '. Что останется?'],
+        explanation: 'Пройдено ' + (b + c) + ' частей из ' + d + '. Осталось ' + d + ' − ' + (b + c) + ' = ' + left + ' частей, то есть ' + fr(left, d) + ' пути.'
+      };
+    }
+  });
+
+  K.gen.register({
+    id: 'frac_order_steps', version: '1.0', taskType: 'ordering', subskill: 'm_rule', cognitiveLevel: 'understanding',
+    profiles: { standard: { dMin: 4, dMax: 14 } },
+    generate: function (rng, P) {
+      var d = rng.int(P.dMin, P.dMax), a = rng.int(1, d - 2), b = rng.int(1, d - 1 - a), s = a + b;
+      return {
+        parameters: { a: a, b: b, d: d },
+        condition: 'Расставь шаги сложения ' + fr(a, d) + ' + ' + fr(b, d) + ' по порядку.',
+        items: [{ id: 'i1', text: 'Видим одинаковые знаменатели: ' + d + ' и ' + d }, { id: 'i2', text: 'Складываем числители: ' + a + ' + ' + b + ' = ' + s },
+          { id: 'i3', text: 'Знаменатель оставляем прежним: ' + d }, { id: 'i4', text: 'Записываем ответ: ' + s + '/' + d }],
+        hints: ['Сначала посмотри, какие знаменатели.', 'Запись ответа — последний шаг.'],
+        explanation: 'Порядок: сравнить знаменатели, сложить числители, оставить знаменатель, записать ответ.'
+      };
+    }
+  });
+
+  var WHY = [
+    'Объясни своими словами, почему при сложении дробей с одинаковыми знаменателями знаменатель не складывают.',
+    'Придумай свою жизненную задачу, где нужно сложить две дроби с одинаковыми знаменателями, и реши её.',
+    'Чем отличается сложение ' + '1/4 + 1/4' + ' от сложения «1 яблоко + 1 яблоко»? Что общего?'
+  ];
+  K.gen.register({
+    id: 'frac_open_explain', version: '1.0', taskType: 'open', subskill: 'm_rule', cognitiveLevel: 'understanding', minUnique: 3,
+    profiles: { standard: {} },
+    generate: function (rng) {
+      var i = rng.int(0, WHY.length - 1);
+      return { parameters: { i: i }, condition: WHY[i], rubric: 'Ответ ученика сохранён для просмотра учителем.', hints: ['Вспомни, что показывает знаменатель.'], explanation: '' };
+    }
+  });
+
+  K.gen.register({
+    id: 'frac_club_missing', version: '1.0', taskType: 'number', subskill: 'm_apply', cognitiveLevel: 'investigation', mode: 'CLUB', minUnique: 60,
+    profiles: { standard: { dMin: 6, dMax: 16 } },
+    generate: function (rng, P) {
+      var d = rng.int(P.dMin, P.dMax), c = rng.int(3, d - 1), a = rng.int(1, c - 1), x = c - a;
+      return {
+        parameters: { a: a, c: c, d: d },
+        condition: 'Две дроби с одинаковым знаменателем ' + d + ' в сумме дают ' + fr(c, d) + '. Одна из них равна ' + fr(a, d) + '. Найди вторую. Подумай, как проверить свой ответ.',
+        value: N.rat(x, d), display: x + '/' + d, wrongValues: [{ value: N.rat(c + a, d), errorType: 'added_instead' }],
+        hints: ['Что нужно сложить с ' + a + ', чтобы получить ' + c + '?'], explanation: 'Нужно ' + c + ' − ' + a + ' = ' + x + ', то есть ' + fr(x, d) + '. Проверка: ' + a + ' + ' + x + ' = ' + c + '.'
+      };
+    }
+  });
+
+  // =====================  ИНФОРМАТИКА · двоичная система  =====================
+  K.gen.register({
+    id: 'dec_place_value', version: '1.0', taskType: 'single_choice', subskill: 'i_place', cognitiveLevel: 'recognition', minUnique: 100,
+    profiles: { standard: {} },
+    generate: function (rng) {
+      var names = ['единиц', 'десятков', 'сотен', 'тысяч', 'десятков тысяч'], digs, n, pos, digit, cnt;
+      for (var g = 0; g < 100; g++) {
+        digs = [rng.int(1, 9), rng.int(0, 9), rng.int(0, 9), rng.int(0, 9), rng.int(0, 9)].slice(0, rng.int(4, 5));
+        pos = rng.int(0, digs.length - 1); digit = digs[pos]; cnt = digs.filter(function (x) { return x === digit; }).length;
+        if (cnt === 1) break;
+      }
+      n = digs.join(''); var idx = digs.length - 1 - pos;
+      var others = [0, 1, 2, 3, 4].filter(function (i) { return i !== idx && i < digs.length + 1; });
+      var dis = rng.shuffle(others).slice(0, 3).map(function (i) { return { text: names[i], errorType: 'place_confusion' }; });
+      return {
+        parameters: { n: n, pos: pos }, condition: 'В числе ' + n + ' цифра ' + digit + ' стоит в разряде…',
+        correct: names[idx], distractors: dis,
+        hints: ['Считай разряды справа налево: единицы, десятки, сотни…'], explanation: 'Справа налево: ' + n.split('').reverse().map(function (c, i) { return c + ' — ' + names[i]; }).join('; ') + '.'
+      };
+    }
+  });
+
+  var TPL = ['Переведи число {N} из десятичной системы счисления в двоичную.', 'Запиши число {N} в двоичной системе счисления.', 'Найди двоичную запись десятичного числа {N}.'];
+  K.gen.register({
+    id: 'bin_dec_to_bin', version: '1.0', taskType: 'base', subskill: 'i_d2b', cognitiveLevel: 'reproduction',
+    profiles: { basic: { lo: 1, hi: 31 }, standard: { lo: 8, hi: 63 }, advanced: { lo: 32, hi: 127 } },
+    minUnique: { basic: 90, standard: 100, advanced: 100 },
+    generate: function (rng, P) {
+      var n = rng.int(P.lo, P.hi), t = rng.int(0, TPL.length - 1);
+      return {
+        parameters: { n: n, t: t }, condition: TPL[t].replace('{N}', n), base: 2, value: n, display: bin(n),
+        hints: ['Дели число на 2 с остатком, пока частное не станет равным 0.', 'Остатки читай снизу вверх: последний остаток — первая цифра.'],
+        explanation: n + ' в двоичной системе: ' + sub2(bin(n)) + '. (Делим на 2, остатки читаем снизу вверх.)'
+      };
+    }
+  });
+
+  K.gen.register({
+    id: 'bin_to_dec', version: '1.0', taskType: 'number', subskill: 'i_b2d', cognitiveLevel: 'reproduction',
+    profiles: { basic: { lo: 3, hi: 5 }, standard: { lo: 4, hi: 6 }, advanced: { lo: 6, hi: 8 } },
+    minUnique: { basic: 80, standard: 100, advanced: 100 },
+    generate: function (rng, P) {
+      var len = rng.int(P.lo, P.hi), s = '1', t = rng.int(0, 2);
+      for (var i = 1; i < len; i++) s += rng.int(0, 1);
+      var v = parseInt(s, 2), wrong = [];
+      var rv = parseInt(rev(s), 2); if (rv !== v) wrong.push({ value: N.rat(rv, 1), errorType: 'reversed_order' });
+      if (+s !== v && +s < 1e9) wrong.push({ value: N.rat(+s, 1), errorType: 'decimal_reading' });
+      var q = ['Переведи двоичное число {X} в десятичную систему.', 'Найди десятичное значение двоичного числа {X}.', 'Чему равно двоичное число {X} в десятичной записи?'][t].replace('{X}', sub2(s));
+      return { parameters: { s: s, t: t }, condition: q, value: N.rat(v, 1), display: String(v), wrongValues: wrong,
+        hints: ['Каждая цифра — это степень двойки: справа налево 1, 2, 4, 8…', 'Сложи степени двойки там, где стоит 1.'],
+        explanation: sub2(s) + ' = ' + s.split('').map(function (c, i) { return c === '1' ? Math.pow(2, s.length - 1 - i) : null; }).filter(function (x) { return x !== null; }).join(' + ') + ' = ' + v + '.' };
+    }
+  });
+
+  K.gen.register({
+    id: 'bin_choice', version: '1.1', taskType: 'single_choice', subskill: 'i_d2b', cognitiveLevel: 'understanding', minUnique: 100,
+    profiles: { standard: { lo: 9, hi: 127 } },
+    generate: function (rng, P) {
+      var n = rng.int(P.lo, P.hi), c = bin(n), t = rng.int(0, 1), pool = [], seen = {};
+      seen[c] = 1;
+      function add(text, err) { if (!seen[text] && text && text[0] === '1') { seen[text] = 1; pool.push({ text: text, errorType: err }); } }
+      add(rev(c), 'reversed_order'); add(bin(n + 1), 'off_by_one'); add(bin(n - 1), 'off_by_one');
+      for (var i = 1; i < c.length; i++) add(c.slice(0, i) + (c[i] === '1' ? '0' : '1') + c.slice(i + 1), 'bit_error');
+      if (pool.length < 3) throw new Error('мало различных дистракторов');
+      var dis = rng.shuffle(pool).slice(0, 3);
+      return { parameters: { n: n, t: t }, condition: t ? 'Выбери двоичную запись десятичного числа ' + n + '.' : 'Какая запись соответствует десятичному числу ' + n + ' в двоичной системе?', correct: c, distractors: dis,
+        hints: ['Раздели число на 2 с остатком и запиши остатки.', 'Проверь: сумма степеней двойки должна дать ' + n + '.'], explanation: n + ' = ' + sub2(c) + '.' };
+    }
+  });
+
+  var LAMPS = ['Сигнал передают с помощью {k} лампочек: каждая горит или не горит. Сколько различных сигналов можно получить?',
+    'На панели {k} переключателей, каждый включён или выключен. Сколько различных комбинаций можно составить?',
+    'Для кода используют {k} двоичных разрядов. Сколько различных чисел можно записать?'];
+  K.gen.register({
+    id: 'bin_count_bits', version: '1.2', taskType: 'number', subskill: 'i_bits', cognitiveLevel: 'transfer', minUnique: 40,
+    profiles: { standard: { lo: 3, hi: 12 } },
+    generate: function (rng, P) {
+      var dir = rng.int(0, 1), t = rng.int(0, LAMPS.length - 1), k;
+      if (dir === 0) {
+        do { k = rng.int(P.lo, P.hi); } while (k === 4);
+        var v = Math.pow(2, k);
+        return { parameters: { dir: 0, k: k, t: t }, condition: LAMPS[t].replace('{k}', k), value: N.rat(v, 1), display: String(v),
+          wrongValues: [{ value: N.rat(k * k, 1), errorType: 'square_confusion' }, { value: N.rat(2 * k, 1), errorType: 'multiplication_confusion' }],
+          hints: ['Одна лампочка даёт 2 варианта. Что будет, если добавить вторую?', 'Каждая новая лампочка удваивает число вариантов.'],
+          explanation: 'Каждый разряд удваивает число вариантов: 2 × 2 × … (' + k + ' раз) = 2' + sup(k) + ' = ' + v + '.' };
+      }
+      var m = rng.int(3, 10), V = Math.pow(2, m);
+      return { parameters: { dir: 1, m: m, t: t }, condition: ['Нужно различать ' + V + ' разных сигналов с помощью лампочек (горит или не горит). Какое наименьшее число лампочек нужно?', 'Нужно закодировать ' + V + ' различных значений двоичными разрядами. Сколько разрядов потребуется как минимум?', 'Чтобы пронумеровать ' + V + ' предметов двоичными числами одинаковой длины, сколько разрядов нужно как минимум?'][t],
+        value: N.rat(m, 1), display: String(m), wrongValues: [{ value: N.rat(V, 1), errorType: 'value_instead' }, { value: N.rat(V / 2, 1), errorType: 'half' }],
+        hints: ['Сколько значений дают 2 разряда? 3 разряда? Когда дойдёшь до ' + V + '?', 'Ищи степень двойки, равную ' + V + '.'], explanation: V + ' = 2' + sup(m) + ', поэтому нужно ' + m + ' разрядов.' };
+    }
+  });
+
+  K.gen.register({
+    id: 'bin_algorithm_order', version: '1.0', taskType: 'ordering', subskill: 'i_d2b', cognitiveLevel: 'understanding',
+    profiles: { standard: { lo: 5, hi: 120 } },
+    generate: function (rng, P) {
+      var n = rng.int(P.lo, P.hi), q = Math.floor(n / 2), r = n % 2;
+      return { parameters: { n: n }, condition: 'Расставь шаги перевода числа ' + n + ' в двоичную систему по порядку.',
+        items: [{ id: 'i1', text: 'Делим ' + n + ' на 2: частное ' + q + ', остаток ' + r }, { id: 'i2', text: 'Частное ' + q + ' снова делим на 2 и записываем остаток' },
+          { id: 'i3', text: 'Повторяем деление, пока частное не станет равным 0' }, { id: 'i4', text: 'Читаем остатки снизу вверх: ' + bin(n) }],
+        hints: ['Сначала делим, потом читаем.', 'Чтение остатков снизу вверх — последний шаг.'], explanation: 'Деление → остаток → повтор до нуля → чтение остатков снизу вверх.' };
+    }
+  });
+
+  K.gen.register({
+    id: 'bin_match_powers', version: '1.0', taskType: 'matching', subskill: 'i_b2d', cognitiveLevel: 'recognition', minUnique: 100,
+    profiles: { standard: {} },
+    generate: function (rng) {
+      var ks = rng.shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).slice(0, 4).sort(function (a, b) { return a - b; }), pairs = {}, left = [], right = [];
+      ks.forEach(function (k) { left.push({ id: 'l' + k, text: '2' + sup(k) }); right.push({ id: 'r' + k, text: String(Math.pow(2, k)) }); pairs['l' + k] = 'r' + k; });
+      return { parameters: { ks: ks }, condition: 'Соедини степень двойки с её значением.', left: left, right: right, pairs: pairs,
+        hints: ['2¹ = 2, каждая следующая степень вдвое больше.'], explanation: ks.map(function (k) { return '2' + sup(k) + ' = ' + Math.pow(2, k); }).join('; ') + '.' };
+    }
+  });
+
+  K.gen.register({
+    id: 'bin_multi_select', version: '1.0', taskType: 'multi_choice', subskill: 'i_digits', cognitiveLevel: 'recognition', minUnique: 100,
+    profiles: { standard: {} },
+    generate: function (rng) {
+      function b(len) { var s = ''; for (var i = 0; i < len; i++) s += rng.int(0, 1); return s; }
+      function bad(len) { var s = b(len), p = rng.int(0, len - 1); return s.slice(0, p) + rng.int(2, 9) + s.slice(p + 1); }
+      var good = [], wrong = [], guard = 0;
+      while (good.length < 3 && guard++ < 50) { var x = b(rng.int(3, 5)); if (good.indexOf(x) < 0) good.push(x); }
+      guard = 0; while (wrong.length < 2 && guard++ < 50) { var y = bad(rng.int(3, 5)); if (wrong.indexOf(y) < 0) wrong.push(y); }
+      var opts = good.map(function (t) { return { text: t, correct: true }; }).concat(wrong.map(function (t) { return { text: t, correct: false, errorType: 'digit_out_of_range' }; }));
+      return { parameters: { good: good, wrong: wrong }, condition: 'Выбери все записи, которые могут быть двоичными числами.', options: opts,
+        hints: ['В двоичной системе только две цифры.'], explanation: 'Двоичные числа состоят только из цифр 0 и 1: ' + good.join(', ') + '.' };
+    }
+  });
+
+  var WHYB = ['Объясни, почему компьютер хранит информацию с помощью двух цифр, 0 и 1.', 'Приведи пример из жизни, где есть только два состояния (как 0 и 1).', 'Как ты проверишь, что перевод числа в двоичную систему выполнен верно?'];
+  K.gen.register({
+    id: 'bin_open_why', version: '1.0', taskType: 'open', subskill: 'i_bits', cognitiveLevel: 'understanding', minUnique: 3,
+    profiles: { standard: {} },
+    generate: function (rng) { var i = rng.int(0, WHYB.length - 1); return { parameters: { i: i }, condition: WHYB[i], rubric: 'Ответ сохранён для просмотра учителем.', hints: ['Подумай о лампочке: горит или не горит.'], explanation: '' }; }
+  });
+
+  K.gen.register({
+    id: 'bin_club_ones', version: '1.0', taskType: 'number', subskill: 'i_bits', cognitiveLevel: 'investigation', mode: 'CLUB', minUnique: 20,
+    profiles: { standard: { lo: 3, hi: 14 } },
+    generate: function (rng, P) {
+      var k = rng.int(P.lo, P.hi), v = rng.int(0, 1);
+      return { parameters: { k: k, v: v }, condition: v ? 'Сколько единиц в двоичной записи числа 2' + sup(k) + ' − 1? Проверь на маленьких k и найди закономерность.' : 'Сколько нулей в двоичной записи числа 2' + sup(k) + '? Проверь на маленьких k и найди закономерность.',
+        value: N.rat(v ? k : k, 1), display: String(k), hints: ['Запиши 2² − 1, 2³ − 1, 2⁴ − 1 в двоичной системе и сравни.'], explanation: v ? '2' + sup(k) + ' − 1 в двоичной записи — это ' + k + ' единиц подряд.' : '2' + sup(k) + ' — единица и ' + k + ' нулей.' };
+    }
+  });
+
+  // =====================  УРОКИ  =====================
+  var STEP_ENTRY = function (can) { return { id: 'entry', type: 'entry', title: 'Вход', group: 'entry', can: can }; };
+
+  var LESSON_FRAC = {
+    lessonId: 'demo-math-6-frac-L01', moduleId: 'demo-m1', title: 'Сложение дробей с одинаковыми знаменателями', subject: 'Математика', class: '6', language: 'ru',
+    section: 'Демонстрация · дроби', series: { seriesId: 'demo-frac', lessonIndex: 1, lessonsTotal: 1 },
+    assessmentType: 'formative', assessmentLabel: 'Формативное оценивание (демо)', checkKind: 'learning', weights: null, timeLimitSec: { final: 480 },
+    objectives: [{ code: 'DEMO-M-1', text: 'Складывать дроби с одинаковыми знаменателями' }], lessonObjectives: [{ code: 'DEMO-M-1.1', text: 'Выполнять сложение и объяснять правило' }],
+    programMap: { current: ['сложение дробей с одинаковыми знаменателями'], confirmed: ['понятие дроби', 'сравнение частей и целого'], notYet: ['сложение дробей с разными знаменателями'], forbidden: ['приведение к общему знаменателю'] },
+    criteria: [
+      { criterionId: 'c0', text: 'Читает дробь', descriptors: [{ descriptorId: 'd0.1', text: 'Определяет дробь по рисунку' }] },
+      { criterionId: 'c1', text: 'Складывает дроби', descriptors: [{ descriptorId: 'd1.1', text: 'Вычисляет сумму' }, { descriptorId: 'd1.2', text: 'Объясняет правило' }] },
+      { criterionId: 'c2', text: 'Применяет в задачах', descriptors: [{ descriptorId: 'd2.1', text: 'Решает текстовую задачу' }] }
+    ],
+    subskills: [
+      { id: 'm_read', text: 'Читать дробь по рисунку', recommend: 'Повторить: что показывают числитель и знаменатель.', ruleCard: { title: 'Что показывает дробь', html: '<p>Знаменатель — на сколько равных частей разделили целое. Числитель — сколько частей взяли.</p>' } },
+      { id: 'm_add', text: 'Складывать дроби с одинаковыми знаменателями', recommend: 'Повторить правило: числители складываем, знаменатель остаётся.', ruleCard: { title: 'Правило сложения', html: '<p>Доли одного размера складываем как предметы: считаем, сколько долей получилось вместе.</p><p>' + fr('2', '7') + ' + ' + fr('3', '7') + ' = ' + fr('5', '7') + '</p>' }, example: { html: '<p>Знаменатель показывает размер доли — он не меняется.</p>' } },
+      { id: 'm_rule', text: 'Объяснять правило сложения', recommend: 'Попробуй объяснить правило на примере с пирогом.', ruleCard: { title: 'Почему знаменатель не меняется', html: '<p>Мы складываем <b>количество</b> долей, а размер доли остаётся тем же: 2 седьмых + 3 седьмых = 5 седьмых.</p>' } },
+      { id: 'm_apply', text: 'Применять сложение в задачах', recommend: 'Решай задачи по шагам: что известно, что найти.', ruleCard: { title: 'Как решать задачу', html: '<p>Выпиши, что известно и что нужно найти. Потом выбери действие.</p>' } }
+    ],
+    stages: [
+      STEP_ENTRY(['Я смогу определить дробь по рисунку', 'Я смогу сложить дроби с одинаковыми знаменателями', 'Я смогу объяснить, почему знаменатель не меняется']),
+      { id: 'diagnostic', type: 'tasks', group: 'diagnostic', title: 'Входная диагностика', hints: false, maxAttempts: 1, feedback: 'neutral', plan: [{ gen: 'frac_read_part', count: 4, descriptors: ['d0.1'] }] },
+      { id: 'open', type: 'cards', group: 'learning', title: 'Открытие', cards: [
+        { title: 'Складываем доли', html: '<p>Пирог разрезан на 7 равных частей. Взяли 2 части, потом ещё 3.</p><p>' + fr(2, 7) + ' + ' + fr(3, 7) + ' = ?</p><p>Сколько седьмых получилось вместе? Подумай, прежде чем листать дальше.</p>' },
+        { title: 'Правило', html: '<p>Размер доли (знаменатель) не меняется. Складываем только числители.</p><p>' + fr(2, 7) + ' + ' + fr(3, 7) + ' = ' + fr(5, 7) + '</p>' }] },
+      { id: 'train', type: 'tasks', group: 'learning', title: 'Тренировка', hints: true, maxAttempts: 3, plan: [
+        { gen: 'frac_add_same', profile: 'basic', count: 3, descriptors: ['d1.1'] }, { gen: 'frac_add_same', profile: 'standard', count: 2, descriptors: ['d1.1'] }, { gen: 'frac_add_choice', count: 2, descriptors: ['d1.1'] }] },
+      { id: 'practice', type: 'tasks', group: 'learning', title: 'Практика', hints: true, maxAttempts: 2, plan: [
+        { gen: 'frac_find_error', count: 1, descriptors: ['d1.2'] }, { gen: 'frac_order_steps', count: 1, descriptors: ['d1.2'] }, { gen: 'frac_word_transfer', count: 2, descriptors: ['d2.1'] }, { gen: 'frac_open_explain', count: 1, descriptors: ['d1.2'] }] },
+      { id: 'final', type: 'tasks', group: 'final', title: 'Итоговая проверка (по желанию)', hints: false, maxAttempts: 1, feedback: 'deferred', timed: true, plan: [
+        { gen: 'frac_add_same', profile: 'standard', count: 2, descriptors: ['d1.1'] }, { gen: 'frac_add_choice', count: 1, descriptors: ['d1.1'] }, { gen: 'frac_find_error', count: 1, descriptors: ['d1.2'] }, { gen: 'frac_word_transfer', count: 2, descriptors: ['d2.1'] }] },
+      { id: 'club', type: 'tasks', group: 'club', title: 'Клуб (по желанию)', mode: 'CLUB', hints: true, maxAttempts: 3, plan: [{ gen: 'frac_club_missing', count: 2 }] },
+      { id: 'reflect', type: 'reflection', group: 'reflection', title: 'Рефлексия', prompt: 'Что тебе было понятно сегодня, а что стоит повторить?' }
+    ]
+  };
+
+  var INF_SUBS = [
+    { id: 'i_place', text: 'Различать разряды числа', recommend: 'Повторить разряды: единицы, десятки, сотни.', ruleCard: { title: 'Разряды', html: '<p>Разряды считаем справа налево: единицы, десятки, сотни, тысячи.</p>' } },
+    { id: 'i_d2b', text: 'Переводить из десятичной в двоичную', recommend: 'Повторить деление на 2 и чтение остатков снизу вверх.', ruleCard: { title: 'Перевод 10 → 2', html: '<p>Делим число на 2 с остатком, пока частное не станет 0. Остатки читаем <b>снизу вверх</b>.</p><p>13 → 1101₂</p>' } },
+    { id: 'i_b2d', text: 'Переводить из двоичной в десятичную', recommend: 'Повторить степени двойки: 1, 2, 4, 8, 16…', ruleCard: { title: 'Перевод 2 → 10', html: '<p>Справа налево разряды равны 1, 2, 4, 8… Складываем те, где стоит 1.</p><p>1101₂ = 8 + 4 + 1 = 13</p>' } },
+    { id: 'i_bits', text: 'Считать число значений', recommend: 'Повторить: каждый разряд удваивает число вариантов.', ruleCard: { title: 'Сколько значений', html: '<p>Один разряд даёт 2 значения. Каждый новый разряд удваивает их число: 2 × 2 × 2 …</p>' } },
+    { id: 'i_digits', text: 'Знать двоичные цифры', recommend: 'Повторить: в двоичной системе только цифры 0 и 1.', ruleCard: { title: 'Двоичные цифры', html: '<p>В двоичной системе используются только 0 и 1.</p>' } }
+  ];
+  var LESSON_BIN = {
+    lessonId: 'demo-inf-8-bin-L01', moduleId: 'demo-m2', title: 'Двоичная система счисления', subject: 'Информатика', class: '8', language: 'ru',
+    section: 'Демонстрация · системы счисления', series: { seriesId: 'demo-bin', lessonIndex: 1, lessonsTotal: 2 },
+    assessmentType: 'formative', assessmentLabel: 'Формативное оценивание (демо)', checkKind: 'learning', weights: null, timeLimitSec: { final: 600 },
+    objectives: [{ code: 'DEMO-I-1', text: 'Переводить числа между десятичной и двоичной системами' }], lessonObjectives: [{ code: 'DEMO-I-1.1', text: 'Переводить небольшие числа и считать число значений' }],
+    programMap: { current: ['перевод 10↔2'], confirmed: ['десятичная система, разряды'], notYet: ['восьмеричная и шестнадцатеричная системы'], forbidden: ['арифметика в двоичной системе'] },
+    criteria: [
+      { criterionId: 'c0', text: 'Знает разряды', descriptors: [{ descriptorId: 'd0.1', text: 'Определяет разряд цифры' }] },
+      { criterionId: 'c1', text: 'Переводит числа', descriptors: [{ descriptorId: 'd1.1', text: 'Переводит из десятичной в двоичную' }, { descriptorId: 'd1.2', text: 'Переводит из двоичной в десятичную' }] },
+      { criterionId: 'c2', text: 'Применяет и объясняет', descriptors: [{ descriptorId: 'd2.1', text: 'Считает число значений' }, { descriptorId: 'd2.2', text: 'Объясняет' }] }
+    ],
+    subskills: INF_SUBS,
+    stages: [
+      STEP_ENTRY(['Я смогу перевести число из десятичной системы в двоичную', 'Я смогу перевести двоичное число в десятичное', 'Я смогу посчитать, сколько значений даёт несколько разрядов']),
+      { id: 'diagnostic', type: 'tasks', group: 'diagnostic', title: 'Входная диагностика', hints: false, maxAttempts: 1, feedback: 'neutral', plan: [{ gen: 'dec_place_value', count: 4, descriptors: ['d0.1'] }] },
+      { id: 'open', type: 'cards', group: 'learning', title: 'Открытие', cards: [
+        { title: 'Две цифры', html: '<p>Лампочка горит (1) или не горит (0). Из таких состояний компьютер строит числа.</p><p>Как ты думаешь, сколько разных сигналов дадут две лампочки?</p>' },
+        { title: 'Перевод 10 → 2', html: '<p>Делим число на 2 с остатком, пока частное не станет 0. Остатки читаем снизу вверх.</p><p>13 = 1101₂</p>' }] },
+      { id: 'train', type: 'tasks', group: 'learning', title: 'Тренировка', hints: true, maxAttempts: 3, plan: [
+        { gen: 'bin_dec_to_bin', profile: 'basic', count: 3, descriptors: ['d1.1'] }, { gen: 'bin_to_dec', profile: 'basic', count: 2, descriptors: ['d1.2'] }, { gen: 'bin_choice', count: 2, descriptors: ['d1.1'] }] },
+      { id: 'practice', type: 'tasks', group: 'learning', title: 'Практика', hints: true, maxAttempts: 2, plan: [
+        { gen: 'bin_dec_to_bin', profile: 'standard', count: 2, descriptors: ['d1.1'] }, { gen: 'bin_algorithm_order', count: 1, descriptors: ['d1.1'] }, { gen: 'bin_match_powers', count: 1, descriptors: ['d1.2'] },
+        { gen: 'bin_multi_select', count: 1, descriptors: ['d2.2'] }, { gen: 'bin_count_bits', count: 1, descriptors: ['d2.1'] }, { gen: 'bin_open_why', count: 1, descriptors: ['d2.2'] }] },
+      { id: 'final', type: 'tasks', group: 'final', title: 'Итоговая проверка (по желанию)', hints: false, maxAttempts: 1, feedback: 'deferred', timed: true, plan: [
+        { gen: 'bin_dec_to_bin', profile: 'standard', count: 2, descriptors: ['d1.1'] }, { gen: 'bin_to_dec', profile: 'standard', count: 2, descriptors: ['d1.2'] }, { gen: 'bin_choice', count: 1, descriptors: ['d1.1'] }, { gen: 'bin_count_bits', count: 1, descriptors: ['d2.1'] }] },
+      { id: 'club', type: 'tasks', group: 'club', title: 'Клуб (по желанию)', mode: 'CLUB', hints: true, maxAttempts: 3, plan: [{ gen: 'bin_club_ones', count: 2 }] },
+      { id: 'reflect', type: 'reflection', group: 'reflection', title: 'Рефлексия', prompt: 'Что получилось легко, а что стоит повторить?' }
+    ]
+  };
+
+  // Тренировка к СОР (контрольная работа: подсказок нет, время фиксируется, потолок 84% при превышении)
+  var LESSON_SOR = {
+    lessonId: 'demo-inf-8-bin-SOR', moduleId: 'demo-m3', title: 'Тренировка к СОР · двоичная система', subject: 'Информатика', class: '8', language: 'ru',
+    section: 'Демонстрация · системы счисления', series: { seriesId: 'demo-bin', lessonIndex: 2, lessonsTotal: 2 },
+    assessmentType: 'SOR', assessmentLabel: 'СОР (тренировочный аналог, демо)', checkKind: 'learning', weights: null, timeLimitSec: { final: 300 },
+    objectives: LESSON_BIN.objectives, lessonObjectives: LESSON_BIN.lessonObjectives, programMap: LESSON_BIN.programMap,
+    criteria: [{ criterionId: 'c1', text: 'Переводит числа', descriptors: [{ descriptorId: 'd1.1', text: 'Из десятичной в двоичную' }, { descriptorId: 'd1.2', text: 'Из двоичной в десятичную' }] },
+      { criterionId: 'c2', text: 'Применяет', descriptors: [{ descriptorId: 'd2.1', text: 'Считает число значений' }] }],
+    subskills: INF_SUBS,
+    stages: [
+      STEP_ENTRY(['Это тренировочная работа: подсказок нет, время фиксируется']),
+      { id: 'train', type: 'tasks', group: 'learning', title: 'Повторение', hints: true, maxAttempts: 3, plan: [{ gen: 'bin_dec_to_bin', profile: 'basic', count: 2, descriptors: ['d1.1'] }, { gen: 'bin_to_dec', profile: 'basic', count: 2, descriptors: ['d1.2'] }] },
+      { id: 'final', type: 'tasks', group: 'final', title: 'Контрольная часть', hints: false, maxAttempts: 1, feedback: 'deferred', timed: true, plan: [
+        { gen: 'bin_dec_to_bin', profile: 'standard', count: 2, descriptors: ['d1.1'] }, { gen: 'bin_to_dec', profile: 'standard', count: 2, descriptors: ['d1.2'] }, { gen: 'bin_count_bits', count: 1, descriptors: ['d2.1'] }] },
+      { id: 'reflect', type: 'reflection', group: 'reflection', title: 'Рефлексия', prompt: 'Что стоит повторить перед настоящей работой?' }
+    ]
+  };
+
+  // Подсказки об ошибках, привязанные к типам ошибок дистракторов (текст для ученика).
+  var ERROR_LABELS = {
+    inverted: 'Числитель и знаменатель перепутаны местами: знаменатель — на сколько частей разделили целое.',
+    complement: 'Здесь указана незакрашенная часть, а нужна закрашенная.',
+    part_to_part: 'Дробь сравнивает часть с целым, а не часть с другой частью.',
+    miscount: 'Пересчитай части ещё раз: знаменатель равен числу всех частей.',
+    denominator_added: 'Знаменатель при сложении не складывают: размер долей не меняется.',
+    numerators_multiplied: 'Числители складывают, а не умножают.',
+    denominator_dropped: 'Ответ — это не просто число: нужно записать дробью, указав размер долей.',
+    subtracted: 'Здесь числители вычитали, а в задаче доли соединяют вместе.',
+    denominator_changed: 'Размер доли остаётся прежним: знаменатель не меняется.',
+    operation: 'Выбрано не то действие. Подумай, что происходит с долями.',
+    format: 'Ответ записан не в том виде, который нужен.',
+    asked_done_not_left: 'Найдена пройденная часть, а в задаче спрашивают, сколько осталось.',
+    added_instead: 'Нужно найти недостающую часть, а не сложить числа ещё раз.',
+    place_confusion: 'Разряды считают справа налево: единицы, десятки, сотни.',
+    reversed_order: 'Порядок цифр обратный: остатки читают снизу вверх, а цифры двоичного числа — слева направо по степеням.',
+    decimal_reading: 'Число записано двоичными цифрами, его нельзя читать как десятичное.',
+    off_by_one: 'Ответ отличается на единицу. Проверь последнее действие.',
+    bit_error: 'В одной цифре ошибка. Проверь перевод по степеням двойки.',
+    square_confusion: 'Каждый разряд удваивает число вариантов, а не возводит в квадрат.',
+    multiplication_confusion: 'Число вариантов удваивается с каждым разрядом: нужны степени двойки.',
+    value_instead: 'Нужно найти число разрядов, а не число значений.',
+    half: 'Проверь: сколько значений дают найденные разряды?',
+    digit_out_of_range: 'В двоичной системе есть только цифры 0 и 1.'
+  };
+
+  K.PACK = {
+    errorLabels: ERROR_LABELS,
+    materialId: 'demo-core-check', contentVersion: '1.0.0', title: 'Демонстрация ядра ЦОМ', language: 'ru',
+    notice: 'Демонстрационное содержание для проверки ядра. Не является КСП и не привязано к программе РК.',
+    lessons: [LESSON_FRAC, LESSON_BIN, LESSON_SOR]
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+KAP.PRODUCER = {"materialId":"demo-core-check","engineVersion":"1.0.0","contentVersion":"1.0.0","contentHash":"00f858221f913a"};
+/* интерфейс */
+/* --- teacher/paper.js --- */
+(function (root) { 'use strict'; var K = root.KAP = root.KAP || {}; K.paper = {}; })(typeof window !== 'undefined' ? window : globalThis);
+
+/* --- teacher/app.js --- */
+(function (root) { 'use strict'; document.getElementById('app').textContent = 'Кабинет учителя: в разработке'; })(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+</body>
+</html>
