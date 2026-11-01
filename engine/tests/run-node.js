@@ -8,6 +8,7 @@ const ORDER = require('../build/order.js');
 globalThis.KAP = globalThis.KAP || {};
 ORDER.core.forEach(f => require(path.join(SRC, f)));
 require(path.join(__dirname, '..', 'content', 'demo', 'pack.js'));
+require(path.join(SRC, 'teacher', 'paper.js'));
 
 let passed = 0, failed = 0;
 const failures = [];

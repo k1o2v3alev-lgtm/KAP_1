@@ -64,7 +64,41 @@ th { background: var(--surface2); }
 .sr-only { position: absolute; left: -9999px; }
 @media print { body { background: #fff; color: #000; } .no-print { display: none !important; } }
 
-/* teacher */
+/* KAP engine · кабинет учителя. */
+.app { max-width: 1180px; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; border-bottom: 2px solid var(--line); }
+.tabs.sub { border-bottom: 1px solid var(--line); }
+.tab { min-height: 44px; padding: 8px 16px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--muted); font: inherit; font-weight: 600; cursor: pointer; }
+.tab.on { color: var(--brand); border-bottom-color: var(--brand); }
+.dropzone { border: 2px dashed var(--line); } .dropzone.over { border-color: var(--brand); background: var(--info-bg); }
+details.card > summary { cursor: pointer; padding: 4px 0; }
+tr.sum td { background: var(--surface2); font-weight: 600; }
+.pt-cond { margin: 6px 0; }
+
+/* предпросмотр и печать бумажного комплекта */
+.print-area { margin-top: 18px; }
+.print-page { background: #fff; color: #000; border: 1px solid var(--line); border-radius: 6px; padding: 14mm 14mm 10mm; margin: 12px 0; max-width: 210mm; }
+.print-page .fr i { border-bottom-color: #000; }
+.pt-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #000; padding-bottom: 4px; }
+.pt-var { font-size: 1.4em; font-weight: 700; }
+.pt-fields { margin: 10px 0 4px; } .pt-meta { font-size: 12px; margin-bottom: 8px; }
+.pt-task { margin: 10px 0 14px; break-inside: avoid; }
+.pt-pts { font-weight: 400; font-size: 12px; color: #444; }
+.pt-opts { margin: 4px 0 0 0; padding-left: 0; list-style: none; } .pt-opts li { margin: 2px 0; }
+.pt-line { margin-top: 10px; } .pt-foot { margin-top: 12px; font-size: 11px; color: #555; border-top: 1px solid #aaa; padding-top: 3px; }
+.pt-match td { border: 0; padding: 2px 10px 2px 0; }
+.omr-page { padding: 0; border: 0; background: transparent; } .omr-page svg { background: #fff; border: 1px solid var(--line); max-width: 100%; height: auto; }
+.cut { border: 0; border-top: 1px dashed #888; margin: 0; }
+.entry td, .entry th { padding: 4px 6px; }
+@media print {
+  @page { size: A4; margin: 8mm; }
+  body { background: #fff; }
+  .app { max-width: none; padding: 0; }
+  .no-print { display: none !important; }
+  .print-area { margin: 0; }
+  .print-page { border: 0; border-radius: 0; margin: 0; padding: 6mm; max-width: none; page-break-after: always; break-after: page; }
+  .omr-page { padding: 0; } .omr-page svg { border: 0; width: 210mm; height: 148.5mm; display: block; }
+}
 
 </style>
 </head>
@@ -997,11 +1031,232 @@ th { background: var(--surface2); }
 })(typeof window !== 'undefined' ? window : globalThis);
 
 /* --- core/legacy.js --- */
-/* KAP engine · legacy: адаптеры прежних схем (Приложение C). Заполняется после проверки на корпусе. */
+/* KAP engine · legacy: адаптеры прежних схем (Приложение C).
+   Формат определяется по набору ключей, а не по schemaVersion (он совпадает у разных схем).
+   Ничего не вычисляется «по догадке»: если показателя нет в источнике, он null. */
 (function (root) {
   'use strict';
   var K = root.KAP = root.KAP || {};
-  K.legacy = { detect: function () { return null; }, toReports: function () { return []; } };
+  var U = K.util;
+
+  function has(o) { for (var i = 1; i < arguments.length; i++) if (!o || !(arguments[i] in o)) return false; return true; }
+  function num(x) { return (typeof x === 'number' && isFinite(x)) ? x : (typeof x === 'string' && x.trim() !== '' && isFinite(+x) ? +x : null); }
+  function str(x) { return x == null ? null : String(x); }
+  function secBetween(a, b) { var x = Date.parse(a), y = Date.parse(b); return (isNaN(x) || isNaN(y)) ? null : Math.max(0, Math.round((y - x) / 1000)); }
+  function optList(x) {
+    if (Array.isArray(x)) return x.map(function (o) { return o && typeof o === 'object' ? (o.text != null ? o.text : (o.label != null ? o.label : JSON.stringify(o))) : o; });
+    if (x && typeof x === 'object') return Object.keys(x).map(function (k) { var v = x[k]; return typeof v === 'object' ? JSON.stringify(v) : String(v); });
+    return [];
+  }
+  function typeOfTask(t) { return ({ single: 'single_choice', 'single-choice': 'single_choice', choice: 'single_choice', mc: 'single_choice', MC: 'single_choice' })[t] || t || 'unknown'; }
+
+  /** Определение формата. Порядок проверок важен (Приложение C.2). */
+  function detect(o) {
+    if (!o || typeof o !== 'object' || Array.isArray(o)) return null;
+    if (o.reportType === 'lesson_report') return 'v1';
+    if (o.reportType === 'package_report') return 'v1_package';
+    if (o.reportType === 'paper_kit') return 'paper_kit';
+    if (o.reportType === 'teacher_review') return 'teacher_review';
+    if (o.reportType === 'session_snapshot') return 'session_snapshot';
+    if (o.type === 'bundle' && Array.isArray(o.reports)) return 'bundle';
+    if (o.kind === 'package-report' && Array.isArray(o.lessons)) return 'package_b09';
+    if (o.schema === 'edu-trainer-report') return 'F4';
+    if (typeof o['схема'] === 'string' && o['схема'].indexOf('сор-результат') === 0) return 'F6';
+    if (typeof o['схема'] === 'string' && o['схема'].indexOf('соч-тренажёр') === 0) return 'F7';
+    if (o.kind === 'lesson-report' && o.metrics) return 'F5';
+    if (has(o, 'accuracyPercent', 'grade10')) return 'F8';
+    if (has(o, 'fio', 'klass', 'questions', 'app')) return 'F3';
+    if (Array.isArray(o.attempts) && o.attempts[0] && o.attempts[0].attemptId && has(o, 'moduleKind')) return 'F2';
+    if (has(o, 'materialVersion', 'programMap') && Array.isArray(o.tasks)) return 'F1';
+    if (has(o, 'omr_template', 'works')) return 'omr_db';
+    return null;
+  }
+
+  function mkTask(o) {
+    var st = o.status || 'not_done';
+    return {
+      taskId: str(o.taskId) || 't' + Math.random().toString(36).slice(2, 8), stage: o.stage || null, mode: o.mode || 'CORE', taskType: typeOfTask(o.taskType), cognitiveLevel: o.cognitiveLevel || null,
+      goalCode: o.goalCode || null, subskillId: o.subskillId || null, descriptorIds: o.descriptorIds || [], generator: o.generator || null, variantFingerprint: o.fingerprint || null,
+      presentedCondition: o.condition == null ? null : o.condition, presentedOptions: o.options || [], presentedOptionOrder: o.optionOrder || [], correctOptionPosition: null,
+      expectedAnswer: o.expected == null ? null : o.expected, evaluationRule: o.rule == null ? null : o.rule, distractorMap: {},
+      studentAnswer: o.answer == null ? null : o.answer, normalizedAnswer: o.normalized == null ? null : o.normalized,
+      status: st, score: num(o.score), maxScore: num(o.maxScore) == null ? 1 : num(o.maxScore),
+      attempts: typeof o.attempts === 'number' ? new Array(o.attempts).fill(0).map(function (_, i) { return { n: i + 1, answer: null, at: null, status: null, score: null }; }) : (o.attempts || []),
+      hintsUsed: o.hintsUsed || 0, hintLevelsShown: [], presentedAt: o.presentedAt || null, answeredAt: o.answeredAt || null, responseTimeSec: num(o.responseTimeSec),
+      answeredAfterLimit: false, answerChanges: o.answerChanges || 0, openedCount: o.openedCount || 1, errorType: o.errorType || null, errorTags: [],
+      autoGraded: st !== 'pending_review', skipped: !!o.skipped, solutionShown: !!o.solutionShown, loop: false, teacherReview: o.teacherReview || null
+    };
+  }
+
+  function skeleton(fam, o) {
+    var P = (K.PRODUCER || {});
+    var student = { studentId: o.studentId || null, name: o.name || 'Без имени', 'class': String(o['class'] == null ? '' : o['class']) };
+    var startedAt = o.startedAt || null;
+    var rid = o.reportId || ('legacy-' + U.hashHex(U.canonical(o.raw || o)));
+    var wall = o.wallSec != null ? o.wallSec : (o.startedAt && o.fixedAt ? secBetween(o.startedAt, o.fixedAt) : null);
+    var mark = num(o.mark10);
+    var basis = o.markBasis || (mark == null ? 'none' : 'formative_without_control');
+    return {
+      schemaVersion: '1.0', reportType: 'lesson_report', reportId: rid,
+      dedupeKey: K.schema.dedupeKey(student, o.lessonId, o.attemptNumber || 1, startedAt),
+      source: 'digital', legacy: true, legacyFamily: fam,
+      producer: { materialId: o.materialId || null, engineVersion: 'legacy-' + fam, contentVersion: o.contentVersion || 'legacy', contentHash: '' },
+      student: student,
+      context: { subject: o.subject || null, language: 'ru', section: o.section || null, series: null, lessonId: o.lessonId || 'unknown', moduleId: o.moduleId || o.lessonId || 'unknown', lessonTitle: o.title || null,
+        assessmentType: o.assessmentType || 'formative', assessmentLabel: o.assessmentLabel || null, checkKind: 'learning' },
+      objectives: { learningObjectives: o.objectives || [], lessonObjectives: [] },
+      attempt: { attemptNumber: o.attemptNumber || 1, countsForMark: o.countsForMark !== false, startedAt: startedAt, lastActivityAt: o.lastActivityAt || o.fixedAt || null, fixedAt: o.fixedAt || null, completionReason: o.completionReason || 'completed' },
+      time: { timeLimitSec: num(o.timeLimitSec), elapsedWallTimeSec: wall, activeTimeSec: num(o.activeSec), activeTimeMethod: 'unknown_legacy', sessions: [], timeExceeded: !!o.timeExceeded, overtimeSec: o.overtimeSec || 0, pageLeaves: o.pageLeaves || 0 },
+      scoring: { weightsSource: 'legacy', weightsProfile: 'legacy', weights: o.weights || null, coefficients: o.coefficients || null, markBasis: basis, scoreCap: { applied: false, capPct: 84, reason: null, uncappedAchievementPct: null, uncappedMark10: null } },
+      metrics: { completionPct: num(o.completionPct), accuracyPct: num(o.accuracyPct), achievementPct: num(o.achievementPct), independencePct: null, diagnosticPct: num(o.diagnosticPct), finalPct: num(o.finalPct),
+        deltaDiagnosticToFinal: null, skillsCoveragePct: null, descriptorCoveragePct: null, levelsProfile: null, mark10: mark, formativeMark10: null, metricSources: { mark10: 'legacy_import' } },
+      coreResult: { completionPct: num(o.completionPct), accuracyPct: num(o.accuracyPct), achievementPct: num(o.achievementPct), mark10: mark }, extensionResult: o.extensionResult || null,
+      criteriaResults: o.criteriaResults || [], descriptorResults: o.descriptorResults || [], subskills: o.subskills || [], correctionLoops: [], toReview: o.toReview || [],
+      stages: o.stages || [], tasks: o.tasks || [], retrievalResults: [], reflection: o.reflection || null,
+      strengths: o.strengths || [], difficulties: o.difficulties || [], recommendations: o.recommendations || [], accessibilityAdaptationsUsed: o.adaptations || [],
+      paper: null, integrity: { reportHash: null, algorithm: null, warnings: (o.warnings || []).concat(['Импорт из прежней схемы ' + fam + ': показатели взяты из файла как есть']) },
+      legacyRaw: o.raw
+    };
+  }
+
+  function statusFromScore(score, max, pend) {
+    if (pend) return 'pending_review'; if (score == null || max == null) return 'not_done';
+    return score >= max - 1e-9 ? 'correct' : (score > 0 ? 'partial' : 'incorrect');
+  }
+  function groupOfStage(t) { t = String(t || '').toLowerCase(); return t.indexOf('diag') >= 0 ? 'diagnostic' : (t === 'final' || t === 'control') ? 'final' : 'learning'; }
+
+  // ---------- F1: Б02, Б08 ----------
+  function f1(o) {
+    var stg = {}; (o.stages || []).forEach(function (s) { stg[s.stageId] = s; });
+    var mapSt = { correct: 'correct', partial: 'partial', incorrect: 'incorrect', saved: 'pending_review', submitted: 'pending_review' };
+    var tasks = (o.tasks || []).map(function (t) {
+      return mkTask({ taskId: t.taskId, stage: t.stageId, taskType: t.taskType, subskillId: t.subskill, condition: t.presentedCondition, options: optList(t.presentedOptions), optionOrder: [], expected: t.expectedAnswer, rule: t.evaluationRule,
+        answer: t.studentAnswer, normalized: t.normalizedAnswer, status: mapSt[t.status] || 'not_done', score: t.score, maxScore: t.maxScore, attempts: t.attempts, hintsUsed: t.hintsUsed, presentedAt: t.presentedAt, answeredAt: t.answeredAt, responseTimeSec: t.responseTime,
+        errorType: t.errorType, descriptorIds: t.descriptors, solutionShown: t.revealed, generator: t.generatorId ? { generatorId: t.generatorId, generatorVersion: String(t.generatorVersion), profile: null, seed: t.seed, parameters: t.generationParameters || {} } : null });
+    });
+    var hasCtl = (o.stages || []).some(function (s) { return s.control && s.itemsDone > 0; });
+    var at = Array.isArray(o.assessmentType) ? o.assessmentType[0] : o.assessmentType;
+    return skeleton('F1', { raw: o, name: typeof o.student === 'string' ? o.student : (o.student && (o.student.name || o.student.fio)), studentId: o.studentId, 'class': o['class'], subject: o.subject, section: o.section, lessonId: o.lessonId, moduleId: o.moduleId, title: o.lessonTitle,
+      materialId: o.materialId, contentVersion: o.materialVersion, assessmentType: at || 'formative', attemptNumber: o.attemptNumber, startedAt: o.startedAt, lastActivityAt: o.lastActivityAt, fixedAt: o.fixedAt,
+      completionReason: o.completionReason === 'completed' ? 'completed' : 'student_stopped', activeSec: num(o.duration), timeLimitSec: o.timeLimit, completionPct: o.completionPct, accuracyPct: o.accuracyPct, achievementPct: o.achievementPct, mark10: o.mark10,
+      markBasis: num(o.mark10) == null ? 'none' : (hasCtl ? 'with_control' : 'formative_without_control'), tasks: tasks, objectives: (o.learningObjectives || []).map(function (c) { return { code: String(c), text: String(c) }; }),
+      stages: (o.stages || []).map(function (s) { return { stageId: s.stageId, name: s.title, group: groupOfStage(s.type), mode: 'digital', status: s.itemsDone >= s.itemsTotal ? 'completed' : 'in_progress', startedAt: null, finishedAt: null, earned: null, max: null, activeSec: null }; }),
+      strengths: o.strengths, difficulties: o.difficulties, recommendations: o.recommendations, reflection: o.reflection, adaptations: o.accessibilityAdaptationsUsed, warnings: (String(o['class']) !== String(o.grade) && o.grade != null) ? ['class и grade расходятся: ' + o['class'] + ' / ' + o.grade] : [] });
+  }
+
+  // ---------- F2: Б05-Б (каждая попытка — отдельный отчёт) ----------
+  function f2(o) {
+    var typeMap = { 'СОР': 'SOR', 'СОЧ': 'SOCH' };
+    return (o.attempts || []).map(function (a) {
+      var tasks = (a.tasks || []).map(function (t) {
+        return mkTask({ taskId: t.taskId, stage: t.stage, taskType: t.taskType, goalCode: t.objective, condition: t.presentedCondition, options: optList(t.presentedOptions), expected: t.expectedAnswer, rule: t.evaluationRule,
+          answer: t.studentAnswer, normalized: t.normalizedAnswer, status: ({ correct: 'correct', partial: 'partial', incorrect: 'incorrect' })[t.status] || 'not_done', score: t.score, maxScore: t.maxScore, attempts: typeof t.attempts === 'number' ? t.attempts : (t.attempts || []), hintsUsed: t.hintsUsed,
+          presentedAt: t.presentedAt, answeredAt: t.answeredAt, responseTimeSec: t.responseTime, errorType: t.errorType, generator: { generatorId: t.generatorId, generatorVersion: String(t.generatorVersion), profile: null, seed: t.seed, parameters: {} } });
+      });
+      var ctl = (o.moduleKind === 'СОР' || o.moduleKind === 'СОЧ') && a.kind !== 'training';
+      return skeleton('F2', { raw: a, reportId: a.attemptId ? 'legacy-' + o.materialId + '-' + a.attemptId : null, name: o.student && o.student.name, studentId: o.student && o.student.id, 'class': o.student && o.student['class'], subject: o.subject, section: o.section, lessonId: o.lessonId, moduleId: o.moduleId,
+        title: o.materialTitle, materialId: o.materialId, contentVersion: o.appVersion, assessmentType: typeMap[o.moduleKind] || o.assessmentType || 'formative', assessmentLabel: o.moduleKind, attemptNumber: a.attemptNumber, countsForMark: a.countsForMark, startedAt: a.startedAt, lastActivityAt: a.lastActivityAt, fixedAt: a.fixedAt || o.exportedAt,
+        completionReason: a.completionReason === 'completed' ? 'completed' : 'student_stopped', activeSec: num(a.duration), timeLimitSec: a.timeLimit, completionPct: a.completionPct, accuracyPct: a.accuracyPct, achievementPct: a.achievementPct, mark10: a.mark10,
+        markBasis: num(a.mark10) == null ? 'none' : (ctl ? 'control_work' : 'formative_without_control'), tasks: tasks, reflection: a.reflection, adaptations: a.accessibilityAdaptationsUsed, warnings: a.status !== 'completed' ? ['Попытка не завершена'] : [] });
+    });
+  }
+
+  // ---------- F3: Б06 (старое тестовое приложение) ----------
+  function f3(o) {
+    var tasks = (o.questions || []).map(function (q) {
+      var ok = q.result === 'ok' || q.result === 'correct' || q.result === 'right', bad = q.result === 'wrong';
+      return mkTask({ taskId: 'q' + q.n, taskType: 'number', condition: q.text, expected: q.correct_answer, answer: q.final_answer, status: ok ? 'correct' : (bad ? 'incorrect' : 'not_done'), score: ok ? 1 : (bad ? 0 : null), maxScore: 1,
+        attempts: (q.attempts || []).map(function (a, i) { return { n: i + 1, answer: a.v, at: null, status: a.ok ? 'correct' : 'incorrect', score: a.ok ? 1 : 0 }; }), hintsUsed: q.hints_shown, responseTimeSec: (q.attempts && q.attempts.length) ? q.attempts[q.attempts.length - 1].t_sec : null });
+    });
+    var r = skeleton('F3', { raw: o, name: o.fio, 'class': o.klass, subject: 'Информатика', lessonId: o.app, moduleId: o.app, title: o.topic, materialId: o.app, contentVersion: String(o.version), objectives: o.goal ? [{ code: o.goal, text: o.goal }] : [],
+      startedAt: o.date, fixedAt: o.date, completionReason: 'completed', activeSec: num(o.time_spent_sec), timeLimitSec: o.time_limit_sec, completionPct: tasks.length ? 100 : 0, accuracyPct: o.percent, mark10: null, markBasis: 'none', tasks: tasks, warnings: ['Формат старого тестового приложения: поле mark сохранено как legacyMark, не как mark10'] });
+    r.legacyMark = o.mark; return r;
+  }
+
+  // ---------- F4: Б07-А ----------
+  function f4(o) {
+    var s = o.summary || {}, at = o.attempt || {}, mod = o.module || {}, tr = o.trainer || {};
+    var tasks = (o.items || []).map(function (i) {
+      var pend = i.needsTeacherReview; var st = pend ? 'pending_review' : (({ correct: 'correct', partial: 'partial', incorrect: 'incorrect' })[i.verdict] || 'not_done');
+      return mkTask({ taskId: i.itemId, stage: i.stageId, taskType: i.type, subskillId: (i.subskills || [])[0], condition: i.prompt, expected: i.correctAnswer, answer: i.studentAnswer, normalized: i.normalizedAnswer, status: st, score: i.score, maxScore: i.maxScore,
+        attempts: i.attempts, hintsUsed: i.hintsUsed, solutionShown: i.solutionShown, responseTimeSec: i.timeSec, presentedAt: i.presentedAt, answeredAt: i.answeredAt, errorType: (i.errorTypes || [])[0], skipped: i.status === 'skipped' });
+    });
+    var stg = []; Object.keys(o.stages || {}).forEach(function (k) { var x = o.stages[k]; if (!x) return; stg.push({ stageId: x.stageId || k, name: x.title || k, group: groupOfStage(k === 'learning' || k === 'practice' ? 'learning' : k), mode: 'digital', status: x.completed ? 'completed' : 'in_progress', startedAt: x.startedAt || null, finishedAt: x.endedAt || null, earned: num(x.earned), max: num(x.max), activeSec: null }); });
+    var subs = (o.subskills || []).map(function (x) { return typeof x === 'object' ? x : { subskillId: String(x), text: String(x) }; });
+    return skeleton('F4', { raw: o, reportId: o.reportId, name: o.student && o.student.name, 'class': o.student && o.student['class'], subject: tr.subject, section: mod.section, lessonId: (tr.id || 'f4') + ':' + (mod.id || mod.number), moduleId: mod.id, title: mod.topic, materialId: tr.id, contentVersion: tr.version,
+      objectives: mod.goalCode ? [{ code: mod.goalCode, text: mod.goalText || mod.goalCode }] : [], attemptNumber: at.number, startedAt: at.startedAt, lastActivityAt: at.lastActionAt, fixedAt: at.committedAt || o.generatedAt, completionReason: at.endReason === 'completed' ? 'completed' : (at.endReason === 'time_expired' ? 'time_expired' : 'student_stopped'),
+      activeSec: num(at.durationSec), wallSec: num(at.wallClockSec), timeLimitSec: at.timeLimitSec, completionPct: s.completionPct, accuracyPct: s.accuracyPct, achievementPct: s.achievementPct, mark10: s.score10, diagnosticPct: s.diagnosticPct, finalPct: s.finalPct,
+      markBasis: num(s.score10) == null ? 'none' : (s.finalPct != null ? 'with_control' : 'formative_without_control'), tasks: tasks, stages: stg, subskills: [], strengths: o.strengths, recommendations: o.recommendations, reflection: o.reflection,
+      weights: o.scoring && o.scoring.stageWeights ? o.scoring.stageWeights : null, coefficients: o.scoring ? { hint: o.scoring.hintCoefficients, attempt: o.scoring.attemptCoefficients, solutionCap: o.scoring.solutionCoefficient, source: 'legacy' } : null,
+      toReview: (o.toReviewIds || []).map(function (id) { return { taskId: id, subskillId: null, reason: 'legacy' }; }), warnings: s.achievementIsPreliminary ? ['Достижение предварительное'] : [] });
+  }
+
+  // ---------- F5: Б09, урок серии ----------
+  function f5(o) {
+    var m = o.metrics || {}, a = o.attempt || {}, les = o.lesson || {}, pk = o.package || {};
+    var tasks = (o.tasks || []).map(function (t) {
+      var pend = (t.openAnswers || []).length > 0 && !t.closed; var st = !t.closed ? 'not_done' : (pend ? 'pending_review' : (t.correct ? 'correct' : ((t.evaluation && t.evaluation.raw > 0) ? 'partial' : 'incorrect')));
+      return mkTask({ taskId: t.taskId, stage: t.stageId, taskType: t.category, subskillId: t.subskill, condition: t.presentedCondition && t.presentedCondition.text, options: (t.presentedCondition && t.presentedCondition.options) || [], expected: t.expectedAnswer, answer: t.studentAnswer,
+        status: st, score: t.evaluation ? t.evaluation.bestRaw : null, maxScore: 1, attempts: (t.attemptsHistory || []).map(function (h, i) { return { n: i + 1, answer: null, at: null, status: h.full ? 'correct' : 'incorrect', score: h.raw }; }), hintsUsed: t.hintsUsed, solutionShown: t.answerShown,
+        presentedAt: t.openedAt, answeredAt: t.closedAt, responseTimeSec: t.spentSec, errorType: (t.errorTypes || [])[0], mode: /club|клуб/i.test(String(t.category)) ? 'CLUB' : 'CORE', generator: t.generator ? { generatorId: t.generator.id, generatorVersion: String(t.generator.version), profile: null, seed: t.seed, parameters: t.generationParameters || {} } : null });
+    });
+    var crit = [], desc = []; (o.criteria || []).forEach(function (c) { crit.push({ criterionId: c.id, text: c.text, earned: null, max: null, pct: null }); (c.descriptors || []).forEach(function (d) { var p = d.masteryPct; desc.push({ descriptorId: d.id, criterionId: c.id, text: d.text, earned: null, max: null, status: p == null ? 'not_shown' : (p >= 80 ? 'achieved' : (p >= 40 ? 'partially' : 'not_yet')) }); }); });
+    return skeleton('F5', { raw: o, reportId: o.reportId, name: o.student && o.student.fio, 'class': o.student && o.student['class'], subject: pk.subject, section: pk.section, lessonId: les.lessonId, moduleId: les.moduleId, title: les.title, materialId: pk.packageId, contentVersion: pk.version,
+      objectives: (les.learningObjectives || []).map(function (c) { return { code: String(c), text: String(c) }; }), attemptNumber: a.number, startedAt: a.startedAt, lastActivityAt: a.updatedAt, fixedAt: a.finishedAt || o.createdAt, completionReason: a.status === 'completed' ? 'completed' : 'student_stopped',
+      activeSec: num(a.activeSeconds), completionPct: m.completionPct, accuracyPct: m.accuracyPct, achievementPct: m.achievementPct, mark10: m.mark10, markBasis: num(m.mark10) == null ? 'none' : 'formative_without_control', tasks: tasks, criteriaResults: crit, descriptorResults: desc,
+      extensionResult: m.club ? { completionPct: m.club.tasksTotal ? Math.round(100 * m.club.tasksClosed / m.club.tasksTotal) : null, accuracyPct: null, achievementPct: m.club.achievementPct == null ? null : m.club.achievementPct, mark10: null } : null,
+      reflection: (o.reflections && Object.keys(o.reflections).length) ? o.reflections : null, warnings: m.markProvisional ? ['Отметка предварительная (есть ответы для проверки учителем)'] : [] });
+  }
+
+  // ---------- F6/F7: Б09 СОР и СОЧ (русскоязычные ключи) ----------
+  function f67(o, fam) {
+    var ta = (o['задания'] || []).map(function (t, i) {
+      var ds = t['дескрипторы'] || [], e = 0, m = 0, pend = false; ds.forEach(function (d) { m += d['макс'] || 0; e += d['итог'] || 0; if (d['требует_проверки']) pend = true; });
+      return mkTask({ taskId: 'z' + (t['номер'] != null ? t['номер'] : i + 1), stage: 'work', taskType: t['форма'], goalCode: t['цель_обучения'], cognitiveLevel: null, subskillId: t['критерий'], answer: t['ответ_текстом'] || t['ответ'], status: statusFromScore(e, m, pend), score: pend ? null : e, maxScore: m || 1,
+        responseTimeSec: t['время_сек'], answerChanges: t['изменений_ответа'], openedCount: t['открывалось_раз'], descriptorIds: ds.map(function (d) { return d.id; }) });
+    });
+    var it = o['итог'] || {}, who = o['учащийся'] || {}, expired = o['завершено'] === 'таймер';
+    var r = skeleton(fam, { raw: o, name: who['ФИО'], 'class': who['класс'], subject: o['предмет'], section: o['раздел'] || (o['четверть'] != null ? 'Четверть ' + o['четверть'] : null), lessonId: o['сор_id'] || o['соч_id'], title: o['сор_id'] || o['соч_id'], materialId: o['сор_id'] || o['соч_id'],
+      assessmentType: fam === 'F6' ? 'SOR' : 'SOCH', assessmentLabel: fam === 'F6' ? 'СОР' : 'СОЧ (тренажёр)', startedAt: o['начало'], fixedAt: o['окончание'], completionReason: expired ? 'time_expired' : 'completed', wallSec: secBetween(o['начало'], o['окончание']), activeSec: num(o['длительность_сек']),
+      timeLimitSec: o['лимит_мин'] ? o['лимит_мин'] * 60 : null, pageLeaves: o['уходы_со_страницы'], accuracyPct: it['процент'], completionPct: ta.length ? 100 : 0, mark10: null, markBasis: 'none', tasks: ta,
+      warnings: [it['примечание'] || (fam === 'F6' ? 'Отметка /10 в источнике не указана' : 'Тренажёр: не официальная отметка')].concat(it['ожидают_проверки_учителем'] ? ['Ожидают проверки учителем: ' + it['ожидают_проверки_учителем']] : []) });
+    var crit = o['по_критериям'] || {}; r.criteriaResults = Object.keys(crit).map(function (k) { return { criterionId: k, text: k, earned: crit[k].ball, max: crit[k].max, pct: crit[k].procent }; });
+    r.legacyScore = { balls: it['балл'], max: it['макс'], level: it['уровень'] };
+    return r;
+  }
+
+  // ---------- F8: Б11 ----------
+  function f8(o) {
+    var tasks = (o.tasks || []).map(function (t) {
+      var credit = num(t.credit); var st = t.correct ? 'correct' : (credit > 0 ? 'partial' : 'incorrect');
+      return mkTask({ taskId: t.questionId, stage: t.stage, taskType: 'expression', subskillId: t.skill, cognitiveLevel: null, condition: t.prompt, expected: t.correctAnswer, answer: t.studentAnswer, status: st, score: t.correct ? 1 : (credit > 0 ? credit / 100 : 0), maxScore: 1, attempts: t.attempts, hintsUsed: t.hints, solutionShown: t.viewedSolution, responseTimeSec: t.timeSec, errorType: t.error });
+    });
+    var sr = o.stageResults || {};
+    var subs = o.subskills ? Object.keys(o.subskills).map(function (k) { var x = o.subskills[k]; return { subskillId: k, text: k, presented: x.done, correct: x.correct, pct: x.percent, hintsUsed: 0, mastery: { mastered: x.percent >= 80, windowSize: 5, windowAvg: null, tasksInWindow: x.done } }; }) : [];
+    return skeleton('F8', { raw: o, reportId: o.reportId, name: o.studentName, studentId: o.studentId, 'class': o.className, subject: 'Математика', lessonId: 'derivative-' + o.lessonNumber, moduleId: 'derivative-' + o.lessonNumber, title: o.lessonTitle, materialId: 'derivative-trainer-11', contentVersion: o.appVersion,
+      objectives: o.goalCode ? [{ code: o.goalCode, text: o.goalText || o.goalCode }] : [], attemptNumber: o.attemptNumber, startedAt: o.startedAt, lastActivityAt: o.lastActionAt, fixedAt: o.fixedAt, completionReason: o.status === 'Завершён' ? 'completed' : 'student_stopped',
+      wallSec: num(o.timeSeconds), completionPct: o.completionPercent, accuracyPct: o.accuracyPercent, achievementPct: o.achievedPercent, mark10: o.grade10, diagnosticPct: sr.diagnostic, finalPct: sr.final, markBasis: num(o.grade10) == null ? 'none' : (sr.final != null ? 'with_control' : 'formative_without_control'),
+      tasks: tasks, subskills: subs, warnings: ['timeSeconds в источнике — календарный интервал, активное время неизвестно'] });
+  }
+
+  var FAMILIES = { F1: f1, F2: f2, F3: f3, F4: f4, F5: f5, F8: f8 };
+
+  /** Приводит файл к списку lesson_report. Возвращает { family, reports, notes, extra }. */
+  function toReports(o) {
+    var fam = detect(o), notes = [], reports = [], extra = null;
+    try {
+      if (fam === 'v1') reports = [o];
+      else if (fam === 'v1_package' || fam === 'bundle') { fam = fam === 'bundle' ? 'bundle' : 'v1_package'; (o.reports || []).forEach(function (r) { var sub = toReports(r); reports = reports.concat(sub.reports); notes = notes.concat(sub.notes); }); }
+      else if (fam === 'package_b09') (o.lessons || []).forEach(function (r) { var sub = toReports(r); reports = reports.concat(sub.reports); });
+      else if (fam === 'F6' || fam === 'F7') reports = [f67(o, fam)];
+      else if (FAMILIES[fam]) { var out = FAMILIES[fam](o); reports = Array.isArray(out) ? out : [out]; }
+      else if (fam === 'omr_db' || fam === 'paper_kit' || fam === 'teacher_review' || fam === 'session_snapshot') { extra = o; notes.push('Это не отчёт ученика: ' + fam); }
+      else notes.push('Формат не распознан');
+    } catch (e) { notes.push('Ошибка разбора (' + fam + '): ' + (e && e.message)); reports = []; }
+    return { family: fam, reports: reports, notes: notes, extra: extra };
+  }
+
+  K.legacy = { detect: detect, toReports: toReports };
 })(typeof window !== 'undefined' ? window : globalThis);
 
 /* содержание */
@@ -1469,10 +1724,576 @@ th { background: var(--surface2); }
 KAP.PRODUCER = {"materialId":"demo-core-check","engineVersion":"1.0.0","contentVersion":"1.0.0","contentHash":"00f858221f913a"};
 /* интерфейс */
 /* --- teacher/paper.js --- */
-(function (root) { 'use strict'; var K = root.KAP = root.KAP || {}; K.paper = {}; })(typeof window !== 'undefined' ? window : globalThis);
+/* KAP engine · paper: бумажный комплект (раздел 24): варианты по общей спецификации, проверка, бланк OMR, ключи, ручной ввод. */
+(function (root) {
+  'use strict';
+  var K = root.KAP = root.KAP || {};
+  var U = K.util, S = K.scoring, esc = U.esc;
+  var LETTERS = ['А', 'Б', 'В', 'Г', 'Д'];
+  var TIME = { single_choice: 40, multi_choice: 60, number: 75, text: 60, expression: 75, base: 75, ordering: 90, matching: 90, open: 240 };
+  var WORK = {
+    independent: { label: 'Самостоятельная работа', assessmentType: 'formative', checkKind: 'learning', official: false },
+    po: { label: 'Промежуточное оценивание (ПО)', assessmentType: 'intermediate', checkKind: 'learning', official: false },
+    sor: { label: 'СОР (тренировочный аналог)', assessmentType: 'SOR', checkKind: 'learning', official: false },
+    soch: { label: 'СОЧ (тренировочный аналог)', assessmentType: 'SOCH', checkKind: 'quarter_final', official: false }
+  };
+  var LEVEL_RANK = { recognition: 1, reproduction: 2, understanding: 3, transfer: 4, investigation: 5, generalization: 6 };
+
+  // ---------- безопасный вывод HTML из импортированных данных ----------
+  var OK_TAGS = { SPAN: 1, I: 1, B: 1, STRONG: 1, EM: 1, SUB: 1, SUP: 1, BR: 1, P: 1, DIV: 1, UL: 1, OL: 1, LI: 1 };
+  function safeHtml(html) {
+    if (typeof DOMParser === 'undefined') return esc(String(html == null ? '' : html).replace(/<[^>]*>/g, ''));
+    var doc = new DOMParser().parseFromString('<body>' + String(html == null ? '' : html) + '</body>', 'text/html');
+    function walk(node) {
+      var out = '';
+      node.childNodes.forEach(function (n) {
+        if (n.nodeType === 3) out += esc(n.nodeValue);
+        else if (n.nodeType === 1) {
+          if (OK_TAGS[n.tagName]) {
+            var cls = (n.getAttribute('class') || '').replace(/[^a-z0-9 _-]/gi, '');
+            out += '<' + n.tagName.toLowerCase() + (cls ? ' class="' + cls + '"' : '') + '>' + (n.tagName === 'BR' ? '' : walk(n) + '</' + n.tagName.toLowerCase() + '>');
+          } else if (n.tagName !== 'SCRIPT' && n.tagName !== 'STYLE') out += walk(n);
+        }
+      });
+      return out;
+    }
+    return walk(doc.body);
+  }
+
+  // ---------- самоидентифицирующийся код бланка (10 ячеек) ----------
+  function encodeId(kitIndex, variantIdx) {
+    var b = [1], i;
+    for (i = 3; i >= 0; i--) b.push((kitIndex >> i) & 1);
+    b.push((variantIdx >> 1) & 1, variantIdx & 1);
+    var chk = (kitIndex + variantIdx) % 4; b.push((chk >> 1) & 1, chk & 1);
+    b.push(U.sum(b) % 2);
+    return b;
+  }
+  function decodeId(bits) {
+    if (!bits || bits.length !== 10 || bits[0] !== 1) return { ok: false, reason: 'формат' };
+    if (U.sum(bits) % 2 !== 0) return { ok: false, reason: 'чётность' };
+    var kit = bits[1] * 8 + bits[2] * 4 + bits[3] * 2 + bits[4], v = bits[5] * 2 + bits[6], chk = bits[7] * 2 + bits[8];
+    if (chk !== (kit + v) % 4) return { ok: false, reason: 'контрольная сумма' };
+    return { ok: true, kitIndex: kit, variantIdx: v };
+  }
+
+  // ---------- построение комплекта ----------
+  function collectPool(lessonIds, includeOpen) {
+    var pool = [], seen = {};
+    K.PACK.lessons.filter(function (l) { return lessonIds.indexOf(l.lessonId) >= 0; }).forEach(function (L) {
+      L.stages.forEach(function (st) {
+        if (st.type !== 'tasks' || st.mode === 'CLUB' || (st.group !== 'learning' && st.group !== 'final')) return;
+        st.plan.forEach(function (it) {
+          var def = K.gen.get(it.gen); if ((def.mode || 'CORE') === 'CLUB') return; if (def.taskType === 'open' && !includeOpen) return;
+          var prof = it.profile || (def.profiles.standard ? 'standard' : Object.keys(def.profiles)[0]), key = it.gen + '|' + prof + '|' + (it.descriptors || []).join(',');
+          if (seen[key]) return; seen[key] = 1;
+          pool.push({ lessonId: L.lessonId, gen: it.gen, profile: prof, descriptors: it.descriptors || [], goalCode: (L.objectives[0] || {}).code || null, def: def });
+        });
+      });
+    });
+    return pool;
+  }
+  function blueprintOf(pool, n) {
+    var pos = [], i;
+    for (i = 0; i < n; i++) pos.push(pool[n <= pool.length ? Math.floor(i * pool.length / n) : i % pool.length]);
+    pos = pos.map(function (p, ix) { return { p: p, ix: ix }; });
+    pos.sort(function (a, b) { var A = a.p.def.taskType === 'single_choice' ? 0 : 1, B = b.p.def.taskType === 'single_choice' ? 0 : 1; return A - B || a.ix - b.ix; });
+    return pos.map(function (x, k) {
+      var d = x.p.def;
+      return { position: k + 1, gen: x.p.gen, profile: x.p.profile, lessonId: x.p.lessonId, goalCode: x.p.goalCode, subskillId: d.subskill, taskType: d.taskType, difficulty: x.p.profile, cognitiveLevel: d.cognitiveLevel, maxScore: d.maxScore || 1, descriptorIds: x.p.descriptors, omr: d.taskType === 'single_choice' };
+    });
+  }
+  function omrTemplate(blueprint) {
+    var closed = blueprint.filter(function (b) { return b.omr; }).length, opts = 4;
+    return {
+      templateId: 'KAP-OMR-A5', templateVersion: '1', units: 'mm', sheet: { page: 'A4', sheetsPerPage: 2, printScalePct: 100, widthMm: 210, heightMm: 148.5 },
+      markers: { sizeMm: 6, centers: { TL: [9, 9], TR: [201, 9], BL: [9, 139.5], BR: [201, 139.5] } },
+      idCells: { sizeMm: 4, centers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (i) { return [146 + 5.5 * i, 25.5]; }), encoding: 'bit0=1; bits1-4=номер комплекта; bits5-6=вариант-1; bits7-8=(комплект+вариант-1) mod 4; bit9=чётность' },
+      bubbleRadiusMm: 2.7, answerGrid: { options: LETTERS.slice(0, opts).join(''), rows: Math.min(15, Math.max(closed, 1)), columns: closed > 15 ? 2 : 1, originMm: [22, 45], columnStepMm: 90, pitchMm: [8, 6.2], closedCount: closed },
+      partB: { enabled: true, filledBy: 'teacher' }
+    };
+  }
+  function estimate(tasks, cls) {
+    var f = cls <= 4 ? 1.5 : cls <= 6 ? 1.2 : 1;
+    return Math.round(U.sum(tasks.map(function (t) { return (TIME[t.taskType] || 60) * f; })) / 60 * 10) / 10;
+  }
+
+  function tryBuild(P, exclude) {
+    var wt = WORK[P.workType];
+    var pool = collectPool(P.lessonIds || [], P.includeOpen).filter(function (x) { return !exclude[x.gen + '|' + x.profile]; });
+    if (!pool.length) throw new Error('в выбранных уроках нет подходящих заданий');
+    var V = Math.max(1, Math.min(8, +P.variantsCount || 1)), seed = (P.seed != null ? P.seed : U.randomSeed()) >>> 0;
+    var bp = blueprintOf(pool, Math.max(3, Math.min(30, +P.taskCount || 8)));
+    var kitId = 'kit-' + U.hashHex(U.canonical({ p: P, seed: seed })).slice(0, 8), kitIndex = parseInt(kitId.slice(4, 6), 16) % 16, shared = new Set(), variants = [], failGen = null;
+    for (var v = 0; v < V && !failGen; v++) {
+      var done = false;
+      for (var salt = 0; salt < 4 && !done; salt++) {
+        var tasks = [], added = [], bad = null;
+        bp.forEach(function (b) {
+          if (bad) return;
+          var t = K.gen.make(b.gen, b.profile, U.deriveSeed(seed, 'v' + v + ':' + b.position + ':' + salt), { seen: shared });
+          if (t.repeat) { bad = b; return; }
+          added.push(t.fingerprint);
+          t.taskId = kitId + '#V' + (v + 1) + '#' + b.position; t.position = b.position; t.stageId = 'paper'; t.group = 'final'; t.descriptorIds = b.descriptorIds; t.goalCode = b.goalCode; t.auditStatus = 'PASS'; t.auditNote = '';
+          tasks.push(t);
+        });
+        if (!bad) { variants.push({ variantCode: 'V' + (v + 1), tasks: tasks }); done = true; }
+        else { added.forEach(function (f) { shared.delete(f); }); if (salt === 3) failGen = bad.gen + '|' + bad.profile; }
+      }
+    }
+    if (failGen) return { failGen: failGen };
+    var kit = {
+      schemaVersion: '1.0', reportType: 'paper_kit', kitId: kitId, createdAt: U.nowIso(), producer: K.schema.producer(),
+      params: { workType: P.workType, workLabel: wt.label, title: P.title || '', subject: (K.PACK.lessons.filter(function (l) { return (P.lessonIds || []).indexOf(l.lessonId) >= 0; })[0] || {}).subject || '', 'class': String(P.classNum), language: K.PACK.language || 'ru',
+        lessonIds: P.lessonIds, goalCodes: bp.map(function (b) { return b.goalCode; }).filter(function (x, i, a) { return x && a.indexOf(x) === i; }), durationMin: P.durationMin, variantsCount: V, seed: seed, official: false, gradingScale: null, includeOpen: P.includeOpen },
+      blueprint: bp, variants: variants, omrTemplate: omrTemplate(bp), kitIndex: kitIndex, keyHash: null, buildErrors: [], excluded: Object.keys(exclude)
+    };
+    kit.keyHash = U.hashHex(U.canonical(variants.map(function (x) { return x.tasks.map(function (t) { return [t.fingerprint, t.correctAnswer]; }); })));
+    return { kit: kit };
+  }
+
+  /** params: { workType, lessonIds[], durationMin, variantsCount, taskCount, seed, includeOpen, classNum, title }.
+      Генератор, который не может дать достаточно различных заданий для всех вариантов, исключается из комплекта. */
+  function build(params) {
+    var P = Object.assign({ workType: 'independent', durationMin: 15, variantsCount: 2, taskCount: 8, includeOpen: true, classNum: 6 }, params);
+    if (!WORK[P.workType]) throw new Error('неизвестный вид работы');
+    if (P.seed == null) P.seed = U.randomSeed();
+    var exclude = {};
+    for (var k = 0; k < 8; k++) {
+      var r = tryBuild(P, exclude);
+      if (r.kit) return r.kit;
+      exclude[r.failGen] = 1;
+    }
+    throw new Error('не удалось построить комплект: пул заданий исчерпан');
+  }
+
+  /** Проверка комплекта (п. 24.3). */
+  function validateKit(kit) {
+    var errors = (kit.buildErrors || []).slice(), warnings = [], seen = {}, sum0 = null;
+    kit.variants.forEach(function (v) {
+      var sum = U.sum(v.tasks.map(function (t) { return t.maxScore; }));
+      if (sum0 == null) sum0 = sum; else if (sum !== sum0) errors.push('сумма баллов варианта ' + v.variantCode + ' отличается');
+      if (v.tasks.length !== kit.blueprint.length) errors.push('число заданий в ' + v.variantCode + ' не равно спецификации');
+      v.tasks.forEach(function (t, i) {
+        var b = kit.blueprint[i];
+        if (!b || t.generator.generatorId !== b.gen || t.taskType !== b.taskType || t.cognitiveLevel !== b.cognitiveLevel || t.maxScore !== b.maxScore || t.subskillId !== b.subskillId) errors.push(v.variantCode + ' №' + (i + 1) + ': не по спецификации');
+        if (seen[t.fingerprint]) errors.push('одинаковые задания в разных вариантах: ' + v.variantCode + ' №' + (i + 1)); seen[t.fingerprint] = 1;
+        try { var again = K.gen.reproduce(t.generator.generatorId, t.generator.profile, t.generator.seed); if (again.fingerprint !== t.fingerprint) errors.push(v.variantCode + ' №' + (i + 1) + ': задание не воспроизводится по seed'); }
+        catch (e) { errors.push(v.variantCode + ' №' + (i + 1) + ': ' + e.message); }
+        if (t.taskType !== 'open' && K.check(t, t.correctAnswer).status !== 'correct') errors.push(v.variantCode + ' №' + (i + 1) + ': ключ не засчитывается');
+      });
+      var est = estimate(v.tasks, +kit.params['class']);
+      if (est > kit.params.durationMin * 1.15) warnings.push('вариант ' + v.variantCode + ': ожидаемое время ' + est + ' мин больше заданных ' + kit.params.durationMin);
+      if (est < kit.params.durationMin * 0.5) warnings.push('вариант ' + v.variantCode + ': ожидаемое время ' + est + ' мин намного меньше заданных ' + kit.params.durationMin);
+    });
+    if (kit.params.official === false) warnings.push('Тренировочный аналог: не является официальной работой.');
+    return { errors: errors, warnings: warnings, estimateMin: kit.variants.length ? estimate(kit.variants[0].tasks, +kit.params['class']) : null };
+  }
+
+  // ---------- печатные формы ----------
+  function optionLetter(i) { return LETTERS[i] || String(i + 1); }
+  function taskBody(t, safe) {
+    var h = '<div class="pt-cond">' + (safe ? safeHtml(t.condition || t.presentedCondition) : t.condition) + '</div>';
+    var opts = t.options || [];
+    if (t.taskType === 'single_choice' || t.taskType === 'multi_choice') h += '<ol class="pt-opts">' + opts.map(function (o, i) { return '<li><b>' + optionLetter(i) + ')</b> ' + esc(o.text) + '</li>'; }).join('') + '</ol>';
+    else if (t.taskType === 'ordering') h += '<ol class="pt-opts">' + (t.items || []).map(function (o, i) { return '<li>' + esc(o.text) + ' &nbsp; № ___</li>'; }).join('') + '</ol>';
+    else if (t.taskType === 'matching') h += '<table class="pt-match">' + (t.left || []).map(function (l, i) { return '<tr><td>' + esc(l.text) + '</td><td>→ ___</td><td>' + esc(((t.right || [])[i] || {}).text || '') + '</td></tr>'; }).join('') + '</table>';
+    else h += '<div class="pt-line">Ответ: ______________________________</div>';
+    return h;
+  }
+  function variantHtml(kit, variant, safe) {
+    var p = kit.params, h = '<section class="print-page"><div class="pt-head"><div><b>' + esc(p.workLabel) + '</b>' + (p.title ? ' · ' + esc(p.title) : '') + '</div><div class="pt-var">Вариант ' + esc(variant.variantCode.replace('V', '')) + '</div></div>' +
+      '<div class="pt-fields">Класс: ______ &nbsp; Фамилия, имя: ______________________________ &nbsp; Дата: __________</div><div class="pt-meta">Время: ' + p.durationMin + ' мин. ' + (p.official === false ? 'Тренировочный аналог (не официальная работа).' : '') + '</div>';
+    variant.tasks.forEach(function (t) { h += '<div class="pt-task"><div class="pt-num">' + t.position + '. <span class="pt-pts">(' + t.maxScore + ' б.)</span></div>' + taskBody(t, safe) + '</div>'; });
+    return h + '<div class="pt-foot">' + esc(kit.kitId) + ' · ' + esc(variant.variantCode) + '</div></section>';
+  }
+  function keyHtml(kit, safe) {
+    var h = '<section class="print-page"><h2>Ключ учителя · ' + esc(kit.params.workLabel) + '</h2><p class="small">' + esc(kit.kitId) + '. ' + (kit.params.official === false ? 'Тренировочный аналог.' : '') + '</p>';
+    kit.variants.forEach(function (v) {
+      h += '<h3>Вариант ' + esc(v.variantCode.replace('V', '')) + '</h3><table><tr><th>№</th><th>Верный ответ</th><th>Балл</th><th>Дескрипторы</th><th>Типичные ошибки (выбор → тип ошибки)</th><th>Статус задания</th></tr>';
+      v.tasks.forEach(function (t) {
+        var ans = t.taskType === 'single_choice' ? optionLetter(t.correctOptionPosition) + ') ' + t.expectedAnswer : (Array.isArray(t.expectedAnswer) ? t.expectedAnswer.join('; ') : t.expectedAnswer);
+        var errs = t.taskType === 'single_choice' ? t.options.map(function (o, i) { return t.distractorMap[o.id] ? optionLetter(i) + ' → ' + t.distractorMap[o.id] : null; }).filter(Boolean).join('; ') : (t.rule && t.rule.wrongValues ? t.rule.wrongValues.map(function (w) { return K.norm.ratToStr(w.value) + ' → ' + w.errorType; }).join('; ') : '');
+        h += '<tr><td>' + t.position + '</td><td>' + (safe ? safeHtml(ans) : esc(ans)) + '</td><td>' + t.maxScore + '</td><td>' + esc((t.descriptorIds || []).join(', ')) + '</td><td>' + esc(errs) + '</td><td>' + esc(t.auditStatus || '') + '</td></tr>';
+      });
+      h += '</table>';
+    });
+    return h + '</section>';
+  }
+
+  /** SVG-бланк (210 × 148,5 мм). */
+  function sheetSvg(kit, variantCode) {
+    var T = kit.omrTemplate, vi = kit.variants.map(function (v) { return v.variantCode; }).indexOf(variantCode), bits = encodeId(kit.kitIndex, vi), g = T.answerGrid;
+    var closed = kit.blueprint.filter(function (b) { return b.omr; }), s = '';
+    s += '<svg xmlns="http://www.w3.org/2000/svg" class="omr" viewBox="0 0 210 148.5" width="210mm" height="148.5mm" font-family="Arial, sans-serif">';
+    s += '<rect x="0.2" y="0.2" width="209.6" height="148.1" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="2 2"/>';
+    Object.keys(T.markers.centers).forEach(function (k) { var c = T.markers.centers[k], z = T.markers.sizeMm; s += '<rect x="' + (c[0] - z / 2) + '" y="' + (c[1] - z / 2) + '" width="' + z + '" height="' + z + '" fill="#000"/>'; });
+    s += '<text x="20" y="13" font-size="4.2" font-weight="bold">' + esc(kit.params.workLabel) + ' · вариант ' + esc(variantCode.replace('V', '')) + '</text>';
+    s += '<text x="20" y="19" font-size="3">' + esc(kit.kitId) + '</text>';
+    s += '<text x="20" y="27" font-size="3">Фамилия, имя: ____________________________ Класс: _____</text>';
+    s += '<text x="146" y="20.5" font-size="2.4">Код бланка (не закрашивать)</text>';
+    T.idCells.centers.forEach(function (c, i) { var z = T.idCells.sizeMm; s += '<rect x="' + (c[0] - z / 2) + '" y="' + (c[1] - z / 2) + '" width="' + z + '" height="' + z + '" fill="' + (bits[i] ? '#000' : 'none') + '" stroke="#000" stroke-width="0.3"/>'; });
+    s += '<text x="20" y="38" font-size="2.6">Закрась один кружок в строке. Тёмная ручка. Номера строк совпадают с номерами заданий.</text>';
+    closed.forEach(function (b, i) {
+      var col = Math.floor(i / g.rows), row = i % g.rows, x0 = g.originMm[0] + col * g.columnStepMm, y = g.originMm[1] + row * g.pitchMm[1];
+      s += '<text x="' + x0 + '" y="' + (y + 1) + '" font-size="3" text-anchor="end">' + b.position + '</text>';
+      for (var j = 0; j < g.options.length; j++) {
+        var cx = x0 + 6 + j * g.pitchMm[0];
+        s += '<circle cx="' + cx + '" cy="' + y + '" r="' + T.bubbleRadiusMm + '" fill="none" stroke="#000" stroke-width="0.3"/><text x="' + cx + '" y="' + (y + 1) + '" font-size="2.6" text-anchor="middle" fill="#444">' + g.options[j] + '</text>';
+      }
+    });
+    var open = kit.blueprint.filter(function (b) { return !b.omr; });
+    if (open.length) s += '<text x="20" y="127" font-size="2.8">Часть B (заполняет учитель): ' + open.map(function (b) { return '№' + b.position + ' ___ б.'; }).join('   ') + '</text>';
+    return s + '</svg>';
+  }
+
+  // ---------- ручной ввод результатов бумаги → отчёты ----------
+  /** students: [{name, class}], entries: [ { [position]: {choice: index|null, score: number|null} } ] */
+  function reportsFromEntries(kit, variantCode, students, entries) {
+    var variant = kit.variants.filter(function (v) { return v.variantCode === variantCode; })[0], wt = WORK[kit.params.workType], now = U.nowIso();
+    var lessons = K.PACK.lessons.filter(function (l) { return (kit.params.lessonIds || []).indexOf(l.lessonId) >= 0; }), L0 = lessons[0] || {};
+    var subskills = []; lessons.forEach(function (l) { (l.subskills || []).forEach(function (s) { if (!subskills.some(function (x) { return x.id === s.id; })) subskills.push({ id: s.id, text: s.text }); }); });
+    var lessonSpec = { lessonId: kit.kitId, assessmentType: wt.assessmentType, checkKind: wt.checkKind, weights: null, criteria: L0.criteria || [], subskills: subskills, stages: [{ id: 'paper', title: kit.params.workLabel, group: 'final', type: 'tasks' }], timeLimitSec: null };
+    return students.map(function (st, si) {
+      var ent = entries[si] || {}, tasks = variant.tasks.map(function (t) {
+        var e = ent[t.position] || {}, status = 'not_done', score = null, answer = null, closed = false;
+        if (t.taskType === 'single_choice' && e.choice != null && e.choice !== '') {
+          closed = true; var opt = t.options[+e.choice]; answer = opt ? opt.text : null;
+          var ok = opt && opt.id === t.rule.correctId; status = ok ? 'correct' : 'incorrect'; score = ok ? t.maxScore : 0;
+        } else if (e.score != null && e.score !== '') {
+          closed = true; score = Math.max(0, Math.min(t.maxScore, +e.score)); status = score >= t.maxScore ? 'correct' : (score > 0 ? 'partial' : 'incorrect');
+        }
+        return { taskId: t.taskId, stageId: 'paper', group: 'final', mode: 'CORE', taskType: t.taskType, cognitiveLevel: t.cognitiveLevel, goalCode: t.goalCode, subskillId: t.subskillId, descriptorIds: t.descriptorIds, generator: t.generator, fingerprint: t.fingerprint,
+          condition: t.condition, options: t.options, optionOrder: t.optionOrder, correctOptionPosition: t.correctOptionPosition, expectedAnswer: t.expectedAnswer, rule: t.rule, distractorMap: t.distractorMap, maxScore: t.maxScore, closed: closed, status: closed ? status : null, score: score,
+          attempts: closed ? [{ n: 1, answer: answer, at: now, status: status, fraction: t.maxScore ? score / t.maxScore : 0, score: score }] : [], hintsUsed: 0, hintLevelsShown: [], solutionShown: false, skipped: false, studentAnswer: answer, errorType: status === 'incorrect' && t.taskType === 'single_choice' && e.choice != null ? (t.distractorMap[(t.options[+e.choice] || {}).id] || null) : null, loop: false, presentedAt: null, answeredAt: null };
+      });
+      var at = { attemptNumber: 1, countsForMark: true, startedAt: kit.createdAt, lastActivityAt: now, fixedAt: now, status: 'completed', tasks: tasks, stagePlan: [{ stageId: 'paper', group: 'final', mode: 'CORE', plannedMax: U.sum(tasks.map(function (t) { return t.maxScore; })) }], stageState: { paper: { status: 'completed', activeSec: 0 } }, sessions: [], activeSec: 0, loops: [], reflection: null, pageLeaves: 0 };
+      var r = K.schema.buildLessonReport({ lesson: Object.assign({}, lessonSpec, { title: kit.params.workLabel, subject: kit.params.subject, 'class': kit.params['class'] }), attempt: at, student: { studentId: null, name: st.name, 'class': st['class'] || kit.params['class'] }, now: now });
+      r.source = 'paper_manual'; r.paper = { kitId: kit.kitId, variantCode: variantCode, sheetId: kit.kitId + '-' + variantCode + '-' + (si + 1), omrConfidence: null, flags: [] };
+      r.context.lessonId = kit.kitId; r.context.moduleId = kit.kitId; r.context.lessonTitle = kit.params.workLabel + (kit.params.title ? ' · ' + kit.params.title : '');
+      r.dedupeKey = K.schema.dedupeKey(r.student, r.context.lessonId, 1, kit.createdAt + '|' + variantCode);
+      return r;
+    });
+  }
+
+  K.paper = { WORK: WORK, LETTERS: LETTERS, safeHtml: safeHtml, encodeId: encodeId, decodeId: decodeId, collectPool: collectPool, blueprintOf: blueprintOf, build: build, validateKit: validateKit, variantHtml: variantHtml, keyHtml: keyHtml, sheetSvg: sheetSvg, reportsFromEntries: reportsFromEntries, estimate: estimate };
+})(typeof window !== 'undefined' ? window : globalThis);
 
 /* --- teacher/app.js --- */
-(function (root) { 'use strict'; document.getElementById('app').textContent = 'Кабинет учителя: в разработке'; })(typeof window !== 'undefined' ? window : globalThis);
+/* KAP engine · teacher console: анализ результатов и бумажный комплект (разделы 18, 24). */
+(function (root) {
+  'use strict';
+  var K = root.KAP, U = K.util, S = K.scoring, P = K.paper, esc = U.esc;
+  var appEl = document.getElementById('app');
+  var A = { reports: [], log: [], reviews: {}, kits: [], mode: 'analysis', tab: 'upload', cls: '', lessonKey: '', reportId: '', msg: null, cache: {} };
+  var PP = { kit: null, check: null, variant: null, rows: null, msg: null, form: { workType: 'independent', classNum: null, durationMin: 15, variantsCount: 2, taskCount: 8, seed: '', lessonIds: null, includeOpen: true } };
+  var DEBUG_NOTE = 'Распознавание бланков по фото: не проверено, отключено. Используйте ручной ввод или внешний сканер (см. README).';
+
+  // ================= импорт =================
+  function nameKey(r) { return String(r.student['class']) + '|' + K.norm.normText(r.student.name, 'default'); }
+  function gradeInId(id) { var m = /[_-]g0?(\d{1,2})[_-]/.exec(id) || /-(\d{1,2})-/.exec(id); return m ? +m[1] : null; }
+  function checkWarnings(r) {
+    var w = r.integrity.warnings = r.integrity.warnings || [];
+    if (!r.legacy && r.producer && K.PRODUCER && r.producer.materialId === K.PRODUCER.materialId && r.producer.contentVersion !== K.PRODUCER.contentVersion) w.push('Версия содержания отчёта (' + r.producer.contentVersion + ') отличается от версии кабинета (' + K.PRODUCER.contentVersion + '): результат не смешивается со статистикой текущей версии.');
+    var gi = gradeInId(String(r.context.lessonId)), cn = parseInt(r.student['class'], 10);
+    if (gi && cn && gi !== cn) w.push('Класс в идентификаторе урока (' + gi + ') и в отчёте (' + cn + ') расходятся.');
+    if (!r.legacy && K.schema.validateReport(r).length) w.push('Отчёт не прошёл проверку схемы: ' + K.schema.validateReport(r)[0]);
+  }
+  function addReport(r) {
+    if (A.reports.some(function (x) { return x.reportId === r.reportId; })) return 'dup';
+    var k = -1; A.reports.forEach(function (x, i) { if (x.dedupeKey === r.dedupeKey) k = i; });
+    if (k >= 0) { var old = A.reports[k]; if (Date.parse(r.attempt.fixedAt || 0) >= Date.parse(old.attempt.fixedAt || 0)) { checkWarnings(r); A.reports[k] = r; return 'updated'; } return 'dup'; }
+    checkWarnings(r); A.reports.push(r); return 'added';
+  }
+  function importItems(items) {
+    items.forEach(function (it) {
+      var res = K.legacy.toReports(it.obj), e = { file: it.name, family: res.family || '—', n: res.reports.length, added: 0, dup: 0, updated: 0, notes: res.notes.slice() };
+      if (res.family === 'paper_kit') { if (!A.kits.some(function (k) { return k.kitId === res.extra.kitId; })) A.kits.push(res.extra); e.notes.push('Комплект добавлен'); PP.kit = PP.kit || res.extra; }
+      else if (res.family === 'teacher_review') { (res.extra.reviews || []).forEach(function (rv) { (A.reviews[res.extra.reportId] = A.reviews[res.extra.reportId] || {})[rv.taskId] = rv; }); e.notes.push('Оценки учителя: ' + (res.extra.reviews || []).length); }
+      else res.reports.forEach(function (r) { e[addReport(r)]++; });
+      A.log.push(e);
+    });
+    A.cache = {}; render();
+  }
+  function readFiles(files) {
+    var list = Array.prototype.slice.call(files);
+    Promise.all(list.map(function (f) { return f.text().then(function (t) { try { return { name: f.name, obj: JSON.parse(t.replace(/^﻿/, '')) }; } catch (e) { return { name: f.name, obj: null }; } }); })).then(function (items) {
+      var bad = items.filter(function (i) { return !i.obj; }); bad.forEach(function (b) { A.log.push({ file: b.name, family: '—', n: 0, added: 0, dup: 0, updated: 0, notes: ['Файл не прочитан: это не JSON'] }); });
+      importItems(items.filter(function (i) { return i.obj; }));
+    });
+  }
+
+  // ================= проверка учителем =================
+  function stageGroups(r) { var m = {}; r.stages.forEach(function (s) { m[s.stageId] = s.group; }); return m; }
+  function recompute(r) {
+    var sg = stageGroups(r), tasks = r.tasks.map(function (t) {
+      return { taskId: t.taskId, stageId: t.stage, group: sg[t.stage] || 'learning', mode: t.mode, closed: t.status !== 'not_done' || t.skipped, status: t.skipped ? 'incorrect' : t.status, score: t.score, maxScore: t.maxScore, attempts: t.attempts || [], hintsUsed: t.hintsUsed, solutionShown: t.solutionShown, descriptorIds: t.descriptorIds, subskillId: t.subskillId, cognitiveLevel: t.cognitiveLevel, loop: t.loop, skipped: t.skipped };
+    });
+    var crit = {}; r.descriptorResults.forEach(function (d) { (crit[d.criterionId] = crit[d.criterionId] || []).push({ descriptorId: d.descriptorId, text: d.text }); });
+    var lesson = { assessmentType: r.context.assessmentType, checkKind: r.context.checkKind, weights: r.scoring.weightsProfile === 'custom' ? r.scoring.weights : null,
+      criteria: Object.keys(crit).map(function (k) { var cr = r.criteriaResults.filter(function (c) { return c.criterionId === k; })[0]; return { criterionId: k, text: cr ? cr.text : k, descriptors: crit[k] }; }), subskills: r.subskills.map(function (s) { return { id: s.subskillId, text: s.text }; }) };
+    var plan = r.stages.filter(function (s) { return s.group === 'diagnostic' || s.group === 'learning' || s.group === 'final'; }).map(function (s) { return { stageId: s.stageId, group: s.group, mode: 'CORE', plannedMax: U.sum(tasks.filter(function (t) { return t.stageId === s.stageId && !t.loop; }).map(function (t) { return t.maxScore; })) }; });
+    var fin = r.stages.filter(function (s) { return s.group === 'final'; })[0];
+    return S.computeMetrics({ tasks: tasks, stagePlan: plan, lesson: lesson, finalTime: { limitSec: r.time.timeLimitSec, activeSec: fin ? fin.activeSec : 0 } });
+  }
+  function eff(r) {
+    var rv = A.reviews[r.reportId]; if (!rv || !Object.keys(rv).length) return r;
+    var key = r.reportId + ':' + Object.keys(rv).length + ':' + U.hashHex(U.canonical(rv)); if (A.cache[key]) return A.cache[key];
+    var c = U.clone(r);
+    c.tasks.forEach(function (t) {
+      var x = rv[t.taskId]; if (!x) return;
+      t.teacherReview = x; t.score = Math.max(0, Math.min(t.maxScore, +x.score)); t.status = t.score >= t.maxScore ? 'correct' : (t.score > 0 ? 'partial' : 'incorrect'); t.autoGraded = false;
+    });
+    if (!c.legacy) {
+      var m = recompute(c), keep = c.metrics.completionPct; c.metrics = Object.assign({}, c.metrics, m.metrics, { completionPct: keep }); c.metrics.metricSources.mark10 = 'teacher_manual';
+      c.scoring.markBasis = m.scoring.markBasis; c.scoring.scoreCap = m.scoring.scoreCap; c.descriptorResults = m.descriptorResults; c.criteriaResults = m.criteriaResults; c.subskills = m.subskills; c.coreResult = m.coreResult;
+    }
+    return (A.cache[key] = c);
+  }
+  function EF() { return A.reports.map(eff); }
+
+  // ================= представления =================
+  function fmt(x, suf) { return x == null ? '—' : String(x).replace('.', ',') + (suf || ''); }
+  function secText(s) { if (s == null) return '—'; s = Math.round(s); var h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return (h ? h + ' ч ' : '') + m + ' мин ' + (s % 60) + ' с'; }
+  function basisText(b) { return ({ with_control: 'с итоговой проверкой', formative_without_control: 'по пройденной части', control_work: 'контрольная работа', none: 'нет отметки' })[b] || b; }
+  function head() {
+    return '<div class="row sb no-print"><h1>Кабинет учителя</h1><div class="small muted">ядро ' + esc(K.PRODUCER.engineVersion) + ' · содержание ' + esc(K.PRODUCER.contentVersion) + ' · ' + esc(K.PRODUCER.contentHash) + '</div></div>' +
+      '<div class="tabs no-print"><button class="tab' + (A.mode === 'analysis' ? ' on' : '') + '" data-act="mode" data-v="analysis">Анализ результатов</button><button class="tab' + (A.mode === 'paper' ? ' on' : '') + '" data-act="mode" data-v="paper">Бумажный комплект</button></div>';
+  }
+  function subTabs() {
+    var t = [['upload', 'Загрузка'], ['classes', 'Классы и ученики'], ['lessons', 'Уроки и цели'], ['review', 'Проверка учителем'], ['protocol', 'Протокол']];
+    return '<div class="tabs sub no-print">' + t.map(function (x) { return '<button class="tab' + (A.tab === x[0] ? ' on' : '') + '" data-act="tab" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>';
+  }
+
+  function viewUpload() {
+    var h = '<div class="card dropzone" id="dz"><h2>Загрузить результаты</h2><p>Перетащи сюда файлы или выбери их кнопкой. Можно один файл, несколько или пакет. Прежние форматы тоже читаются.</p>' +
+      '<input type="file" id="files" accept=".json,application/json" multiple> <button class="btn quiet" data-act="clear">Очистить всё</button></div>';
+    h += '<div class="card"><h3>Принято отчётов: ' + A.reports.length + '</h3><div class="scroll"><table><tr><th>Файл</th><th>Формат</th><th>Отчётов</th><th>Новых</th><th>Повторов</th><th>Обновлено</th><th>Замечания</th></tr>' +
+      A.log.map(function (e) { return '<tr><td>' + esc(e.file) + '</td><td>' + esc(e.family) + '</td><td>' + e.n + '</td><td>' + (e.added || 0) + '</td><td>' + (e.dup || 0) + '</td><td>' + (e.updated || 0) + '</td><td>' + esc((e.notes || []).join('; ')) + '</td></tr>'; }).join('') + '</table></div></div>';
+    var warn = []; A.reports.forEach(function (r) { (r.integrity.warnings || []).forEach(function (w) { if (!/Импорт из прежней/.test(w)) warn.push(r.student.name + ' · ' + r.context.lessonId + ': ' + w); }); });
+    if (warn.length) h += '<div class="card"><h3>Предупреждения (' + warn.length + ')</h3><ul class="small">' + warn.slice(0, 40).map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul></div>';
+    return h;
+  }
+
+  function classes() { var s = {}; A.reports.forEach(function (r) { s[r.student['class']] = 1; }); return Object.keys(s).sort(); }
+  function groupBy(list, f) { var m = {}; list.forEach(function (x) { (m[f(x)] = m[f(x)] || []).push(x); }); return m; }
+
+  function viewClasses() {
+    var cl = classes(); if (!cl.length) return '<div class="note">Сначала загрузи результаты.</div>';
+    if (!A.cls || cl.indexOf(A.cls) < 0) A.cls = cl[0];
+    var h = '<div class="card"><label for="clsel">Класс</label><select id="clsel" data-change="cls">' + cl.map(function (c) { return '<option' + (c === A.cls ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select> <button class="btn quiet" data-act="csv">Таблица класса (файл CSV)</button> <button class="btn quiet" data-act="print">Печать</button></div>';
+    var reps = EF().filter(function (r) { return r.student['class'] === A.cls; }), byStudent = groupBy(reps, function (r) { return K.norm.normText(r.student.name, 'default'); });
+    Object.keys(byStudent).sort().forEach(function (k) {
+      var list = byStudent[k], name = list[0].student.name, byLesson = groupBy(list, function (r) { return r.context.lessonId; });
+      h += '<details class="card"><summary><b>' + esc(name) + '</b> · работ: ' + list.length + '</summary><div class="scroll"><table><tr><th>Урок</th><th>Попытка</th><th>Статус</th><th>Выполнено</th><th>Точность</th><th>Цели</th><th>Отметка</th><th>Основание</th><th>Время (раб. / календ.)</th><th>Превышение</th><th>Источник</th></tr>';
+      Object.keys(byLesson).forEach(function (lid) {
+        var ls = byLesson[lid].sort(function (a, b) { return a.attempt.attemptNumber - b.attempt.attemptNumber; }), sm = S.summarize(ls);
+        ls.forEach(function (r) {
+          h += '<tr><td>' + esc(r.context.lessonTitle || lid) + (r.legacy ? ' <span class="chip">старый формат ' + esc(r.legacyFamily) + '</span>' : '') + '</td><td>' + r.attempt.attemptNumber + (r.attempt.countsForMark === false ? ' (не учитывается)' : '') + '</td><td>' + esc({ completed: 'завершён', student_stopped: 'не закончен', time_expired: 'по таймеру' }[r.attempt.completionReason] || r.attempt.completionReason) + '</td><td>' + fmt(r.metrics.completionPct, '%') + '</td><td>' + fmt(r.metrics.accuracyPct, '%') + '</td><td>' + fmt(r.metrics.achievementPct, '%') + '</td><td><b>' + fmt(r.metrics.mark10) + '</b></td><td>' + basisText(r.scoring.markBasis) + (r.scoring.scoreCap.applied ? ' · потолок 84% (без ограничения ' + fmt(r.scoring.scoreCap.uncappedMark10) + ')' : '') + '</td><td>' + secText(r.time.activeTimeSec) + ' / ' + secText(r.time.elapsedWallTimeSec) + '</td><td>' + (r.time.timeExceeded ? '+' + r.time.overtimeSec + ' с' : '—') + '</td><td>' + esc(r.source) + '</td></tr>';
+        });
+        if (sm.length) sm.forEach(function (x) { h += '<tr class="sum"><td colspan="6">Итог по уроку (среднее лучшей и последней попыток, профиль ' + esc(x.weightsProfile) + ')</td><td><b>' + fmt(x.mark10) + '</b></td><td colspan="4">лучшая ' + fmt(x.bestMark10) + ' (попытка ' + x.bestAttemptNumber + '), последняя ' + fmt(x.lastMark10) + ' (попытка ' + x.lastAttemptNumber + ')</td></tr>'; });
+      });
+      h += '</table></div></details>';
+    });
+    return h;
+  }
+
+  function viewLessons() {
+    var all = EF(); if (!all.length) return '<div class="note">Сначала загрузи результаты.</div>';
+    var cl = classes(); if (!A.cls || cl.indexOf(A.cls) < 0) A.cls = cl[0];
+    var inCls = all.filter(function (r) { return r.student['class'] === A.cls; }), keys = {}; inCls.forEach(function (r) { keys[r.context.lessonId] = r.context.lessonTitle || r.context.lessonId; });
+    var ids = Object.keys(keys); if (!A.lessonKey || ids.indexOf(A.lessonKey) < 0) A.lessonKey = ids[0];
+    var reps = inCls.filter(function (r) { return r.context.lessonId === A.lessonKey && r.attempt.completionReason !== undefined; }), latest = {};
+    reps.forEach(function (r) { var k = nameKey(r); if (!latest[k] || r.attempt.attemptNumber > latest[k].attempt.attemptNumber) latest[k] = r; });
+    var rows = Object.keys(latest).map(function (k) { return latest[k]; });
+    var h = '<div class="card row"><div><label for="clsel">Класс</label><select id="clsel" data-change="cls">' + cl.map(function (c) { return '<option' + (c === A.cls ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select></div><div><label for="lsel">Урок</label><select id="lsel" data-change="lesson">' + ids.map(function (i) { return '<option value="' + esc(i) + '"' + (i === A.lessonKey ? ' selected' : '') + '>' + esc(keys[i]) + '</option>'; }).join('') + '</select></div></div>';
+    var marks = rows.map(function (r) { return r.metrics.mark10; }).filter(function (x) { return x != null; });
+    h += '<div class="card"><h3>Класс по уроку (последние попытки)</h3><p>Учеников: ' + rows.length + '. Средняя отметка: <b>' + (marks.length ? fmt(U.round1(U.sum(marks) / marks.length)) : '—') + '</b>. Превысили время: ' + rows.filter(function (r) { return r.time.timeExceeded; }).length + '. Не закончили: ' + rows.filter(function (r) { return r.attempt.completionReason !== 'completed'; }).length + '.</p></div>';
+    // дескрипторы
+    var dset = {}; rows.forEach(function (r) { r.descriptorResults.forEach(function (d) { dset[d.descriptorId] = d.text; }); });
+    if (Object.keys(dset).length) {
+      var chip = { achieved: 'ok', partially: 'warn', not_yet: 'bad', not_shown: '', teacher_review: 'warn' }, nm = { achieved: 'достигнут', partially: 'частично', not_yet: 'не достигнут', not_shown: 'не предъявлялся', teacher_review: 'проверка учителя' };
+      h += '<div class="card"><h3>Цели и дескрипторы</h3><div class="scroll"><table><tr><th>Ученик</th>' + Object.keys(dset).map(function (d) { return '<th title="' + esc(dset[d]) + '">' + esc(d) + '</th>'; }).join('') + '</tr>' +
+        rows.map(function (r) { return '<tr><td>' + esc(r.student.name) + '</td>' + Object.keys(dset).map(function (d) { var x = r.descriptorResults.filter(function (y) { return y.descriptorId === d; })[0]; return '<td>' + (x ? '<span class="chip ' + chip[x.status] + '">' + nm[x.status] + '</span>' : '—') + '</td>'; }).join('') + '</tr>'; }).join('') + '</table></div><p class="small muted">' + Object.keys(dset).map(function (d) { return esc(d) + ' — ' + esc(dset[d]); }).join('; ') + '</p></div>';
+    }
+    // поднавыки
+    var sk = {}; rows.forEach(function (r) { r.subskills.forEach(function (s) { var o = (sk[s.subskillId] = sk[s.subskillId] || { text: s.text, n: 0, m: 0 }); o.n++; if (s.mastery && s.mastery.mastered) o.m++; }); });
+    if (Object.keys(sk).length) h += '<div class="card"><h3>Освоение поднавыков</h3>' + Object.keys(sk).map(function (k) { var o = sk[k], p = o.n ? Math.round(100 * o.m / o.n) : 0; return '<div class="crit">' + esc(o.text) + ': освоили ' + o.m + ' из ' + o.n + ' (' + p + '%)<div class="bar-track"><div class="bar-fill" style="width:' + p + '%"></div></div></div>'; }).join('') + '</div>';
+    // типичные ошибки
+    var errs = {}; rows.forEach(function (r) { r.tasks.forEach(function (t) { if (t.errorType && t.status !== 'correct') errs[t.errorType] = (errs[t.errorType] || 0) + 1; }); });
+    var ek = Object.keys(errs).sort(function (a, b) { return errs[b] - errs[a]; });
+    h += '<div class="card"><h3>Типичные ошибки класса</h3>' + (ek.length ? '<table><tr><th>Тип ошибки</th><th>Сколько раз</th></tr>' + ek.slice(0, 12).map(function (k) { return '<tr><td>' + esc(((K.PACK && K.PACK.errorLabels && K.PACK.errorLabels[k]) || k)) + '</td><td>' + errs[k] + '</td></tr>'; }).join('') + '</table>' : '<p class="muted">Нет данных о типах ошибок.</p>') + '</div>';
+    // трудность заданий по генераторам
+    var gs = {}; rows.forEach(function (r) { r.tasks.forEach(function (t) { if (!t.generator || !t.generator.generatorId || t.status === 'not_done' || t.status === 'pending_review') return; var o = (gs[t.generator.generatorId] = gs[t.generator.generatorId] || { n: 0, ok: 0, hints: 0, sec: [] }); o.n++; if (t.status === 'correct') o.ok++; o.hints += t.hintsUsed || 0; if (t.responseTimeSec != null) o.sec.push(t.responseTimeSec); }); });
+    if (Object.keys(gs).length) h += '<div class="card"><h3>Трудность заданий</h3><div class="scroll"><table><tr><th>Тип задания</th><th>Предъявлено</th><th>Верно</th><th>Подсказок</th><th>Среднее время, с</th></tr>' + Object.keys(gs).sort(function (a, b) { return gs[a].ok / gs[a].n - gs[b].ok / gs[b].n; }).map(function (k) { var o = gs[k]; return '<tr><td>' + esc(k) + '</td><td>' + o.n + '</td><td>' + Math.round(100 * o.ok / o.n) + '%</td><td>' + o.hints + '</td><td>' + (o.sec.length ? Math.round(U.sum(o.sec) / o.sec.length) : '—') + '</td></tr>'; }).join('') + '</table></div></div>';
+    // профиль по уровням мышления
+    var lv = {}; rows.forEach(function (r) { var lp = r.metrics.levelsProfile; if (lp) Object.keys(lp).forEach(function (k) { var o = (lv[k] = lv[k] || { p: 0, c: 0 }); o.p += lp[k].presented; o.c += lp[k].correct; }); });
+    var names = { recognition: 'Узнавание', reproduction: 'Воспроизведение', understanding: 'Понимание', transfer: 'Перенос', investigation: 'Исследование', generalization: 'Обобщение' };
+    var lk = Object.keys(lv).filter(function (k) { return lv[k].p; });
+    if (lk.length) h += '<div class="card"><h3>Уровни мышления</h3>' + lk.map(function (k) { var p = Math.round(100 * lv[k].c / lv[k].p); return '<div class="crit">' + names[k] + ': ' + lv[k].c + ' из ' + lv[k].p + ' (' + p + '%)<div class="bar-track"><div class="bar-fill" style="width:' + p + '%"></div></div></div>'; }).join('') + '<p class="small muted">Показывает характер освоения: воспроизводят ли ученики образец или переносят способ. На отметку не влияет.</p></div>';
+    // возвраты
+    var loops = []; rows.forEach(function (r) { (r.correctionLoops || []).forEach(function (l) { loops.push({ r: r, l: l }); }); });
+    if (loops.length) h += '<div class="card"><h3>Кому куда вернуться</h3><table><tr><th>Ученик</th><th>Поднавык</th><th>Маршрут</th><th>Исход</th></tr>' + loops.map(function (x) { return '<tr><td>' + esc(x.r.student.name) + '</td><td>' + esc(x.l.subskillId) + '</td><td>' + esc(x.l.route) + '</td><td>' + esc(x.l.outcome) + '</td></tr>'; }).join('') + '</table></div>';
+    return h;
+  }
+
+  function pendingTasks() {
+    var out = []; EF().forEach(function (r) { r.tasks.forEach(function (t) { if (t.status === 'pending_review' || t.teacherReview) out.push({ r: r, t: t }); }); }); return out;
+  }
+  function viewReview() {
+    var list = pendingTasks(); if (!list.length) return '<div class="note">Ответов, ожидающих проверки, нет.</div>';
+    var h = '<div class="note">Оценки сохраняются в отдельный файл-наложение. Исходные отчёты не меняются.</div><p><button class="btn" data-act="saveReviews">Сохранить оценки (файл)</button></p>';
+    list.forEach(function (x, i) {
+      var rv = (A.reviews[x.r.reportId] || {})[x.t.taskId] || {};
+      h += '<div class="card"><div class="small muted">' + esc(x.r.student.name) + ' · ' + esc(x.r.context.lessonTitle || x.r.context.lessonId) + '</div><div class="pt-cond">' + P.safeHtml(x.t.presentedCondition) + '</div><div class="note"><b>Ответ ученика:</b> ' + esc(typeof x.t.studentAnswer === 'object' ? JSON.stringify(x.t.studentAnswer) : x.t.studentAnswer == null ? '—' : x.t.studentAnswer) + '</div>' +
+        '<div class="row"><label>Балл (0–' + x.t.maxScore + ')</label><input type="number" min="0" max="' + x.t.maxScore + '" step="0.5" style="width:100px" data-rev="' + esc(x.r.reportId) + '|' + esc(x.t.taskId) + '|' + x.t.maxScore + '" value="' + (rv.score != null ? rv.score : '') + '"><input type="text" placeholder="Комментарий" style="flex:1" data-revc="' + esc(x.r.reportId) + '|' + esc(x.t.taskId) + '" value="' + esc(rv.comment || '') + '"></div></div>';
+    });
+    return h;
+  }
+
+  function viewProtocol() {
+    var reps = EF(); if (!reps.length) return '<div class="note">Сначала загрузи результаты.</div>';
+    if (!A.reportId || !reps.some(function (r) { return r.reportId === A.reportId; })) A.reportId = reps[0].reportId;
+    var r = reps.filter(function (x) { return x.reportId === A.reportId; })[0];
+    var h = '<div class="card"><label for="rsel">Отчёт</label><select id="rsel" data-change="report">' + reps.map(function (x) { return '<option value="' + esc(x.reportId) + '"' + (x.reportId === A.reportId ? ' selected' : '') + '>' + esc(x.student['class'] + ' · ' + x.student.name + ' · ' + (x.context.lessonTitle || x.context.lessonId) + ' · попытка ' + x.attempt.attemptNumber) + '</option>'; }).join('') + '</select></div>';
+    h += '<div class="card"><h2>' + esc(r.student.name) + ', ' + esc(r.student['class']) + '</h2><p class="muted">' + esc(r.context.lessonTitle || '') + ' · ' + esc(r.context.subject || '') + ' · ' + esc(r.context.assessmentLabel || r.context.assessmentType) + '</p>' +
+      '<div class="kv"><div><b>' + fmt(r.metrics.mark10) + '</b>отметка /10</div><div><b>' + fmt(r.metrics.completionPct, '%') + '</b>выполнено</div><div><b>' + fmt(r.metrics.accuracyPct, '%') + '</b>точность</div><div><b>' + fmt(r.metrics.achievementPct, '%') + '</b>цели</div><div><b>' + fmt(r.metrics.independencePct, '%') + '</b>без подсказок</div></div>' +
+      '<p class="small">Основание: ' + basisText(r.scoring.markBasis) + '. Профиль весов: ' + esc(r.scoring.weightsProfile) + ' (источник ' + esc(r.scoring.weightsSource) + ')' + (r.scoring.weights ? ': ' + esc(JSON.stringify(r.scoring.weights)) : '') + '. Источник отчёта: ' + esc(r.source) + '.</p>' +
+      '<p class="small">Время: рабочее ' + secText(r.time.activeTimeSec) + ', от начала до конца ' + secText(r.time.elapsedWallTimeSec) + ', лимит ' + secText(r.time.timeLimitSec) + (r.time.timeExceeded ? ', превышение ' + r.time.overtimeSec + ' с' : '') + ', сессий: ' + (r.time.sessions || []).length + ', уходов со страницы: ' + (r.time.pageLeaves || 0) + '.</p>' +
+      (r.scoring.scoreCap.applied ? '<div class="note warn">Применён потолок 84% за превышение времени. Результат без ограничения: ' + fmt(r.scoring.scoreCap.uncappedMark10) + ' (достижение ' + fmt(r.scoring.scoreCap.uncappedAchievementPct, '%') + ').</div>' : '') + '</div>';
+    h += '<div class="card"><h3>Задания (' + r.tasks.length + ')</h3><div class="scroll"><table><tr><th>№</th><th>Условие</th><th>Варианты (в порядке предъявления)</th><th>Верный ответ</th><th>Ответ ученика</th><th>Статус</th><th>Балл</th><th>Попыток / подсказок</th><th>Воспроизведение</th></tr>';
+    r.tasks.forEach(function (t, i) {
+      var rep = '';
+      if (t.generator && t.generator.generatorId && K.gen) { try { var again = K.gen.reproduce(t.generator.generatorId, t.generator.profile, t.generator.seed); rep = again.fingerprint === t.variantFingerprint ? '<span class="chip ok">совпадает</span>' : '<span class="chip bad">не совпадает</span>'; } catch (e) { rep = '<span class="chip">нет генератора</span>'; } }
+      h += '<tr><td>' + (i + 1) + (t.loop ? '<br><span class="chip">возврат</span>' : '') + '</td><td>' + P.safeHtml(t.presentedCondition) + '</td><td>' + esc((t.presentedOptions || []).join(' | ')) + '</td><td>' + esc(Array.isArray(t.expectedAnswer) ? t.expectedAnswer.join('; ') : t.expectedAnswer) + '</td><td>' + esc(typeof t.studentAnswer === 'object' && t.studentAnswer ? JSON.stringify(t.studentAnswer) : t.studentAnswer == null ? '—' : t.studentAnswer) + (t.errorType ? '<br><span class="small muted">' + esc(t.errorType) + '</span>' : '') + '</td><td>' + esc(t.status) + (t.skipped ? ' (пропущено)' : '') + '</td><td>' + fmt(t.score) + ' / ' + t.maxScore + '</td><td>' + (Array.isArray(t.attempts) ? t.attempts.length : t.attempts) + ' / ' + (t.hintsUsed || 0) + '</td><td class="small">' + (t.generator && t.generator.seed != null ? 'seed ' + esc(t.generator.seed) + '<br>' : '') + rep + '</td></tr>';
+    });
+    h += '</table></div></div>';
+    if (r.reflection) h += '<div class="card"><h3>Рефлексия</h3><p class="small">' + esc(JSON.stringify(r.reflection)) + '</p></div>';
+    if (r.strengths.length || r.difficulties.length) h += '<div class="card"><h3>Наблюдения</h3><p><b>Получается:</b> ' + esc(r.strengths.join('; ') || '—') + '</p><p><b>Трудности:</b> ' + esc(r.difficulties.join('; ') || '—') + '</p><p><b>Рекомендации:</b> ' + esc(r.recommendations.join('; ') || '—') + '</p></div>';
+    return h;
+  }
+
+  // ================= бумажный комплект =================
+  function viewPaper() {
+    var lessons = K.PACK.lessons;
+    var F = PP.form, sel = F.lessonIds || [lessons[Math.min(1, lessons.length - 1)].lessonId];
+    var h = '<div class="card no-print"><h2>Конструктор работы</h2><p class="muted small">Задания берутся из тех же генераторов, что и в ученическом файле. Печатаются задания основного курса. Сгенерированная работа — тренировочный аналог, а не официальная.</p>' +
+      '<div class="grid"><div><label for="pw">Вид работы</label><select id="pw">' + Object.keys(P.WORK).map(function (k) { return '<option value="' + k + '"' + (F.workType === k ? ' selected' : '') + '>' + esc(P.WORK[k].label) + '</option>'; }).join('') + '</select></div>' +
+      '<div><label for="pcl">Класс</label><input type="number" id="pcl" min="1" max="11" value="' + esc(F.classNum || lessons[0].class) + '"></div>' +
+      '<div><label for="pdur">Время, мин</label><input type="number" id="pdur" min="5" max="90" value="' + F.durationMin + '"></div>' +
+      '<div><label for="pvar">Вариантов (1–4)</label><input type="number" id="pvar" min="1" max="4" value="' + F.variantsCount + '"></div>' +
+      '<div><label for="ptn">Заданий</label><input type="number" id="ptn" min="3" max="30" value="' + F.taskCount + '"></div>' +
+      '<div><label for="pseed">Код воспроизведения (необязательно)</label><input type="text" id="pseed" placeholder="пусто — случайный" value="' + esc(F.seed) + '"></div></div>' +
+      '<label>Уроки и темы</label>' + lessons.map(function (l) { return '<label style="font-weight:400"><input type="checkbox" class="plesson" value="' + esc(l.lessonId) + '"' + (sel.indexOf(l.lessonId) >= 0 ? ' checked' : '') + '> ' + esc(l.title) + ' <span class="muted small">(' + esc(l.subject) + ', ' + esc(l.class) + ' кл.)</span></label>'; }).join('') +
+      '<label style="font-weight:400"><input type="checkbox" id="popen"' + (F.includeOpen ? ' checked' : '') + '> Включать открытые задания (оцениваются по рубрике)</label>' +
+      '<p><button class="btn" data-act="buildKit">Составить комплект</button></p></div>';
+    if (PP.msg) { h += '<div class="note bad">' + esc(PP.msg) + '</div>'; PP.msg = null; }
+    if (!PP.kit) return h + '<div class="note">' + esc(DEBUG_NOTE) + '</div>';
+    var kit = PP.kit, v = PP.check || P.validateKit(kit);
+    h += '<div class="card no-print"><h2>Комплект ' + esc(kit.kitId) + '</h2><p>Вид: ' + esc(kit.params.workLabel) + '. Вариантов: ' + kit.variants.length + ', заданий в каждом: ' + kit.blueprint.length + ', баллов: ' + U.sum(kit.variants[0].tasks.map(function (t) { return t.maxScore; })) + '. Ожидаемое время: ' + v.estimateMin + ' мин. Код воспроизведения: <b>' + kit.params.seed + '</b>.</p>';
+    if (v.errors.length) h += '<div class="note bad"><b>Ошибки проверки:</b><ul>' + v.errors.map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('') + '</ul></div>'; else h += '<div class="note ok">Проверка комплекта пройдена: варианты равноценны по спецификации, повторов нет, ключи верны, все задания воспроизводятся по коду.</div>';
+    if (v.warnings.length) h += '<div class="note warn"><ul>' + v.warnings.map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('') + '</ul></div>';
+    if ((kit.excluded || []).length) h += '<div class="note small">Из комплекта исключены типы заданий, которые не дают достаточно различных вариантов: ' + esc(kit.excluded.join(', ')) + '.</div>';
+    h += '<p class="row"><button class="btn" data-act="print">Печать (варианты, бланки, ключ)</button><button class="btn quiet" data-act="saveKit">Сохранить комплект (файл)</button></p><div class="note small">' + esc(DEBUG_NOTE) + '</div></div>';
+    h += '<div class="card no-print"><h2>Ввод результатов с бумаги</h2><label for="pvsel">Вариант</label><select id="pvsel">' + kit.variants.map(function (x) { return '<option value="' + x.variantCode + '"' + (x.variantCode === PP.variant ? ' selected' : '') + '>Вариант ' + x.variantCode.replace('V', '') + '</option>'; }).join('') + '</select>' +
+      '<label for="pstud">Ученики (по одному в строке: фамилия имя)</label><textarea id="pstud" placeholder="Иванов Иван&#10;Петрова Анна"></textarea><p><button class="btn quiet" data-act="makeGrid">Создать таблицу ввода</button></p>';
+    if (PP.rows) {
+      var variant = kit.variants.filter(function (x) { return x.variantCode === PP.variant; })[0] || kit.variants[0];
+      h += '<div class="scroll"><table class="entry"><tr><th>Ученик</th>' + variant.tasks.map(function (t) { return '<th>' + t.position + '<br><span class="small muted">' + (t.taskType === 'single_choice' ? 'выбор' : 'балл 0–' + t.maxScore) + '</span></th>'; }).join('') + '</tr>' +
+        PP.rows.map(function (s, si) { return '<tr><td>' + esc(s) + '</td>' + variant.tasks.map(function (t) { return '<td>' + (t.taskType === 'single_choice' ? '<select data-e="' + si + '|' + t.position + '|c"><option value="">—</option>' + t.options.map(function (o, i) { return '<option value="' + i + '">' + P.LETTERS[i] + '</option>'; }).join('') + '</select>' : '<input type="number" min="0" max="' + t.maxScore + '" step="0.5" style="width:70px" data-e="' + si + '|' + t.position + '|s">') + '</td>'; }).join('') + '</tr>'; }).join('') + '</table></div><p><button class="btn" data-act="entryToAnalysis">Добавить в анализ</button></p>';
+    }
+    h += '</div><div class="print-area" id="printArea">' + printHtml(kit) + '</div>';
+    return h;
+  }
+  function printHtml(kit) {
+    var h = '';
+    kit.variants.forEach(function (v) { h += P.variantHtml(kit, v, true); });
+    kit.variants.forEach(function (v) { h += '<section class="print-page omr-page">' + P.sheetSvg(kit, v.variantCode) + '<hr class="cut">' + P.sheetSvg(kit, v.variantCode) + '</section>'; });
+    return h + P.keyHtml(kit, true);
+  }
+
+  // ================= экспорт =================
+  function download(name, text, type) {
+    var blob = new Blob([text], { type: type || 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function csvCell(x) { x = x == null ? '' : String(x); return /[;"\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }
+  function exportCsv() {
+    var rows = [['Класс', 'Ученик', 'Урок', 'Попытка', 'Основание', 'Выполнено %', 'Точность %', 'Цели %', 'Отметка', 'Итог по уроку', 'Время рабочее, с', 'Время календарное, с', 'Превышение, с', 'Источник']];
+    var reps = EF().filter(function (r) { return r.student['class'] === A.cls; }), sm = S.summarize(reps);
+    reps.forEach(function (r) { var s = sm.filter(function (x) { return x.studentKey === (r.student['class'] + '|' + K.norm.normText(r.student.name, 'default')) && x.lessonId === r.context.lessonId; })[0]; rows.push([r.student['class'], r.student.name, r.context.lessonTitle || r.context.lessonId, r.attempt.attemptNumber, r.scoring.markBasis, r.metrics.completionPct, r.metrics.accuracyPct, r.metrics.achievementPct, r.metrics.mark10, s ? s.mark10 : '', r.time.activeTimeSec, r.time.elapsedWallTimeSec, r.time.overtimeSec, r.source]); });
+    download('klass_' + A.cls.replace(/[^\w.-]+/g, '_') + '.csv', '﻿' + rows.map(function (r) { return r.map(csvCell).join(';'); }).join('\n'), 'text/csv;charset=utf-8');
+  }
+
+  // ================= события =================
+  function render() {
+    var h = head();
+    if (A.msg) { h += '<div class="note ok no-print">' + esc(A.msg) + '</div>'; A.msg = null; }
+    if (A.mode === 'analysis') {
+      h += subTabs();
+      h += A.tab === 'upload' ? viewUpload() : A.tab === 'classes' ? viewClasses() : A.tab === 'lessons' ? viewLessons() : A.tab === 'review' ? viewReview() : viewProtocol();
+    } else h += viewPaper();
+    var keep = { x: root.scrollX, y: root.scrollY };
+    appEl.innerHTML = h;
+    var inp = document.getElementById('files'); if (inp) inp.addEventListener('change', function (e) { readFiles(e.target.files); });
+    var dz = document.getElementById('dz');
+    if (dz) { dz.addEventListener('dragover', function (e) { e.preventDefault(); dz.classList.add('over'); }); dz.addEventListener('dragleave', function () { dz.classList.remove('over'); }); dz.addEventListener('drop', function (e) { e.preventDefault(); dz.classList.remove('over'); readFiles(e.dataTransfer.files); }); }
+    root.scrollTo(keep.x, keep.y);
+  }
+  appEl.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]'); if (!b) return; var act = b.getAttribute('data-act'), v = b.getAttribute('data-v');
+    switch (act) {
+      case 'mode': A.mode = v; render(); return;
+      case 'tab': A.tab = v; render(); return;
+      case 'clear': A.reports = []; A.log = []; A.reviews = {}; A.cache = {}; render(); return;
+      case 'csv': exportCsv(); return;
+      case 'print': root.print(); return;
+      case 'saveReviews': {
+        var ids = Object.keys(A.reviews); if (!ids.length) { A.msg = 'Оценок пока нет.'; return; }
+        ids.forEach(function (id) { download('proverka_' + id.slice(0, 12).replace(/[^\w-]/g, '') + '.json', JSON.stringify({ schemaVersion: '1.0', reportType: 'teacher_review', reportId: id, reviews: Object.keys(A.reviews[id]).map(function (k) { return A.reviews[id][k]; }) }, null, 2)); });
+        return;
+      }
+      case 'buildKit': {
+        var lessons = Array.prototype.slice.call(document.querySelectorAll('.plesson:checked')).map(function (x) { return x.value; });
+        if (!lessons.length) { PP.msg = 'Выбери хотя бы один урок.'; render(); return; }
+        var seedTxt = document.getElementById('pseed').value.trim();
+        PP.form = { workType: document.getElementById('pw').value, classNum: +document.getElementById('pcl').value || 6, durationMin: +document.getElementById('pdur').value || 15, variantsCount: +document.getElementById('pvar').value || 2, taskCount: +document.getElementById('ptn').value || 8, seed: seedTxt, lessonIds: lessons, includeOpen: document.getElementById('popen').checked };
+        try {
+          PP.kit = P.build({ workType: document.getElementById('pw').value, lessonIds: lessons, classNum: +document.getElementById('pcl').value || 6, durationMin: +document.getElementById('pdur').value || 15, variantsCount: +document.getElementById('pvar').value || 2, taskCount: +document.getElementById('ptn').value || 8, includeOpen: document.getElementById('popen').checked, seed: seedTxt ? (+seedTxt >>> 0) : undefined });
+          PP.check = P.validateKit(PP.kit); PP.variant = PP.kit.variants[0].variantCode; PP.rows = null;
+        } catch (err) { PP.msg = err.message; PP.kit = null; }
+        render(); return;
+      }
+      case 'saveKit': download('komplekt_' + PP.kit.kitId + '.json', JSON.stringify(PP.kit, null, 2)); return;
+      case 'makeGrid': {
+        PP.variant = document.getElementById('pvsel').value;
+        PP.rows = document.getElementById('pstud').value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean); render();
+        document.getElementById('pstud').value = PP.rows.join('\n'); return;
+      }
+      case 'entryToAnalysis': {
+        var entries = PP.rows.map(function () { return {}; });
+        appEl.querySelectorAll('[data-e]').forEach(function (el) { var p = el.getAttribute('data-e').split('|'), si = +p[0], pos = +p[1], kind = p[2]; if (el.value === '') return; (entries[si][pos] = entries[si][pos] || {})[kind === 'c' ? 'choice' : 'score'] = +el.value; });
+        var reps = P.reportsFromEntries(PP.kit, PP.variant, PP.rows.map(function (n) { return { name: n, 'class': PP.kit.params['class'] }; }), entries);
+        var res = reps.map(addReport); A.log.push({ file: 'ручной ввод: ' + PP.kit.kitId + ' ' + PP.variant, family: 'paper_manual', n: reps.length, added: res.filter(function (x) { return x === 'added'; }).length, dup: res.filter(function (x) { return x === 'dup'; }).length, updated: res.filter(function (x) { return x === 'updated'; }).length, notes: [] });
+        A.cache = {}; A.mode = 'analysis'; A.tab = 'classes'; A.cls = PP.kit.params['class']; A.msg = 'Результаты бумажной работы добавлены в анализ.'; render(); return;
+      }
+    }
+  });
+  appEl.addEventListener('change', function (e) {
+    var t = e.target, c = t.getAttribute && t.getAttribute('data-change');
+    if (c === 'cls') { A.cls = t.value; render(); }
+    if (c === 'lesson') { A.lessonKey = t.value; render(); }
+    if (c === 'report') { A.reportId = t.value; render(); }
+    if (t.hasAttribute && t.hasAttribute('data-rev')) {
+      var p = t.getAttribute('data-rev').split('|'); if (t.value === '') return;
+      var cm = appEl.querySelector('[data-revc="' + p[0] + '|' + p[1] + '"]');
+      (A.reviews[p[0]] = A.reviews[p[0]] || {})[p[1]] = { taskId: p[1], score: Math.max(0, Math.min(+p[2], +t.value)), maxScore: +p[2], comment: cm ? cm.value : '', reviewedAt: U.nowIso(), reviewerLabel: null }; A.cache = {};
+    }
+    if (t.hasAttribute && t.hasAttribute('data-revc')) { var q = t.getAttribute('data-revc').split('|'), r = (A.reviews[q[0]] || {})[q[1]]; if (r) r.comment = t.value; }
+  });
+
+  K.teacher = { state: A, paper: PP, importItems: importItems, eff: eff, render: render, recompute: recompute, reports: function () { return A.reports; } };
+  render();
+})(typeof window !== 'undefined' ? window : globalThis);
 
 </script>
 </body>

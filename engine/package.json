@@ -1,0 +1,13 @@
+{
+  "name": "kap-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Универсальное ядро ЦОМ: ученический файл, кабинет учителя, бумажные комплекты. Без внешних зависимостей.",
+  "scripts": {
+    "build": "node build/build.js demo",
+    "test:node": "node tests/run-node.js",
+    "test:student": "node tests/browser/student.test.js",
+    "test:teacher": "node tests/browser/teacher.test.js",
+    "test": "npm run build && npm run test:node && npm run test:student && npm run test:teacher"
+  }
+}
