@@ -1260,7 +1260,7 @@ tr.sum td { background: var(--surface2); font-weight: 600; }
 })(typeof window !== 'undefined' ? window : globalThis);
 
 /* содержание */
-/* --- content/demo/pack.js · contentHash 00f858221f913a --- */
+/* --- content/demo/pack.js · contentHash 0c73cad07e7642 --- */
 /* ДЕМОНСТРАЦИОННОЕ СОДЕРЖАНИЕ для проверки ядра. Не является КСП и не привязано к программе РК.
    Показывает, как один и тот же движок работает с разными предметами: математика 6 и информатика 8. */
 (function (root) {
@@ -1602,7 +1602,7 @@ tr.sum td { background: var(--surface2); font-weight: 600; }
     section: 'Демонстрация · дроби', series: { seriesId: 'demo-frac', lessonIndex: 1, lessonsTotal: 1 },
     assessmentType: 'formative', assessmentLabel: 'Формативное оценивание (демо)', checkKind: 'learning', weights: null, timeLimitSec: { final: 480 },
     objectives: [{ code: 'DEMO-M-1', text: 'Складывать дроби с одинаковыми знаменателями' }], lessonObjectives: [{ code: 'DEMO-M-1.1', text: 'Выполнять сложение и объяснять правило' }],
-    programMap: { current: ['сложение дробей с одинаковыми знаменателями'], confirmed: ['понятие дроби', 'сравнение частей и целого'], notYet: ['сложение дробей с разными знаменателями'], forbidden: ['приведение к общему знаменателю'] },
+    programMap: { current: ['сложение дробей с одинаковыми знаменателями'], confirmed: ['понятие дроби', 'сравнение частей и целого'], notYet: ['сложение дробей с разными знаменателями'], forbidden: ['приведение к общему знаменателю'], forbiddenTerms: ['общий знаменатель', 'общему знаменателю', 'разными знаменателями'] },
     criteria: [
       { criterionId: 'c0', text: 'Читает дробь', descriptors: [{ descriptorId: 'd0.1', text: 'Определяет дробь по рисунку' }] },
       { criterionId: 'c1', text: 'Складывает дроби', descriptors: [{ descriptorId: 'd1.1', text: 'Вычисляет сумму' }, { descriptorId: 'd1.2', text: 'Объясняет правило' }] },
@@ -1643,7 +1643,7 @@ tr.sum td { background: var(--surface2); font-weight: 600; }
     section: 'Демонстрация · системы счисления', series: { seriesId: 'demo-bin', lessonIndex: 1, lessonsTotal: 2 },
     assessmentType: 'formative', assessmentLabel: 'Формативное оценивание (демо)', checkKind: 'learning', weights: null, timeLimitSec: { final: 600 },
     objectives: [{ code: 'DEMO-I-1', text: 'Переводить числа между десятичной и двоичной системами' }], lessonObjectives: [{ code: 'DEMO-I-1.1', text: 'Переводить небольшие числа и считать число значений' }],
-    programMap: { current: ['перевод 10↔2'], confirmed: ['десятичная система, разряды'], notYet: ['восьмеричная и шестнадцатеричная системы'], forbidden: ['арифметика в двоичной системе'] },
+    programMap: { current: ['перевод 10↔2'], confirmed: ['десятичная система, разряды'], notYet: ['восьмеричная и шестнадцатеричная системы'], forbidden: ['арифметика в двоичной системе'], forbiddenTerms: ['шестнадцатерич', 'восьмерич', 'двоичное сложение'] },
     criteria: [
       { criterionId: 'c0', text: 'Знает разряды', descriptors: [{ descriptorId: 'd0.1', text: 'Определяет разряд цифры' }] },
       { criterionId: 'c1', text: 'Переводит числа', descriptors: [{ descriptorId: 'd1.1', text: 'Переводит из десятичной в двоичную' }, { descriptorId: 'd1.2', text: 'Переводит из двоичной в десятичную' }] },
@@ -1681,7 +1681,7 @@ tr.sum td { background: var(--surface2); font-weight: 600; }
       STEP_ENTRY(['Это тренировочная работа: подсказок нет, время фиксируется']),
       { id: 'train', type: 'tasks', group: 'learning', title: 'Повторение', hints: true, maxAttempts: 3, plan: [{ gen: 'bin_dec_to_bin', profile: 'basic', count: 2, descriptors: ['d1.1'] }, { gen: 'bin_to_dec', profile: 'basic', count: 2, descriptors: ['d1.2'] }] },
       { id: 'final', type: 'tasks', group: 'final', title: 'Контрольная часть', hints: false, maxAttempts: 1, feedback: 'deferred', timed: true, plan: [
-        { gen: 'bin_dec_to_bin', profile: 'standard', count: 2, descriptors: ['d1.1'] }, { gen: 'bin_to_dec', profile: 'standard', count: 2, descriptors: ['d1.2'] }, { gen: 'bin_count_bits', count: 1, descriptors: ['d2.1'] }] },
+        { gen: 'bin_dec_to_bin', profile: 'standard', count: 2, descriptors: ['d1.1'] }, { gen: 'bin_to_dec', profile: 'standard', count: 2, descriptors: ['d1.2'] }, { gen: 'bin_choice', count: 1, descriptors: ['d1.1'] }, { gen: 'bin_count_bits', count: 1, descriptors: ['d2.1'] }] },
       { id: 'reflect', type: 'reflection', group: 'reflection', title: 'Рефлексия', prompt: 'Что стоит повторить перед настоящей работой?' }
     ]
   };
@@ -1721,7 +1721,7 @@ tr.sum td { background: var(--surface2); font-weight: 600; }
   };
 })(typeof window !== 'undefined' ? window : globalThis);
 
-KAP.PRODUCER = {"materialId":"demo-core-check","engineVersion":"1.0.0","contentVersion":"1.0.0","contentHash":"00f858221f913a"};
+KAP.PRODUCER = {"materialId":"demo-core-check","engineVersion":"1.0.0","contentVersion":"1.0.0","contentHash":"0c73cad07e7642"};
 /* интерфейс */
 /* --- teacher/paper.js --- */
 /* KAP engine · paper: бумажный комплект (раздел 24): варианты по общей спецификации, проверка, бланк OMR, ключи, ручной ввод. */
