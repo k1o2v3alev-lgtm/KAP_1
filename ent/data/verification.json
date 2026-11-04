@@ -1,0 +1,1007 @@
+[
+ {
+  "variant": 16975,
+  "n": 1,
+  "key_pdf": [
+   1
+  ],
+  "computed": [
+   1
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 16975,
+  "n": 2,
+  "key_pdf": [
+   2
+  ],
+  "computed": [
+   2
+  ],
+  "status": "OK",
+  "note": "{1: 360000.0, 2: 288000.0, 3: 300000.0}"
+ },
+ {
+  "variant": 16975,
+  "n": 3,
+  "key_pdf": [
+   2
+  ],
+  "computed": [
+   2
+  ],
+  "status": "OK",
+  "note": "медиана 15, среднее 16.0"
+ },
+ {
+  "variant": 16975,
+  "n": 4,
+  "key_pdf": [
+   3
+  ],
+  "computed": [
+   3
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 16975,
+  "n": 5,
+  "key_pdf": [
+   3
+  ],
+  "computed": [
+   3
+  ],
+  "status": "OK",
+  "note": "r=2 (диаметр = высоте листа 4 клетки)"
+ },
+ {
+  "variant": 16975,
+  "n": 6,
+  "key_pdf": [
+   1
+  ],
+  "computed": [
+   1
+  ],
+  "status": "OK",
+  "note": "z_M=1, z_K=3, z_T=−1 (по рисунку)"
+ },
+ {
+  "variant": 16975,
+  "n": 7,
+  "key_pdf": [
+   4
+  ],
+  "computed": [
+   4
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 16975,
+  "n": 8,
+  "key_pdf": [
+   4
+  ],
+  "computed": [
+   4
+  ],
+  "status": "OK",
+  "note": "наборы: [44]"
+ },
+ {
+  "variant": 16975,
+  "n": 9,
+  "key_pdf": [
+   4
+  ],
+  "computed": [
+   4
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 16975,
+  "n": 10,
+  "key_pdf": [
+   3
+  ],
+  "computed": [
+   3
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 1,
+  "key_pdf": [
+   3
+  ],
+  "computed": [
+   3
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 2,
+  "key_pdf": [
+   1
+  ],
+  "computed": [
+   1
+  ],
+  "status": "OK",
+  "note": "значение не зависит от x: 9y^2 = 27"
+ },
+ {
+  "variant": 36896,
+  "n": 3,
+  "key_pdf": [
+   1
+  ],
+  "computed": [
+   1
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 4,
+  "key_pdf": [
+   1
+  ],
+  "computed": [
+   1
+  ],
+  "status": "OK",
+  "note": "c=9.0"
+ },
+ {
+  "variant": 36896,
+  "n": 5,
+  "key_pdf": [
+   4
+  ],
+  "computed": [
+   4
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 6,
+  "key_pdf": [
+   1
+  ],
+  "computed": [
+   1
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 7,
+  "key_pdf": [
+   2
+  ],
+  "computed": [
+   2
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 8,
+  "key_pdf": [
+   3
+  ],
+  "computed": [
+   3
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 9,
+  "key_pdf": [
+   1
+  ],
+  "computed": [
+   1
+  ],
+  "status": "OK",
+  "note": "верный вариант содержит избыточное неравенство <=9 (следует из <=4)"
+ },
+ {
+  "variant": 36896,
+  "n": 10,
+  "key_pdf": [
+   4
+  ],
+  "computed": [
+   4
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 11,
+  "key_pdf": [
+   3
+  ],
+  "computed": [
+   3
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 12,
+  "key_pdf": [
+   2
+  ],
+  "computed": [
+   2
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 13,
+  "key_pdf": [
+   1
+  ],
+  "computed": [
+   1
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 14,
+  "key_pdf": [
+   4
+  ],
+  "computed": [
+   4
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 15,
+  "key_pdf": [
+   4
+  ],
+  "computed": [
+   4
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 16,
+  "key_pdf": [
+   3
+  ],
+  "computed": [
+   3
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 17,
+  "key_pdf": [
+   4
+  ],
+  "computed": [
+   4
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 18,
+  "key_pdf": [
+   4
+  ],
+  "computed": [
+   4
+  ],
+  "status": "OK",
+  "note": "на [0,5;1] прямая выше параболы (разность не меняет знак)"
+ },
+ {
+  "variant": 36896,
+  "n": 19,
+  "key_pdf": [
+   2
+  ],
+  "computed": [
+   2
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 20,
+  "key_pdf": [
+   3
+  ],
+  "computed": [
+   3
+  ],
+  "status": "OK",
+  "note": "общие члены: [8, 32, 128]"
+ },
+ {
+  "variant": 36896,
+  "n": 21,
+  "key_pdf": [
+   2
+  ],
+  "computed": [
+   2
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 22,
+  "key_pdf": [
+   1
+  ],
+  "computed": [
+   1
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 23,
+  "key_pdf": [
+   4
+  ],
+  "computed": [
+   4
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 24,
+  "key_pdf": [
+   2
+  ],
+  "computed": [
+   2
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 25,
+  "key_pdf": [
+   1
+  ],
+  "computed": [
+   1
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 26,
+  "key_pdf": [
+   2
+  ],
+  "computed": [
+   2
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 27,
+  "key_pdf": [
+   1
+  ],
+  "computed": [
+   1
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 28,
+  "key_pdf": [
+   3
+  ],
+  "computed": [
+   3
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 29,
+  "key_pdf": [
+   1
+  ],
+  "computed": [
+   1
+  ],
+  "status": "OK",
+  "note": "верно только при π≈3; в условии π не задано (точно 150π≈471 г)"
+ },
+ {
+  "variant": 36896,
+  "n": 30,
+  "key_pdf": [
+   3
+  ],
+  "computed": [
+   3
+  ],
+  "status": "OK",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 31,
+  "key_pdf": [
+   2,
+   4
+  ],
+  "computed": [
+   2,
+   4
+  ],
+  "status": "OK",
+  "note": "A→2 [−3;3], Б→4 {−3;3}"
+ },
+ {
+  "variant": 36896,
+  "n": 32,
+  "key_pdf": [
+   2,
+   4
+  ],
+  "computed": [
+   2,
+   4
+  ],
+  "status": "OK",
+  "note": "r=2.0, катеты 6.0 и 8.0: больший 8∈(7;9)→2, меньший 6∈[5;6]→4"
+ },
+ {
+  "variant": 36896,
+  "n": 33,
+  "key_pdf": [
+   2,
+   3
+  ],
+  "computed": [
+   2,
+   3
+  ],
+  "status": "OK",
+  "note": "коэф. при x^3 = 9 ∈ (8;12], сумма коэф. = 90 ∈ [70;90]"
+ },
+ {
+  "variant": 36896,
+  "n": 34,
+  "key_pdf": null,
+  "computed": [
+   1,
+   2
+  ],
+  "status": "нет ключа в PDF",
+  "note": "A: 0<a<3 → 4 реш. (вар.2); Б: a>3 → 2 реш. (вар.1)"
+ },
+ {
+  "variant": 36896,
+  "n": 35,
+  "key_pdf": null,
+  "computed": [
+   1,
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": "q=4, S5=682, 10·b3=320"
+ },
+ {
+  "variant": 36896,
+  "n": 36,
+  "key_pdf": null,
+  "computed": [
+   6
+  ],
+  "status": "нет ключа в PDF",
+  "note": "значение 1360.000000"
+ },
+ {
+  "variant": 36896,
+  "n": 37,
+  "key_pdf": null,
+  "computed": [
+   2
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 38,
+  "key_pdf": null,
+  "computed": [
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36896,
+  "n": 39,
+  "key_pdf": null,
+  "computed": [
+   3,
+   6
+  ],
+  "status": "нет ключа в PDF",
+  "note": "x1y1+x2y2=-0.133333=-2/15"
+ },
+ {
+  "variant": 36896,
+  "n": 40,
+  "key_pdf": null,
+  "computed": [
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 1,
+  "key_pdf": null,
+  "computed": [
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 2,
+  "key_pdf": null,
+  "computed": [
+   2
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 3,
+  "key_pdf": null,
+  "computed": [
+   1
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 4,
+  "key_pdf": null,
+  "computed": [
+   3
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 5,
+  "key_pdf": null,
+  "computed": [
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 6,
+  "key_pdf": null,
+  "computed": [
+   3
+  ],
+  "status": "нет ключа в PDF",
+  "note": "(x;y)≈(1.000;-1.000), точное (1;−1)"
+ },
+ {
+  "variant": 36898,
+  "n": 7,
+  "key_pdf": null,
+  "computed": [],
+  "status": "НЕТ ВЕРНОГО ВАРИАНТА",
+  "note": "ни один вариант не верен: у первого слагаемого должен быть знак «−» (в вариантах 1–3 стоит «+»)"
+ },
+ {
+  "variant": 36898,
+  "n": 8,
+  "key_pdf": null,
+  "computed": [
+   3
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 9,
+  "key_pdf": null,
+  "computed": [
+   2
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 10,
+  "key_pdf": null,
+  "computed": [
+   2
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 11,
+  "key_pdf": null,
+  "computed": [
+   3
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 12,
+  "key_pdf": null,
+  "computed": [
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 13,
+  "key_pdf": null,
+  "computed": [
+   2
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 14,
+  "key_pdf": null,
+  "computed": [
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 15,
+  "key_pdf": null,
+  "computed": [
+   2
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 16,
+  "key_pdf": null,
+  "computed": [
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 17,
+  "key_pdf": null,
+  "computed": [
+   1
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 18,
+  "key_pdf": null,
+  "computed": [
+   3
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 19,
+  "key_pdf": null,
+  "computed": [
+   3
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 20,
+  "key_pdf": null,
+  "computed": [
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 21,
+  "key_pdf": null,
+  "computed": [
+   1
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 22,
+  "key_pdf": null,
+  "computed": [
+   3
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 23,
+  "key_pdf": null,
+  "computed": [
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 24,
+  "key_pdf": null,
+  "computed": [
+   2
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 25,
+  "key_pdf": null,
+  "computed": [
+   2
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 26,
+  "key_pdf": null,
+  "computed": [
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 27,
+  "key_pdf": null,
+  "computed": [
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 28,
+  "key_pdf": null,
+  "computed": [
+   1
+  ],
+  "status": "нет ключа в PDF",
+  "note": "толкование: «два разных предмета» = два разных вида; C(20,2)=190 в ответах нет"
+ },
+ {
+  "variant": 36898,
+  "n": 29,
+  "key_pdf": null,
+  "computed": [
+   1
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 30,
+  "key_pdf": null,
+  "computed": [
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": "стены 47.5 м², рулонов 4.0, пачек клея 2.0; расчёт по площади"
+ },
+ {
+  "variant": 36898,
+  "n": 31,
+  "key_pdf": null,
+  "computed": [
+   1,
+   2
+  ],
+  "status": "нет ключа в PDF",
+  "note": "нули {−1;3}→2, вершина (1;4)→1"
+ },
+ {
+  "variant": 36898,
+  "n": 32,
+  "key_pdf": null,
+  "computed": [
+   1,
+   3
+  ],
+  "status": "нет ключа в PDF",
+  "note": "a=4√3 →1; R=4 →3"
+ },
+ {
+  "variant": 36898,
+  "n": 33,
+  "key_pdf": null,
+  "computed": [
+   2,
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": "x²: -23∈(−25;−20); x: 40∈[40;42]"
+ },
+ {
+  "variant": 36898,
+  "n": 34,
+  "key_pdf": null,
+  "computed": [
+   1,
+   2
+  ],
+  "status": "нет ключа в PDF",
+  "note": "корни: 8 и {−1;3} (x=1 вне ОДЗ); набор (2,0,5) — ни одного корня"
+ },
+ {
+  "variant": 36898,
+  "n": 35,
+  "key_pdf": null,
+  "computed": [
+   1,
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": "S6=1,2; a4=−0,2"
+ },
+ {
+  "variant": 36898,
+  "n": 36,
+  "key_pdf": null,
+  "computed": [
+   2,
+   3,
+   6
+  ],
+  "status": "нет ключа в PDF",
+  "note": "три верных варианта"
+ },
+ {
+  "variant": 36898,
+  "n": 37,
+  "key_pdf": null,
+  "computed": [
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": ""
+ },
+ {
+  "variant": 36898,
+  "n": 38,
+  "key_pdf": null,
+  "computed": [
+   1,
+   2,
+   4
+  ],
+  "status": "нет ключа в PDF",
+  "note": "числа [-2.0, 6, 14.0]"
+ },
+ {
+  "variant": 36898,
+  "n": 39,
+  "key_pdf": null,
+  "computed": [
+   2,
+   4,
+   6
+  ],
+  "status": "нет ключа в PDF",
+  "note": "x=2, y=−1; три равных варианта (−1/2, −3/6, −2/4)"
+ },
+ {
+  "variant": 36898,
+  "n": 40,
+  "key_pdf": null,
+  "computed": [
+   3,
+   5
+  ],
+  "status": "нет ключа в PDF",
+  "note": "S=5·5=25; варианты 3 и 5"
+ }
+]
