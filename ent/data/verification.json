@@ -529,7 +529,7 @@
    1,
    2
   ],
-  "status": "нет ключа в PDF",
+  "status": "нет ключа",
   "note": "A: 0<a<3 → 4 реш. (вар.2); Б: a>3 → 2 реш. (вар.1)"
  },
  {
@@ -540,7 +540,7 @@
    1,
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "нет ключа",
   "note": "q=4, S5=682, 10·b3=320"
  },
  {
@@ -550,7 +550,7 @@
   "computed": [
    6
   ],
-  "status": "нет ключа в PDF",
+  "status": "нет ключа",
   "note": "значение 1360.000000"
  },
  {
@@ -560,7 +560,7 @@
   "computed": [
    2
   ],
-  "status": "нет ключа в PDF",
+  "status": "нет ключа",
   "note": ""
  },
  {
@@ -570,7 +570,7 @@
   "computed": [
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "нет ключа",
   "note": ""
  },
  {
@@ -581,7 +581,7 @@
    3,
    6
   ],
-  "status": "нет ключа в PDF",
+  "status": "нет ключа",
   "note": "x1y1+x2y2=-0.133333=-2/15"
  },
  {
@@ -591,417 +591,509 @@
   "computed": [
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "нет ключа",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 1,
-  "key_pdf": null,
+  "key_pdf": [
+   4
+  ],
   "computed": [
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 2,
-  "key_pdf": null,
+  "key_pdf": [
+   2
+  ],
   "computed": [
    2
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 3,
-  "key_pdf": null,
+  "key_pdf": [
+   1
+  ],
   "computed": [
    1
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 4,
-  "key_pdf": null,
+  "key_pdf": [
+   3
+  ],
   "computed": [
    3
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 5,
-  "key_pdf": null,
+  "key_pdf": [
+   4
+  ],
   "computed": [
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 6,
-  "key_pdf": null,
+  "key_pdf": [
+   3
+  ],
   "computed": [
    3
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": "(x;y)≈(1.000;-1.000), точное (1;−1)"
  },
  {
   "variant": 36898,
   "n": 7,
-  "key_pdf": null,
+  "key_pdf": [
+   1
+  ],
   "computed": [],
-  "status": "НЕТ ВЕРНОГО ВАРИАНТА",
+  "status": "НЕТ ВЕРНОГО ВАРИАНТА (ключ: [1])",
   "note": "ни один вариант не верен: у первого слагаемого должен быть знак «−» (в вариантах 1–3 стоит «+»)"
  },
  {
   "variant": 36898,
   "n": 8,
-  "key_pdf": null,
+  "key_pdf": [
+   3
+  ],
   "computed": [
    3
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 9,
-  "key_pdf": null,
+  "key_pdf": [
+   2
+  ],
   "computed": [
    2
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 10,
-  "key_pdf": null,
+  "key_pdf": [
+   2
+  ],
   "computed": [
    2
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 11,
-  "key_pdf": null,
+  "key_pdf": [
+   3
+  ],
   "computed": [
    3
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 12,
-  "key_pdf": null,
+  "key_pdf": [
+   4
+  ],
   "computed": [
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 13,
-  "key_pdf": null,
+  "key_pdf": [
+   2
+  ],
   "computed": [
    2
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 14,
-  "key_pdf": null,
+  "key_pdf": [
+   4
+  ],
   "computed": [
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 15,
-  "key_pdf": null,
+  "key_pdf": [
+   2
+  ],
   "computed": [
    2
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 16,
-  "key_pdf": null,
+  "key_pdf": [
+   4
+  ],
   "computed": [
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 17,
-  "key_pdf": null,
+  "key_pdf": [
+   1
+  ],
   "computed": [
    1
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 18,
-  "key_pdf": null,
+  "key_pdf": [
+   3
+  ],
   "computed": [
    3
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 19,
-  "key_pdf": null,
+  "key_pdf": [
+   3
+  ],
   "computed": [
    3
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 20,
-  "key_pdf": null,
+  "key_pdf": [
+   4
+  ],
   "computed": [
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 21,
-  "key_pdf": null,
+  "key_pdf": [
+   1
+  ],
   "computed": [
    1
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 22,
-  "key_pdf": null,
+  "key_pdf": [
+   3
+  ],
   "computed": [
    3
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 23,
-  "key_pdf": null,
+  "key_pdf": [
+   4
+  ],
   "computed": [
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 24,
-  "key_pdf": null,
+  "key_pdf": [
+   2
+  ],
   "computed": [
    2
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 25,
-  "key_pdf": null,
+  "key_pdf": [
+   2
+  ],
   "computed": [
    2
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 26,
-  "key_pdf": null,
+  "key_pdf": [
+   4
+  ],
   "computed": [
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 27,
-  "key_pdf": null,
+  "key_pdf": [
+   4
+  ],
   "computed": [
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 28,
-  "key_pdf": null,
+  "key_pdf": [
+   1
+  ],
   "computed": [
    1
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": "толкование: «два разных предмета» = два разных вида; C(20,2)=190 в ответах нет"
  },
  {
   "variant": 36898,
   "n": 29,
-  "key_pdf": null,
+  "key_pdf": [
+   1
+  ],
   "computed": [
    1
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 30,
-  "key_pdf": null,
+  "key_pdf": [
+   4
+  ],
   "computed": [
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": "стены 47.5 м², рулонов 4.0, пачек клея 2.0; расчёт по площади"
  },
  {
   "variant": 36898,
   "n": 31,
-  "key_pdf": null,
+  "key_pdf": [
+   1,
+   2
+  ],
   "computed": [
    1,
    2
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": "нули {−1;3}→2, вершина (1;4)→1"
  },
  {
   "variant": 36898,
   "n": 32,
-  "key_pdf": null,
+  "key_pdf": [
+   1,
+   3
+  ],
   "computed": [
    1,
    3
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": "a=4√3 →1; R=4 →3"
  },
  {
   "variant": 36898,
   "n": 33,
-  "key_pdf": null,
+  "key_pdf": [
+   2,
+   4
+  ],
   "computed": [
    2,
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": "x²: -23∈(−25;−20); x: 40∈[40;42]"
  },
  {
   "variant": 36898,
   "n": 34,
-  "key_pdf": null,
+  "key_pdf": [
+   1,
+   2
+  ],
   "computed": [
    1,
    2
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": "корни: 8 и {−1;3} (x=1 вне ОДЗ); набор (2,0,5) — ни одного корня"
  },
  {
   "variant": 36898,
   "n": 35,
-  "key_pdf": null,
+  "key_pdf": [
+   1,
+   4
+  ],
   "computed": [
    1,
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": "S6=1,2; a4=−0,2"
  },
  {
   "variant": 36898,
   "n": 36,
-  "key_pdf": null,
+  "key_pdf": [
+   2,
+   3,
+   6
+  ],
   "computed": [
    2,
    3,
    6
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": "три верных варианта"
  },
  {
   "variant": 36898,
   "n": 37,
-  "key_pdf": null,
+  "key_pdf": [
+   4
+  ],
   "computed": [
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": ""
  },
  {
   "variant": 36898,
   "n": 38,
-  "key_pdf": null,
+  "key_pdf": [
+   1,
+   2,
+   4
+  ],
   "computed": [
    1,
    2,
    4
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": "числа [-2.0, 6, 14.0]"
  },
  {
   "variant": 36898,
   "n": 39,
-  "key_pdf": null,
+  "key_pdf": [
+   2,
+   4,
+   6
+  ],
   "computed": [
    2,
    4,
    6
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": "x=2, y=−1; три равных варианта (−1/2, −3/6, −2/4)"
  },
  {
   "variant": 36898,
   "n": 40,
-  "key_pdf": null,
+  "key_pdf": [
+   3,
+   5
+  ],
   "computed": [
    3,
    5
   ],
-  "status": "нет ключа в PDF",
+  "status": "OK",
   "note": "S=5·5=25; варианты 3 и 5"
  }
 ]
